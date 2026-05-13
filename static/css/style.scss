@@ -1,0 +1,2117 @@
+// ─── VARIABLES ───────────────────────────────
+$textoamarillo: #FACC15;
+$backgroundamarillo: rgba(#faedb4c7, 0.30);
+$resalteamarillo: rgba($textoamarillo, 0.20);
+$textturq: #56B3AD;
+$fondoazul: #75e0f8ce;
+$naranja: #F28C6F;
+$dark: #333;
+$font-titles: "Chewy", sans-serif;
+$font-body: "Varela Round", sans-serif;
+$color-pink: #fce4e4;
+$color-green: #e0f2f1;
+$color-yellow: #fff9db;
+$border-radius: 20px;
+
+// ─── MIXINS ──────────────────────────────────
+@mixin imgRedonda($size) {
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+// ─── NAVBAR ──────────────────────────────────
+#navbar-principal {
+    background-color: white;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.8rem 0;
+
+    // ── Logo ──────────────────────────────────
+    .mi-logo {
+        @include imgRedonda(50px);
+    }
+
+    .mi-logo-texto {
+        font-family: $font-titles;
+        font-size: 1.25rem;
+        color: $textturq;
+        font-weight: 600;
+    }
+
+    // ── Links navegación ──────────────────────
+    .nav-link {
+        font-family: $font-body;
+        color: #333;
+        font-size: 0.95rem;
+        padding: 0.5rem 0.8rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $textturq;
+        }
+
+        // clase "activo" propia
+        &.activo {
+            color: $textturq;
+            border-bottom: 2px solid $textturq;
+            font-weight: 600;
+        }
+    }
+    // Usuario logueado en la barra de navegación
+.usuario-navbar {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: $dark;
+    font-family: $font-body;
+    font-weight: 700;
+    text-decoration: none;
+
+    i {
+        font-size: 1.45rem;
+        color: $textturq;
+    }
+
+    span {
+        font-size: .9rem;
+    }
+
+    &:hover {
+        color: $textturq;
+    }
+}
+
+    // ── Dropdown menu──────────────────────────────
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 0.5rem;
+    }
+
+    .dropdown-item {
+        font-family: $font-body;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        padding: 0.4rem 0.8rem;
+
+        &:hover {
+            background-color: $resalteamarillo;
+            color: $textturq;
+        }
+    }
+
+    // ── Iconos ────────────────────────────────
+    .mi-icono {
+        color: #333;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $textturq;
+        }
+    }
+
+    .mi-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: $naranja;
+        color: white;
+        font-size: 0.65rem;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+}
+
+a {
+    text-decoration: none;
+}
+
+//CLASES_______________________
+// ── Botón acceder ─────────────────────────
+.mi-btn-acceder {
+    font-family: $font-body;
+    background-color: $textoamarillo;
+    color: black;
+    padding: 0.4rem 1.2rem;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.85;
+    }
+}
+
+.hero_titulo {
+    font-family: $font-titles;
+    font-size: 1.8rem;
+    text-align: left;
+    height: 300px;
+    max-width: 100%;
+    line-height: 1.2;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 2;
+
+    @media (min-width: 769px) {
+        height: auto;
+        font-size: 3.2rem;
+
+
+    }
+
+    & span {
+        color: $textturq;
+    }
+}
+
+.hero_link {
+    color: $textturq;
+    font-weight: bold;
+}
+
+.title_section {
+    font-family: $font-titles;
+
+}
+// Botón favorito en la tienda
+.btn-favorito {
+    transition: all 0.2s ease;
+
+    // Icono del corazón
+    i,
+    .heart-symbol {
+        pointer-events: none;
+    }
+
+    // Estado activo: producto ya guardado en favoritos
+    &.activo {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fff !important;
+    }
+
+    // Hover
+    &:hover {
+        transform: scale(1.08);
+    }
+}
+//HERO imagen de fondo_______________________
+.hero_seccion {
+
+    background-image: url('../images/logo/logo.jpeg');
+    background-size: cover; // imagen ocupa 55% del ancho
+    background-position: center; // pegada arriba a la derecha
+    background-repeat: no-repeat;
+    padding-bottom: 0;
+    margin: 0;
+    position: relative;
+
+
+
+    // degradado para que el texto sea legible
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right,
+                rgba(255, 255, 255, 1.0) 5%, // blanco opaco en la izquierda
+                rgba(255, 255, 255, 0.6) 60%, // semitransparente en el medio
+                rgba(255, 255, 255, 0.0) 100% // transparente a la derecha
+
+            );
+        z-index: 0;
+    }
+
+    // el contenido por encima del degradado
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (min-width: 769px) {
+        padding-top: 1rem;
+        background-image: none;
+    }
+}
+
+.hero_etiqueta {
+    display: inline-block;
+    background-color: $resalteamarillo;
+    color: $textturq;
+    font-family: $font-body;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+.hero_deco {
+    height: 380px;
+    max-width: 260px;
+    margin: 0 auto 2rem auto;
+
+
+
+    @media (min-width: 769px) {
+        position: relative;
+        width: 100%;
+        height: 45vw;
+        max-height: 480px;
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    .hero_fondo_amarillo {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: $backgroundamarillo ;
+        z-index: 1;
+        top: 15px;
+        left: -15px;
+        padding: 5px;
+        border-radius: 20px;
+
+    }
+
+    .hero_fondo_turq {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        background-color: rgba(#a8e6e2, 0.3);
+        border-radius: 20px;
+        padding: 2rem;
+        overflow: hidden;
+        transform: rotate(-4deg);
+
+    }
+.imagen_hero {
+    max-height: 480px;
+    border-radius: 30px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    position: relative;
+}
+
+}
+
+
+//SOBRE_MI___________________________________________
+.sobre_mi {
+    padding: 1.5rem 0;
+    margin: 0 auto;
+    background-color: $backgroundamarillo ;
+
+
+    @media (min-width: 769px) {
+        background-color: $fondoazul ;
+        width: 85%;
+        padding: 1.5rem;
+        text-align: center;
+        margin: 0 auto;
+
+    }
+}
+
+.etiqueta_blanca {
+    @extend .hero_etiqueta;
+    background-color: white;
+    color: $textturq;
+    border: 1px solid $textturq;
+
+}
+
+.aquiencontraras{
+    width: 100%;
+    & h1{font-family: $font-titles;
+   }
+    text-align: center;
+    background-color: $fondoazul
+    ;
+}
+//____Index -cards_________________________
+.resource-card {
+  border-radius: $border-radius;
+  overflow: hidden;
+  border: none;
+  height: 100%;
+  position: relative;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    &.card-pink { background-color: $color-pink !important; }
+    &.card-green { background-color: $color-green !important; }
+    &.card-yellow { background-color: $color-yellow !important; }
+
+  img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  .card-body {
+    padding: 20px;
+    
+    h3 {
+      font-size: 1.1rem;
+      color: #633b3b; // Color marrón oscuro del texto
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+  }
+
+  .card-footer-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+
+    .price {
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+
+    .btn-carrito {
+      background: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      &:hover { background: #f8f9fa; }
+    }
+  }
+}
+//ajuste para el carrusel
+.carousel-item {
+  padding: 10px 40px; // Espacio para ver los controles
+}
+// ____ Estilos específicos para visibilidad del Carrusel ____
+#resourceCarousel {
+  padding-bottom: 30px; // Espacio para los puntitos
+
+  // Hacer las flechas oscuras (Bootstrap usa filtros para el color)
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    filter: invert(1) grayscale(100) brightness(0.5); 
+  }
+
+  // Posición de las flechas para que no tapen la tarjeta
+  .carousel-control-prev { left: -10px; width: 5%; }
+  .carousel-control-next { right: -10px; width: 5%; }
+
+  // Estilo de los indicadores (puntos)
+  .carousel-indicators {
+    bottom: -10px;
+    button {
+      background-color: $textturq; // Usamos tu variable turquesa
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin: 0 5px;
+    }
+  }
+}
+.help-box {
+    background: #fff;
+    border: 2px dashed #e5e5e5;
+    border-radius: 22px;
+    padding: 1.6rem;
+    box-shadow: none;
+
+
+    h5 {
+        font-family: $font-titles;
+        font-size: 1.15rem;
+        color: $dark;
+        margin-bottom: .8rem;
+    }
+    p {
+        font-family: $font-body;
+        color: #777;
+        font-size: .9rem;
+        line-height: 1.6;
+        margin-bottom: 1.2rem;
+    }
+
+   .btn {
+        background: #f5f5f5;
+        border: none;
+        border-radius: 999px;
+        color: #555;
+        font-family: $font-body;
+        font-weight: 600;
+        padding: .75rem 1rem;
+         &:hover {
+            background: $textturq;
+            color: white;
+        }
+    }
+}
+.reviews-section {
+    margin-top: 4rem;
+
+    .section-title {
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: $dark;
+    }
+}
+
+.review-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #f2f2f2;
+    box-shadow: 0 10px 30px rgba(0,0,0,.03);
+
+    h5 {
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .stars {
+        color: #f4b400;
+        font-size: 18px;
+        letter-spacing: 2px;
+    }
+
+    p {
+        margin: 0;
+        color: #555;
+        line-height: 1.7;
+    }
+}
+h1{font-family: $font-titles;}
+.resenas-section {
+    margin-top: 4rem;
+
+    .section-title {
+        font-family: $font-titles;
+        margin-bottom: 2rem;
+    }
+}
+
+.resena-card {
+    background: #fdf6ec; // beige suave
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+
+    .stars {
+        color: #f4b400;
+        font-size: 16px;
+        letter-spacing: 3px;
+    }
+
+    .comentario {
+        font-family: $font-body;
+        font-style: italic;
+        color: #555;
+        margin: 0.5rem 0 1rem 0;
+        line-height: 1.6;
+    }
+
+    .autor {
+        font-size: 0.9rem;
+        color: #777;
+        font-weight: 600;
+    }
+}
+// ─────────────────────────────────────────────
+// PRODUCTO DETALLE - MOBILE FIRST
+// ─────────────────────────────────────────────
+
+// Estructura general
+.producto-detalle-top {
+    row-gap: 2rem;
+}
+
+// Imagen principal
+.producto-img-box {
+    padding: .75rem !important;
+
+    img {
+        width: 100%;
+        max-height: 260px;
+        object-fit: contain;
+    }
+}
+
+// Columna de información
+.producto-info-col {
+    display: flex;
+    flex-direction: column;
+}
+
+// Título del producto
+.producto-info-col h1 {
+    font-family: $font-titles;
+    font-size: 1.65rem;
+    line-height: 1.15;
+}
+
+// Badges
+.producto-info-col .badge {
+    font-size: .65rem;
+    padding: .45rem .65rem !important;
+}
+
+// Miniaturas
+.producto-miniaturas {
+    display: flex;
+    gap: .75rem;
+    overflow-x: auto;
+    padding-bottom: .25rem;
+
+    img,
+    .video-thumb {
+        width: 72px;
+        height: 72px;
+        min-width: 72px;
+        border-radius: 12px;
+        font-size: .75rem;
+    }
+}
+
+// Caja de precio
+.price-box {
+    background: #f2fffd;
+    width: 100%;
+    margin-bottom: 1rem !important;
+    padding: 1rem !important;
+    border-radius: 18px !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.06) !important;
+
+    h2 {
+        font-family: $font-titles;
+        font-size: 1.55rem;
+        color: $textturq !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .btn {
+        padding: .7rem .9rem !important;
+        border-radius: 12px !important;
+        font-size: .85rem;
+        font-weight: 700;
+    }
+
+    .small {
+        font-size: .74rem;
+        line-height: 1.8;
+    }
+}
+
+// Caja autor
+.autor-box {
+    background: #fff8f2;
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,.04);
+
+    .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: .5rem;
+    }
+}
+
+// Descripción
+.descripcion-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,.04);
+
+    p {
+        font-family: $font-body;
+        color: #555;
+        font-size: .88rem;
+        line-height: 1.7;
+        margin-bottom: 0;
+    }
+}
+
+// Contenido
+.contenido-box {
+    font-family: $font-body;
+    color: #555;
+    font-size: .88rem;
+    line-height: 1.7;
+    padding: 1rem !important;
+    border-radius: 18px !important;
+}
+
+// Ayuda
+.help-box {
+    background: #fff;
+    border: 2px dashed #e5e5e5;
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: none;
+
+    h5 {
+        font-family: $font-titles;
+        font-size: 1.1rem;
+        color: $dark;
+        margin-bottom: .8rem;
+    }
+
+    p {
+        font-family: $font-body;
+        color: #777;
+        font-size: .88rem;
+        line-height: 1.7;
+        margin-bottom: 1.2rem;
+    }
+
+    .btn {
+        background: #f5f5f5;
+        border: none;
+        border-radius: 999px;
+        color: #555;
+        font-family: $font-body;
+        font-weight: 600;
+        padding: .75rem 1rem;
+
+        &:hover {
+            background: $textturq;
+            color: white;
+        }
+    }
+}
+
+// Reseñas
+.resenas-section {
+    margin-top: 0;
+
+    .section-title {
+        font-family: $font-titles;
+        font-size: 1.35rem;
+        margin-bottom: 1rem;
+    }
+}
+
+.resenas-scroll {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+}
+
+.resena-card {
+    background: #fdf6ec;
+    border-radius: 18px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    .stars {
+        color: #f4b400;
+        font-size: 14px;
+        letter-spacing: 3px;
+    }
+
+    .comentario {
+        font-family: $font-body;
+        font-style: italic;
+        color: #555;
+        font-size: .86rem;
+        line-height: 1.6;
+        margin: .5rem 0 1rem;
+    }
+
+    .autor {
+        color: #777;
+        font-weight: 700;
+        font-size: .85rem;
+    }
+}
+
+// Relacionados
+.relacionados-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: .5rem;
+
+    h3 {
+        font-family: $font-titles;
+        font-size: 1.35rem;
+    }
+
+    a {
+        font-size: .85rem;
+    }
+}
+
+.resource-card {
+    border-radius: 18px;
+
+    .card-body {
+        padding: 1rem;
+
+        h3 {
+            font-size: .95rem;
+        }
+    }
+
+    .card-footer-custom {
+        .price {
+            font-size: 1rem;
+        }
+
+        .btn-carrito {
+            padding: .45rem .65rem;
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+// TABLET: desde 768px
+// ─────────────────────────────────────────────
+@media (min-width: 768px) {
+
+    .producto-img-box {
+        padding: 1rem !important;
+
+        img {
+            max-height: 360px;
+        }
+    }
+
+    .producto-info-col h1 {
+        font-size: 2rem;
+    }
+
+    .producto-miniaturas {
+        overflow-x: visible;
+
+        img,
+        .video-thumb {
+            width: 90px;
+            height: 90px;
+            min-width: 90px;
+        }
+    }
+
+    .price-box {
+        padding: 1.2rem !important;
+
+        h2 {
+            font-size: 1.7rem;
+        }
+
+        .btn {
+            font-size: .9rem;
+        }
+
+        .small {
+            font-size: .78rem;
+        }
+    }
+
+    .autor-box {
+        border-radius: 20px;
+
+        .d-flex {
+            flex-direction: row;
+            align-items: center !important;
+        }
+    }
+
+    .descripcion-box,
+    .contenido-box,
+    .help-box {
+        padding: 1.25rem !important;
+        border-radius: 20px;
+    }
+
+    .resenas-scroll {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: .5rem;
+    }
+
+    .resena-card {
+        padding: 1.2rem;
+    }
+
+    .relacionados-header {
+        flex-direction: row;
+        align-items: center !important;
+
+        h3 {
+            font-size: 1.6rem;
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+// ESCRITORIO: desde 992px
+// ─────────────────────────────────────────────
+@media (min-width: 992px) {
+
+    .producto-img-box {
+        img {
+            max-height: 420px;
+        }
+    }
+
+    .producto-info-col h1 {
+        font-size: 2.35rem;
+    }
+
+    .price-box {
+        padding: 1.3rem !important;
+        border-radius: 22px !important;
+
+        h2 {
+            font-size: 1.8rem;
+        }
+    }
+
+    .descripcion-box {
+        padding: 1.5rem !important;
+
+        p {
+            font-size: .95rem;
+            line-height: 1.8;
+        }
+    }
+
+    .contenido-box {
+        padding: 1.5rem !important;
+        font-size: .95rem;
+    }
+
+    .help-box {
+        padding: 1.6rem !important;
+        border-radius: 22px;
+    }
+
+    .resenas-scroll {
+        max-height: 320px;
+    }
+
+    .resena-card {
+        padding: 1.3rem;
+
+        .comentario {
+            font-size: .95rem;
+        }
+    }
+}
+// ─────────────────────────────────────────────
+// LOGIN / REGISTRO - MOBILE FIRST
+// ─────────────────────────────────────────────
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    font-family: $font-body;
+}
+
+.auth-left {
+    display: none;
+}
+
+.auth-right {
+    width: 100%;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.auth-back {
+    display: inline-block;
+    color: #666;
+    font-size: .9rem;
+    margin-bottom: 1.5rem;
+
+    &:hover {
+        color: $textturq;
+    }
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-bottom: 2rem;
+
+    img {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    span {
+        font-family: $font-titles;
+        color: $textturq;
+        font-size: 1.25rem;
+    }
+}
+
+.auth-box {
+    max-width: 430px;
+    margin: 0 auto;
+
+    h1 {
+        font-family: $font-titles;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: .5rem;
+        color: #222;
+    }
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 1.8rem;
+}
+
+.auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #f5eadc;
+    border-radius: 18px;
+    padding: .25rem;
+    margin-bottom: 1.8rem;
+
+    a {
+        text-align: center;
+        padding: .8rem;
+        border-radius: 15px;
+        color: #666;
+        font-weight: 600;
+
+        &.active {
+            background: #fff;
+            color: $textturq;
+            box-shadow: 0 4px 12px rgba(0,0,0,.06);
+        }
+    }
+}
+
+.auth-field {
+    margin-bottom: 1.2rem;
+
+    label {
+        display: block;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: .5rem;
+    }
+
+    input {
+        width: 100%;
+        border: 1px solid #eadccf;
+        border-radius: 16px;
+        padding: .95rem 1rem;
+        font-family: $font-body;
+        outline: none;
+        background: #fffdfb;
+
+        &:focus {
+            border-color: $textturq;
+            box-shadow: 0 0 0 4px rgba($textturq, .15);
+        }
+    }
+}
+
+.auth-label-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+
+    a {
+        color: $textturq;
+        font-size: .85rem;
+        font-weight: 700;
+    }
+}
+
+.auth-check {
+    display: flex;
+    align-items: flex-start;
+    gap: .6rem;
+    color: #666;
+    font-size: .9rem;
+    margin-bottom: 1.5rem;
+
+    input {
+        margin-top: .2rem;
+    }
+
+    a {
+        color: $textturq;
+        font-weight: 700;
+    }
+}
+
+.auth-main-btn {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    background: $textoamarillo;
+    color: #222;
+    padding: 1rem;
+    font-weight: 900;
+    font-size: 1rem;
+    transition: transform .2s ease, opacity .2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        opacity: .9;
+    }
+}
+
+.auth-register-btn {
+    background: #f7b8a6;
+    color: white;
+}
+
+.auth-separator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #999;
+    font-size: .8rem;
+    margin: 2rem 0;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #eee;
+    }
+}
+
+.auth-socials {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .8rem;
+
+    button {
+        border: 1px solid #eadccf;
+        background: #fffdfb;
+        border-radius: 14px;
+        padding: .85rem;
+        font-weight: 600;
+        color: #555;
+    }
+}
+
+.auth-footer-help,
+.auth-switch {
+    text-align: center;
+    color: #777;
+    margin-top: 2rem;
+
+    a {
+        color: $textturq;
+        font-weight: 700;
+    }
+}
+
+.auth-two-cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+// ─────────────────────────────────────────────
+// TABLET
+// ─────────────────────────────────────────────
+@media (min-width: 768px) {
+
+    .auth-right {
+        padding: 2rem 3rem;
+    }
+
+    .auth-box h1 {
+        font-size: 2.4rem;
+    }
+
+    .auth-socials {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .auth-two-cols {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+// ─────────────────────────────────────────────
+// ESCRITORIO
+// ─────────────────────────────────────────────
+@media (min-width: 992px) {
+
+    .auth-page {
+        flex-direction: row;
+    }
+
+    .auth-left {
+        display: flex;
+        width: 50%;
+        min-height: 100vh;
+        background: #e9fbf8;
+        padding: 4rem;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-right {
+        width: 50%;
+        min-height: 100vh;
+        padding: 3rem 5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .auth-logo {
+        position: absolute;
+        top: 2rem;
+        right: 4rem;
+        margin-bottom: 0;
+    }
+
+    .auth-back {
+        position: absolute;
+        top: 2.5rem;
+        left: 4rem;
+    }
+
+    .auth-preview-card {
+        width: 100%;
+        max-width: 560px;
+        border-radius: 34px;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(0,0,0,.15);
+        background: white;
+
+        img {
+            width: 100%;
+            height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    .auth-left-content {
+        text-align: center;
+        max-width: 560px;
+        margin-top: 2rem;
+
+        h2 {
+            font-family: $font-titles;
+            color: #1d1d1d;
+            font-size: 2.5rem;
+            line-height: 1.1;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+    }
+
+    .auth-box {
+        width: 100%;
+        max-width: 460px;
+    }
+}
+// ===============================
+// PANEL DE USUARIO
+// ===============================
+
+.user-panel {
+    
+    // Espaciado general del panel
+    padding: 4rem 0;
+ background: #fafafa;
+    // ===============================
+    // SIDEBAR (MENÚ IZQUIERDO)
+    // ===============================
+    .panel-sidebar {
+
+        // Fondo blanco tipo card
+        background: #fff;
+
+        // Bordes redondeados modernos
+        border-radius: 1.5rem;
+
+        // Espaciado interno
+        padding: 1.2rem;
+
+        // Sombra suave
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    // Botones del menú lateral
+    .panel-link {
+
+        // Ocupa todo el ancho
+        width: 100%;
+
+        // Quitamos estilos por defecto
+        border: none;
+        background: transparent;
+
+        // Espaciado
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.4rem;
+
+        // Estética
+        border-radius: 1rem;
+        text-align: left;
+        font-weight: 600;
+
+        // Color base
+        color: #555;
+
+        // Alineación icono + texto
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+
+        // Animación suave
+        transition: all 0.2s ease;
+ i {
+            color: $textturq;
+            font-size: 1.1rem;
+        }
+
+        // Hover
+        &:hover {
+             background: rgba($textturq, 0.12);
+            color: $textturq;
+        }
+
+        // Estado activo (sección seleccionada)
+        &.active {
+            background: $textturq;
+            color: #fff;
+            box-shadow: 0 8px 18px rgba($textturq, 0.35);
+
+            i {
+                color: #fff;
+            }
+        }
+    }
+.panel-separator {
+        height: 1px;
+        background: #eee;
+        margin: 1rem 0;
+    }
+    .panel-help {
+        margin-top: 4rem;
+        padding: 1.2rem;
+        border-radius: 20px;
+        background: #f0ecff;
+        border: 1px solid #d8cef7;
+
+        h6 {
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            border-radius: 50px;
+            font-weight: 700;
+        }
+    }
+    // ===============================
+    // CONTENIDO DERECHO
+    // ===============================
+    .panel-content {
+
+        // Fondo tipo card
+        background: #fff;
+
+        // Bordes redondeados
+        border-radius: 1.5rem;
+
+        // Espaciado interno
+        padding: 2rem;
+        min-height: 420px;
+    }
+
+    // ===============================
+    // SECCIONES (DESCARGAS / FAVORITOS / ETC)
+    // ===============================
+    .panel-section {
+
+        // Ocultamos todas por defecto
+        display: none;
+         animation: fadePanel 0.2s ease;
+
+
+        // Solo se muestra la activa
+        &.active {
+            display: block;
+        }
+    }
+@keyframes fadePanel {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    // ===============================
+    // TABLA FAVORITOS
+    // ===============================
+    .panel-table {
+
+        // Fondo limpio
+        background: #fff;
+
+        // Filas más suaves visualmente
+        tbody tr {
+            border-radius: 1rem;
+        }
+
+        // Hover en filas
+        tbody tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+    }
+
+    // Imagen de producto en favoritos
+    .panel-product-img {
+
+        // Tamaño fijo
+        width: 64px;
+        height: 64px;
+
+        // Ajuste imagen
+        object-fit: cover;
+
+        // Bordes redondeados
+        border-radius: 1rem;
+    }
+
+    // MENSAJES VACÍOS (SIN DATOS)
+
+    .panel-empty {
+
+        // Espaciado
+        padding: 2rem;
+
+        // Estilo visual tipo contenedor vacío
+        border: 2px dashed #eee;
+        border-radius: 1.5rem;
+
+        // Texto centrado
+        text-align: center;
+
+        // Color suave
+        color: #777;
+    }
+
+    // TARJETAS DE SEGURIDAD
+
+    .security-card {
+
+        // Espaciado interno
+        padding: 1.5rem;
+
+        // Bordes redondeados
+        border-radius: 1.5rem;
+
+        // Fondo gris claro
+        background: #f8f9fa;
+
+        // Separación entre bloques
+        margin-bottom: 1rem;
+    }
+
+    // BOTÓN FAVORITOS (CORAZÓN)
+ 
+    .btn-favorito {
+
+        // Transición suave
+        transition: all 0.2s ease;
+
+        // Hover con ligero zoom
+        &:hover {
+            transform: scale(1.08);
+        }
+
+        // Estado activo (cuando está en favoritos)
+        &.activo {
+
+            // Forzamos estilos sobre Bootstrap
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: #fff !important;
+        }
+    }
+}
+
+// RESPONSIVE TABLET
+
+@media (max-width: 991px) {
+
+    .user-panel {
+
+        // Reducimos padding general
+        padding: 2rem 0;
+
+        // Sidebar pasa arriba
+        .panel-sidebar {
+            margin-bottom: 1.5rem;
+        }
+
+        // Reducimos padding del contenido
+        .panel-content {
+            padding: 1.4rem;
+        }
+    }
+}
+
+
+// RESPONSIVE MÓVIL
+
+@media (max-width: 576px) {
+
+    .user-panel {
+
+        // Botones del menú más compactos
+        .panel-link {
+            font-size: 0.9rem;
+            padding: 0.8rem;
+        }
+
+        // Imagen más pequeña
+        .panel-product-img {
+            width: 50px;
+            height: 50px;
+        }
+
+        // Tabla más compacta
+        .panel-table {
+            font-size: 0.85rem;
+        }
+
+        // Botones más pequeños
+        .btn {
+            font-size: 0.8rem;
+        }
+    }
+}
+// Modal de soporte técnico
+.soporte-modal {
+    border-radius: 1.5rem;
+    overflow: hidden;
+
+    .modal-header {
+        background: $textturq;
+        color: #fff;
+    }
+
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .form-control {
+        border-radius: 1rem;
+    }
+
+    textarea {
+        resize: none;
+    }
+}
+
+// CONTENEDOR GENERAL DEL PANEL ADMIN
+
+.admin-page {
+
+    // Fondo general suave (gris claro tipo dashboard moderno)
+    background: #fbfbfb;
+
+    // Altura mínima para ocupar toda la pantalla
+    min-height: 100vh;
+}
+
+
+// LAYOUT PRINCIPAL (SIDEBAR + CONTENIDO)
+
+.admin-layout {
+
+    // Usamos GRID para dividir en dos columnas
+    display: grid;
+
+    // Sidebar fijo (260px) + contenido flexible
+    grid-template-columns: 260px 1fr;
+
+    // Altura completa menos navbar
+    min-height: calc(100vh - 80px);
+}
+
+// SIDEBAR (MENÚ IZQUIERDO)
+
+.admin-sidebar {
+
+    // Fondo blanco tipo card
+    background: #fff;
+
+    // Línea separadora derecha
+    border-right: 1px solid #eee;
+
+    // Espaciado interno
+    padding: 1rem;
+
+    // Organización vertical
+    display: flex;
+    flex-direction: column;
+
+    // Separar menú arriba y botón abajo
+    justify-content: space-between;
+}
+
+
+
+// MENÚ DEL SIDEBAR
+
+.admin-menu {
+
+    // Menú en columna
+    display: flex;
+    flex-direction: column;
+
+    // Separación entre botones
+    gap: .4rem;
+}
+
+// BOTONES DEL SIDEBAR
+
+.admin-link {
+
+    // Quitamos estilos por defecto de button
+    border: none;
+    background: transparent;
+
+    // Espaciado cómodo
+    padding: .9rem 1rem;
+
+    // Bordes redondeados modernos
+    border-radius: 14px;
+
+    // Alineación texto izquierda
+    text-align: left;
+
+    // Tipografía coherente con tu proyecto
+    font-family: $font-body;
+    font-weight: 700;
+
+    // Color base gris
+    color: #555;
+
+    // Icono + texto alineados
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+
+    // Tamaño icono
+    i {
+        font-size: 1.1rem;
+    }
+
+    // Hover + estado activo
+    &:hover,
+    &.active {
+
+        // Fondo suave turquesa
+        background: rgba($textturq, .12);
+
+        // Texto en color marca
+        color: $textturq;
+    }
+}
+
+
+// BOTÓN "VOLVER A LA WEB"
+
+.admin-back {
+
+    // Espaciado
+    padding: 1rem;
+
+    // Color naranja de tu branding
+    color: $naranja;
+
+    // Texto destacado
+    font-weight: 700;
+}
+
+
+// CONTENIDO DERECHO
+
+.admin-content {
+
+    // Espaciado interior amplio
+    padding: 2rem;
+}
+
+// SECCIONES (DASHBOARD, PRODUCTOS, ETC)
+
+.admin-section {
+
+    // Ocultamos todas por defecto
+    display: none;
+
+    // Solo se muestra la activa
+    &.active {
+        display: block;
+    }
+}
+
+
+// HEADER DEL DASHBOARD
+
+.admin-header {
+
+    // Distribución horizontal
+    display: flex;
+
+    // Espacio entre texto y botones
+    justify-content: space-between;
+
+    // Separación vertical
+    gap: 1rem;
+
+    // Alineación vertical
+    align-items: center;
+
+    // Margen inferior
+    margin-bottom: 2rem;
+
+    // Título
+    h1 {
+        font-family: $font-titles;
+        margin-bottom: .2rem;
+    }
+
+    // Subtítulo
+    p {
+        color: #666;
+        margin: 0;
+    }
+}
+
+
+// BOTONES HEADER (EXPORTAR / CREAR)
+
+.admin-actions {
+
+    display: flex;
+    gap: .8rem;
+    flex-wrap: wrap;
+}
+
+
+// TARJETAS GENERALES (REUTILIZABLE)
+
+.admin-stat-card,
+.admin-card,
+.admin-upload-box,
+.admin-tip {
+
+    // Fondo blanco
+    background: #fff;
+
+    // Bordes redondeados
+    border-radius: 22px;
+
+    // Sombra suave moderna
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+
+    // Borde ligero
+    border: 1px solid #f0f0f0;
+}
+
+
+// TARJETAS DE ESTADÍSTICAS
+
+.admin-stat-card {
+
+    // Posición relativa para icono flotante
+    position: relative;
+
+    // Espaciado interno
+    padding: 1.5rem;
+
+    span {
+        color: #666;
+        font-weight: 700;
+    }
+
+    h3 {
+        font-weight: 900;
+        margin: .4rem 0;
+    }
+
+    small {
+        color: #555;
+    }
+
+    // Icono flotante derecha
+    .stat-icon {
+
+        position: absolute;
+        right: 1.3rem;
+        top: 1.5rem;
+
+        width: 52px;
+        height: 52px;
+
+        border-radius: 14px;
+
+        background: rgba($textturq, .12);
+        color: $textturq;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 1.4rem;
+    }
+}
+
+
+// CARD NORMAL (TABLAS, FORMULARIOS)
+
+.admin-card {
+    padding: 1.5rem;
+}
+
+
+// HEADER DE CARD (TÍTULO + OPCIONES)
+
+.admin-card-header {
+
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 1rem;
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    p {
+        color: #666;
+        margin: 0;
+    }
+}
+
+
+
+// TABLA DE ADMIN
+
+.admin-table {
+
+    th {
+        font-weight: 900;
+        color: #333;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+
+// INFO PRODUCTO EN TABLA
+
+.admin-product-info {
+
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+
+    img {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        object-fit: cover;
+    }
+}
+
+
+// BADGE DE CATEGORÍA
+
+.admin-badge {
+
+    background: rgba($textturq, .12);
+    color: $textturq;
+
+    border: 1px solid rgba($textturq, .25);
+
+    padding: .25rem .7rem;
+
+    border-radius: 999px;
+
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+
+// ESTADO DEL PRODUCTO
+
+.admin-status {
+
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+
+
+// CAJA DE SUBIDA (DRAG & DROP)
+
+.admin-upload-box {
+
+    min-height: 330px;
+
+    border: 2px dashed rgba($textturq, .35);
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: .8rem;
+
+    padding: 2rem;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    // Icono central
+    .upload-icon {
+
+        width: 64px;
+        height: 64px;
+
+        border-radius: 50%;
+
+        background: #fff;
+
+        box-shadow: 0 6px 18px rgba(0,0,0,.08);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: $textturq;
+
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 900;
+    }
+
+    p {
+        color: #666;
+        max-width: 260px;
+    }
+
+    small {
+        color: #777;
+        font-size: .75rem;
+    }
+}
+
+
+// TARJETA TIP DEL DÍA
+
+.admin-tip {
+
+    background: #fff8df;
+
+    padding: 1.4rem;
+
+    strong {
+        display: block;
+        margin-bottom: .5rem;
+    }
+
+    i {
+        color: $textoamarillo;
+    }
+
+    p {
+        margin: 0;
+        color: #555;
+    }
+}
+
+
+// TICKETS DE SOPORTE
+
+.admin-ticket {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 1rem;
+
+    padding: 1rem;
+
+    border-bottom: 1px solid #eee;
+
+    p {
+        margin: .2rem 0 0;
+        color: #777;
+        font-size: .9rem;
+    }
+}
+
+
+// RESPONSIVE TABLET Y MÓVIL
+
+@media (max-width: 991px) {
+
+    .admin-layout {
+
+        // Sidebar pasa arriba
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+
+        // Sticky arriba
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .admin-menu {
+
+        // Menú horizontal scrollable
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .admin-link {
+
+        // Evita que se rompa en varias líneas
+        min-width: max-content;
+    }
+
+    .admin-back {
+        display: none;
+    }
+
+    .admin-header {
+
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+//CHAT SOPORTE
+.soporte-chat-admin {
+    max-height: 360px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+.soporte-msg {
+    display: flex;
+    margin-bottom: 1rem;
+
+    &.mensaje-admin {
+        justify-content: flex-end;
+
+        .soporte-msg-body {
+            background: $textturq;
+            color: #fff;
+        }
+    }
+
+    &.mensaje-usuario {
+        justify-content: flex-start;
+
+        .soporte-msg-body {
+            background: #fff;
+            color: #333;
+        }
+    }
+}
+
+.soporte-msg-body {
+    max-width: 75%;
+    padding: .8rem 1rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.06);
+
+    p {
+        margin: .3rem 0;
+    }
+
+    small {
+        opacity: .75;
+        font-size: .75rem;
+    }
+}
