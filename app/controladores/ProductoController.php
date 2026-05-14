@@ -110,9 +110,7 @@ $resenas = $this->productModel->obtenerResenasPorProducto($id);
             $totales['subtotal'] += $precio_total;
         }
 
-// 4. Cálculos finales
-$totales['iva'] = $totales['subtotal'] * 0.21;
-$totales['total'] = $totales['subtotal'] + $totales['iva'];
+
 }
 
 // Variables simples para carrito_view.php

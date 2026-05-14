@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 });
+// Abrir conversación del ticket del usuario
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-ver-ticket-usuario");
@@ -97,10 +98,26 @@ document.addEventListener("click", function (e) {
 
     const ticketId = btn.dataset.ticketId;
     const asunto = btn.dataset.asunto;
+    const estado = btn.dataset.ticketEstado;
 
+    document.getElementById("ticketIdUsuarioRespuesta").value = ticketId;
     document.getElementById("modalTicketUsuarioTitulo").innerText = asunto;
 
     cargarMensajesTicketUsuario(ticketId);
+
+    const textarea = document.getElementById("mensajeRespuestaUsuario");
+    const btnEnviar = document.querySelector("#formResponderTicketUsuario button[type='submit']");
+    const btnFinalizar = document.getElementById("btnFinalizarTicketUsuario");
+
+    if (estado === "cerrado") {
+        textarea.disabled = true;
+        btnEnviar.disabled = true;
+        btnFinalizar.disabled = true;
+    } else {
+        textarea.disabled = false;
+        btnEnviar.disabled = false;
+        btnFinalizar.disabled = false;
+    }
 
     const modal = new bootstrap.Modal(
         document.getElementById("modalTicketUsuario")
@@ -110,6 +127,7 @@ document.addEventListener("click", function (e) {
 });
 
 
+// Cargar mensajes del ticket del usuario
 function cargarMensajesTicketUsuario(ticketId) {
 
     const contenedor = document.getElementById("ticketMensajesUsuario");
@@ -149,5 +167,192 @@ function cargarMensajesTicketUsuario(ticketId) {
             });
 
             contenedor.innerHTML = html || "<p>No hay mensajes.</p>";
+        })
+        .catch(error => {
+            console.error("Error leyendo ticket:", error);
+            contenedor.innerHTML = `
+                <div class="alert alert-danger">
+                    Error al cargar la conversación.
+                </div>
+            `;
         });
 }
+
+
+// Responder y finalizar ticket desde el usuario
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("formResponderTicketUsuario");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const ticketId = document.getElementById("ticketIdUsuarioRespuesta").value;
+            const mensaje = document.getElementById("mensajeRespuestaUsuario").value;
+
+            const formData = new FormData();
+            formData.append("ticket_id", ticketId);
+            formData.append("mensaje", mensaje);
+
+            fetch("/UNRINCONDEPT/public/ajax_usuario_soporte_responder.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const respuesta = document.getElementById("respuestaTicketUsuario");
+
+                    if (!data.ok) {
+                        respuesta.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+
+                    respuesta.innerHTML = `<div class="alert alert-success">${data.mensaje}</div>`;
+                    document.getElementById("mensajeRespuestaUsuario").value = "";
+
+                    cargarMensajesTicketUsuario(ticketId);
+                });
+        });
+    }
+
+    const btnFinalizar = document.getElementById("btnFinalizarTicketUsuario");
+
+    if (btnFinalizar) {
+        btnFinalizar.addEventListener("click", function () {
+
+            const ticketId = document.getElementById("ticketIdUsuarioRespuesta").value;
+
+            const formData = new FormData();
+            formData.append("ticket_id", ticketId);
+
+            fetch("/UNRINCONDEPT/public/ajax_soporte_finalizar.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const respuesta = document.getElementById("respuestaTicketUsuario");
+
+                    if (!data.ok) {
+                        respuesta.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        return;
+                    }
+
+                    respuesta.innerHTML = `<div class="alert alert-success">${data.mensaje}</div>`;
+                    document.getElementById("mensajeRespuestaUsuario").disabled = true;
+                    document.querySelector("#formResponderTicketUsuario button[type='submit']").disabled = true;
+                    document.getElementById("btnFinalizarTicketUsuario").disabled = true;
+                });
+        });
+    }
+
+});
+// Abrir modal de reseña
+document.addEventListener("click", function (e) {
+
+    const btn = e.target.closest(".btn-abrir-resena");
+
+    if (!btn) return;
+
+    const productoId = btn.dataset.productoId;
+    const titulo = btn.dataset.productoTitulo;
+
+    document.getElementById("resenaProductoId").value = productoId;
+    document.getElementById("modalResenaTitulo").innerText = "Reseña: " + titulo;
+
+    document.getElementById("respuestaResena").innerHTML = "";
+
+    const modal = new bootstrap.Modal(document.getElementById("modalResena"));
+    modal.show();
+});
+
+
+// Guardar reseña
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formResena = document.getElementById("formResena");
+
+    if (!formResena) return;
+
+    formResena.addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const formData = new FormData(formResena);
+
+        fetch("/UNRINCONDEPT/public/ajax_guardar_reseña.php", {
+            method: "POST",
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+
+                const respuesta = document.getElementById("respuestaResena");
+
+                if (!data.ok) {
+                    respuesta.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${data.error}
+                    </div>
+                `;
+                    return;
+                }
+
+                respuesta.innerHTML = `
+                <div class="alert alert-success">
+                    ${data.mensaje}
+                </div>
+            `;
+
+                formResena.reset();
+            })
+            .catch(error => {
+                console.error("Error guardando reseña:", error);
+            });
+    });
+});
+// Enviar sugerencia
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formSugerencia = document.getElementById("formSugerencia");
+
+    if (!formSugerencia) return;
+
+    formSugerencia.addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const formData = new FormData(formSugerencia);
+
+        fetch("/UNRINCONDEPT/public/ajax_sugerencia_crear.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            const respuesta = document.getElementById("respuestaSugerencia");
+
+            if (!data.ok) {
+                respuesta.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            respuesta.innerHTML = `
+                <div class="alert alert-success">
+                    ${data.mensaje}
+                </div>
+            `;
+
+            formSugerencia.reset();
+        })
+        .catch(error => {
+            console.error("Error sugerencia:", error);
+        });
+    });
+});

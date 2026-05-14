@@ -28,7 +28,7 @@ $ticketsSoporte = $soporteModel->obtenerTicketsUsuario($_SESSION['usuario_id']);
         // Cargamos favoritos del usuario
         $productoModel = new Producto();
         $favoritos = $productoModel->obtenerProductosFavoritos($_SESSION['usuario_id']);
-
+        $productosComprados = $usuarioModel->obtenerRecursosAdquiridosUsuario($_SESSION['usuario_id']);
         // Mostramos la vista del perfil
         require_once __DIR__ . '/../vistas/perfil_view.php';
     }

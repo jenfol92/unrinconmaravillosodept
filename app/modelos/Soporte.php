@@ -65,8 +65,17 @@ class Soporte
     }
 
     // Añadir mensaje a un ticket
-    public function enviarMensaje($ticket_id, $remitente, $mensaje, $remitente_nombre = null)
+   public function enviarMensaje($ticket_id, $remitente, $mensaje, $remitente_nombre = null)
 {
+    $sql = "SELECT estado FROM soporte_tickets WHERE id = ?";
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$ticket_id]);
+    $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$ticket || $ticket['estado'] === 'cerrado') {
+        return false;
+    }
+
     $sql = "INSERT INTO soporte_mensajes 
             (ticket_id, remitente, remitente_nombre, mensaje)
             VALUES (?, ?, ?, ?)";
@@ -99,6 +108,66 @@ public function obtenerTicketsAdmin()
             FROM soporte_tickets t
             INNER JOIN usuarios u ON u.id = t.usuario_id
             ORDER BY t.fecha DESC";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+public function finalizarTicket($ticket_id, $usuario_id)
+{
+    $sql = "UPDATE soporte_tickets 
+            SET estado = 'cerrado'
+            WHERE id = ? AND usuario_id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    return $stmt->execute([$ticket_id, $usuario_id]);
+}
+//OBTENER TODAS LAS SUGERENCIAS PARA ADMIN.
+public function obtenerSugerencias()
+{
+    $sql = "SELECT 
+                s.id,
+                s.mensaje,
+                s.fecha,
+                s.leida,
+                u.nombre,
+                u.apellidos,
+                u.email
+            FROM sugerencias s
+            LEFT JOIN usuarios u ON u.id = s.usuario_id
+            ORDER BY s.fecha DESC";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+//CREAR SUGERENCIAS
+public function crearSugerencia($usuario_id, $mensaje)
+{
+    $sql = "INSERT INTO sugerencias (usuario_id, mensaje)
+            VALUES (?, ?)";
+
+    $stmt = $this->conexion->prepare($sql);
+    return $stmt->execute([$usuario_id, $mensaje]);
+}
+//MENSAJES DE USUARIOS NO REGISTRADOS
+public function obtenerMensajesContactoAdmin()
+{
+    $sql = "SELECT 
+                cm.id,
+                cm.producto_id,
+                cm.nombre,
+                cm.email,
+                cm.asunto,
+                cm.mensaje,
+                cm.leido,
+                cm.fecha,
+                p.titulo AS producto_titulo
+            FROM contacto_mensajes cm
+            LEFT JOIN productos p ON p.id = cm.producto_id
+            ORDER BY cm.fecha DESC";
 
     $stmt = $this->conexion->prepare($sql);
     $stmt->execute();

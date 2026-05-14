@@ -22,10 +22,11 @@ o muertra errir.*/
         $password = $_POST['password'] ?? '';
 
         // Validación básica
-        if ($email === '' || $password === '') {
-            echo "Debes introducir email y contraseña";
-            return;
-        }
+     if ($email === '' || $password === '') {
+    $errorLogin = "Debes introducir email y contraseña.";
+    require_once __DIR__ . '/../vistas/login_view.php';
+    return;
+}
 
         // Buscar usuario en BD
         $usuarioModel = new Usuario();
@@ -40,9 +41,11 @@ o muertra errir.*/
             $_SESSION['usuario_email'] = $usuario['email'];
             header("Location: index.php");
             exit();
-        } else {
-            echo "Credenciales incorrectas";
-        }
+      } else {
+    $errorLogin = "Email o contraseña incorrectos.";
+    require_once __DIR__ . '/../vistas/login_view.php';
+    return;
+}
     }
     /* Funcion de registro de usuario (cliente), donde recibe los datos del formulario de registro_view.php 
 crea una instancia de Usuario y llama a la funcion que crea el usuario en modelos/Usuario.php

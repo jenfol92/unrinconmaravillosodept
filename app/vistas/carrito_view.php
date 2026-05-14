@@ -9,21 +9,42 @@ require_once __DIR__ . "/../../templates/header.php";
     <div class="card mb-3 p-3 shadow-sm border-0">
         <div class="row align-items-center">
             <div class="col-2">
-                <img src="/static/images/img/<?= $p['imagen'] ?>" class="img-fluid rounded">
+                <img src="/UNRINCONDEPT/static/images/img/<?= $p['imagen'] ?>" class="img-fluid rounded">
             </div>
             <div class="col-5">
                 <small class="text-primary">Matemáticas</small>
                 <h6><?= $p['titulo'] ?></h6>
             </div>
             <div class="col-3 d-flex align-items-center">
-                <button class="btn btn-sm btn-light">-</button>
+               <button 
+    type="button"
+    class="btn btn-sm btn-outline-secondary btn-carrito-accion"
+    data-id="<?= $p['id'] ?>"
+    data-accion="restar_carrito"
+>
+    -
+</button>
                 <span class="mx-2"><?= $p['cantidad'] ?></span>
-                <button class="btn btn-sm btn-light">+</button>
+             <button 
+    type="button"
+    class="btn btn-sm btn-outline-secondary btn-carrito-accion"
+    data-id="<?= $p['id'] ?>"
+    data-accion="add_carrito"
+>
+    +
+</button>
             </div>
             <div class="col-2 text-end">
                 <span class="fw-bold"><?= number_format($p['precio'] * $p['cantidad'], 2) ?>€</span>
-                <br>
-                <small class="text-danger" style="cursor:pointer">Eliminar</small>
+                
+              <button 
+    type="button"
+    class="btn btn-sm btn-outline-danger btn-carrito-accion ms-2"
+    data-id="<?= $p['id'] ?>"
+    data-accion="eliminar_carrito"
+>
+    <i class="bi bi-trash"></i>
+</button>
             </div>
         </div>
     </div>
@@ -36,10 +57,7 @@ require_once __DIR__ . "/../../templates/header.php";
             <span>Subtotal</span>
             <span><?= number_format($subtotal, 2) ?>€</span>
         </div>
-        <div class="d-flex justify-content-between">
-            <span>Impuestos (IVA 21%)</span>
-            <span><?= number_format($iva, 2) ?>€</span>
-        </div>
+  
         <hr>
         <div class="d-flex justify-content-between fw-bold fs-4">
             <span>Total</span>
@@ -50,3 +68,7 @@ require_once __DIR__ . "/../../templates/header.php";
         </button>
     </div>
 </div>
+<script src="/UNRINCONDEPT/static/js/carrito.js"></script>
+    <?php
+    require_once __DIR__ . '/../../templates/footer.php';
+    ?>

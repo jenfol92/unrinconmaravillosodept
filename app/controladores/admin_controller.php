@@ -52,7 +52,8 @@ $categorias = $this->productoModel->obtenerCategorias();
 $niveles = $this->productoModel->obtenerNiveles();
 
 $tickets = $this->soporteModel->obtenerTicketsAdmin();
-
+$sugerencias = $this->soporteModel->obtenerSugerencias();
+$mensajesContacto = $this->soporteModel->obtenerMensajesContactoAdmin();
 
         // Cargar vista
         require_once __DIR__ . '/../vistas/admin_view.php';

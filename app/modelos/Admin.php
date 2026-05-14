@@ -92,4 +92,5 @@ $ventas = $this->conexion
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 }

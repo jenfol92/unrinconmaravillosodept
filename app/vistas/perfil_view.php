@@ -94,6 +94,7 @@
                                 Seguridad
                             </button>
 
+
                         </nav>
 
                         <!-- Bloque de ayuda -->
@@ -108,120 +109,167 @@
                             </p>
 
                             <!-- Abre modal Bootstrap de soporte -->
+
                             <button
                                 type="button"
-                                class="btn btn-success w-100"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalSoporte">
-                                Soporte Técnico
+                                class="panel-link"
+                                data-section="soporte">
+                                <i class="bi bi-life-preserver"></i>
+                                Soporte
                             </button>
 
                         </div>
-                        <?php if (empty($ticketsSoporte)): ?>
-                            <p>No tienes consultas de soporte.</p>
-                        <?php else: ?>
-                            <?php foreach ($ticketsSoporte as $ticket): ?>
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <strong><?= htmlspecialchars($ticket['asunto']) ?></strong>
-                                        <span class="badge bg-info"><?= htmlspecialchars($ticket['estado']) ?></span>
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-primary btn-ver-ticket-usuario"
-                                            data-ticket-id="<?= $ticket['id'] ?>"
-                                            data-asunto="<?= htmlspecialchars($ticket['asunto'], ENT_QUOTES) ?>">
-                                            Ver conversación
-                                        </button>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                        <button
+                            type="button"
+                            class="panel-link"
+                            data-section="sugerencias">
+                            <i class="bi bi-chat-heart"></i>
+                            Buzón de sugerencias
+                        </button>
+
 
                     </aside>
-                    <section id="section-soporte" class="panel-section">
-
-                        <h2>Mis consultas de soporte</h2>
-
-                        <?php if (empty($ticketsSoporte)): ?>
-
-                            <div class="panel-empty">
-                                No tienes consultas de soporte todavía.
-                            </div>
-
-                        <?php else: ?>
-
-                            <?php foreach ($ticketsSoporte as $ticket): ?>
-
-                                <div class="card mb-3">
-
-                                    <div class="card-body d-flex justify-content-between align-items-center">
-
-                                        <div>
-                                            <strong>
-                                                <?= htmlspecialchars($ticket['asunto']) ?>
-                                            </strong>
-
-                                            <div class="text-muted small">
-                                                <?= date('d/m/Y H:i', strtotime($ticket['fecha'])) ?>
-                                                · <?= htmlspecialchars($ticket['estado']) ?>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-primary btn-ver-ticket-usuario"
-                                            data-ticket-id="<?= $ticket['id'] ?>"
-                                            data-asunto="<?= htmlspecialchars($ticket['asunto'], ENT_QUOTES) ?>">
-                                            Ver conversación
-                                        </button>
-
-                                    </div>
-
-                                </div>
-
-                            <?php endforeach; ?>
-
-                        <?php endif; ?>
-
-                    </section>
 
                 </div>
 
 
-                <!-- =============================== -->
                 <!-- CONTENIDO DERECHO -->
-                <!-- =============================== -->
+
                 <div class="col-12 col-lg-9">
 
                     <div class="panel-content">
 
-                        <!-- =============================== -->
-                        <!-- SECCIÓN MIS DESCARGAS -->
-                        <!-- =============================== -->
+
+                        <!-- SECCIÓN MIS RECURSOS ADQUIRIDOS -->
+
                         <section
                             id="section-descargas"
                             class="panel-section active">
 
-                            <h2>
-                                Historial de Descargas
-                            </h2>
+                            <h2>Mis recursos adquiridos</h2>
 
                             <p>
                                 Aquí tienes todos los recursos que has adquirido.
-                                Puedes volver a descargarlos cuando quieras.
+                                Puedes descargarlos de nuevo y dejar tu reseña.
                             </p>
 
-                            <!-- De momento placeholder -->
-                            <div class="panel-empty">
-                                Próximamente cargaremos aquí tus descargas.
-                            </div>
+                            <?php if (empty($productosComprados)): ?>
+
+                                <!-- Sin productos comprados -->
+                                <div class="panel-empty">
+                                    Todavía no has comprado ningún recurso.
+                                </div>
+
+                            <?php else: ?>
+
+                                <!-- Tabla responsive -->
+                                <div class="table-responsive">
+
+                                    <table class="table align-middle panel-table">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Recurso</th>
+                                                <th>Precio</th>
+                                                <th>Descargas</th>
+                                          
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                            <?php foreach ($productosComprados as $producto): ?>
+
+                                                <tr>
+                                                    <td>
+                                                        <?= date('d/m/Y', strtotime($producto['fecha_compra'])) ?>
+                                                    </td>
+                                                    <!-- Imagen + título -->
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-3">
+
+                                                            <img
+                                                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                                                class="panel-product-img">
+
+                                                            <div>
+                                                                <strong>
+                                                                    <?= htmlspecialchars($producto['titulo']) ?>
+                                                                </strong>
+
+                                                                <div class="text-muted small">
+                                                                   Recurso adquirido #<?= $producto['descarga_id'] ?>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Precio unitario -->
+                                                    <td>
+                                                        <strong>
+                                                            <?= number_format((float)$producto['precio'], 2) ?> €
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        <?= (int)($producto['numero_descargas'] ?? 0) ?> /
+                                                        <?= (int)($producto['max_descargas'] ?? 0) ?>
+                                                    </td>
+
+                                                    <!-- Acciones -->
+                                                    <td class="text-end">
+
+                                                        <!-- Descargar archivo -->
+                                                        <a
+                                                            href="/UNRINCONDEPT/public/descargar.php?id=<?= $producto['descarga_id'] ?>"
+                                                            class="btn btn-sm btn-success"
+                                                            title="Descargar recurso">
+                                                            <i class="bi bi-download"></i>
+                                                            Descargar
+                                                        </a>
+
+                                                        <!-- Ver detalle -->
+                                                        <a
+                                                            href="/UNRINCONDEPT/public/detalle.php?id=<?= $producto['id'] ?>"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            title="Ver detalle">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+
+                                                        <!-- Añadir reseña -->
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-warning btn-abrir-resena"
+                                                            data-producto-id="<?= (int)$producto['id'] ?>"
+                                                            data-producto-titulo="<?= htmlspecialchars($producto['titulo'], ENT_QUOTES) ?>"
+                                                            title="Añadir o editar reseña">
+                                                            <i class="bi bi-star"></i>
+                                                            Reseña
+                                                        </button>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            <?php endforeach; ?>
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                            <?php endif; ?>
 
                         </section>
 
 
-                        <!-- =============================== -->
+
                         <!-- SECCIÓN FAVORITOS -->
-                        <!-- =============================== -->
+
                         <section
                             id="section-favoritos"
                             class="panel-section">
@@ -327,9 +375,9 @@
                         </section>
 
 
-                        <!-- =============================== -->
+
                         <!-- SECCIÓN DATOS DE CUENTA -->
-                        <!-- =============================== -->
+
                         <section
                             id="section-cuenta"
                             class="panel-section">
@@ -405,9 +453,9 @@
                         </section>
 
 
-                        <!-- =============================== -->
+
                         <!-- SECCIÓN SEGURIDAD -->
-                        <!-- =============================== -->
+
                         <section
                             id="section-seguridad"
                             class="panel-section">
@@ -473,6 +521,185 @@
                             </div>
 
                         </section>
+                        <!-- SECCIÓN SOPORTE -->
+                        <section id="section-soporte" class="panel-section">
+
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                                <div>
+                                    <h2>Centro de Soporte</h2>
+                                    <p class="text-muted mb-0">
+                                        Consulta tus conversaciones o abre una nueva incidencia.
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#nuevoSoporteBox">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Nueva consulta
+                                </button>
+                            </div>
+
+                            <div class="collapse mb-4" id="nuevoSoporteBox">
+                                <div class="panel-card-soft">
+
+                                    <h4 class="mb-3">
+                                        <i class="bi bi-chat-dots"></i>
+                                        Nueva consulta de soporte
+                                    </h4>
+
+                                    <form id="formSoporte">
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Asunto</label>
+                                            <input
+                                                type="text"
+                                                name="asunto"
+                                                class="form-control"
+                                                placeholder="Ej: No puedo descargar un recurso"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Mensaje</label>
+                                            <textarea
+                                                name="mensaje"
+                                                class="form-control"
+                                                rows="5"
+                                                placeholder="Cuéntanos qué ocurre..."
+                                                required></textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Enviar consulta
+                                        </button>
+
+                                    </form>
+
+                                    <div id="soporteRespuesta" class="mt-3"></div>
+
+                                </div>
+                            </div>
+
+                            <div class="panel-card-soft">
+
+                                <h4 class="mb-4">
+                                    <i class="bi bi-life-preserver"></i>
+                                    Mis consultas
+                                </h4>
+
+                                <?php if (empty($ticketsSoporte)): ?>
+
+                                    <div class="panel-empty">
+                                        No tienes consultas abiertas.
+                                    </div>
+
+                                <?php else: ?>
+
+                                    <?php foreach ($ticketsSoporte as $ticket): ?>
+
+                                        <div class="ticket-card-mini">
+
+                                            <div>
+                                                <strong>
+                                                    <?= htmlspecialchars($ticket['asunto']) ?>
+                                                </strong>
+
+                                                <div class="small text-muted mt-1">
+                                                    <?= date('d/m/Y H:i', strtotime($ticket['fecha'])) ?>
+                                                    · <?= htmlspecialchars($ticket['estado']) ?>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-primary btn-ver-ticket-usuario"
+                                                data-ticket-id="<?= $ticket['id'] ?>"
+                                                data-ticket-estado="<?= htmlspecialchars($ticket['estado']) ?>"
+                                                data-asunto="<?= htmlspecialchars($ticket['asunto'], ENT_QUOTES) ?>">
+                                                Ver conversación
+                                            </button>
+
+                                        </div>
+
+                                    <?php endforeach; ?>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                        </section>
+
+
+                        <!-- SECCIÓN BUZÓN DE SUGERENCIAS -->
+                        <section id="section-sugerencias" class="panel-section">
+
+                            <div class="sugerencias-layout">
+
+                                <div class="sugerencias-form-card">
+
+                                    <span class="sugerencias-pill">
+                                        ✨ Estamos aquí para escucharte
+                                    </span>
+
+                                    <h2>
+                                        Envíame un <span>mensaje mágico</span>
+                                    </h2>
+
+                                    <p>
+                                        ¿Tienes alguna idea para mejorar la web, proponer un nuevo material
+                                        o sugerir una ficha? Me encantará leerte.
+                                    </p>
+
+                                    <form id="formSugerencia">
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Tu mensaje</label>
+
+                                            <textarea
+                                                name="mensaje"
+                                                class="form-control"
+                                                rows="6"
+                                                placeholder="Escribe aquí tu duda, sugerencia o idea..."
+                                                required></textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-warning w-100">
+                                            Enviar mensaje
+                                            <i class="bi bi-send"></i>
+                                        </button>
+
+                                    </form>
+
+                                    <div id="respuestaSugerencia" class="mt-3"></div>
+
+                                </div>
+
+                                <div class="sugerencias-info-card">
+
+                                    <div class="sugerencias-avatar">
+                                        <i class="bi bi-chat-heart"></i>
+                                    </div>
+
+                                    <h4>Buzón de ideas</h4>
+
+                                    <p>
+                                        Este buzón no genera una conversación. La autora leerá tus propuestas
+                                        para mejorar contenidos y crear nuevos recursos.
+                                    </p>
+
+                                    <div class="sugerencias-mini-info">
+                                        <i class="bi bi-lightbulb"></i>
+                                        Sugerencias de materiales, mejoras o nuevas fichas.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
 
                     </div>
 
@@ -484,85 +711,77 @@
 
     </section>
 
+
 </main>
 
 
-<!-- =============================== -->
-<!-- MODAL SOPORTE TÉCNICO -->
-<!-- =============================== -->
-<div class="modal fade" id="modalSoporte" tabindex="-1" aria-hidden="true">
+<!-- MODAL VER / RESPONDER CONVERSACIÓN DEL USUARIO -->
+<div class="modal fade" id="modalTicketUsuario" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-lg">
 
-        <div class="modal-content soporte-modal">
+        <div class="modal-content">
 
-            <!-- Cabecera modal -->
+            <!-- Cabecera del modal -->
             <div class="modal-header">
 
-                <h5 class="modal-title">
-                    <i class="bi bi-chat-dots"></i>
-                    Soporte Técnico
+                <h5 id="modalTicketUsuarioTitulo" class="modal-title">
+                    Conversación
                 </h5>
 
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal"
-                    aria-label="Cerrar"></button>
+                    aria-label="Cerrar">
+                </button>
 
             </div>
 
-            <!-- Cuerpo modal -->
+            <!-- Cuerpo del modal -->
             <div class="modal-body">
 
-                <!-- Formulario para crear ticket -->
-                <form id="formSoporte">
+                <!-- ID oculto del ticket seleccionado -->
+                <input type="hidden" id="ticketIdUsuarioRespuesta">
 
-                    <!-- Asunto -->
-                    <div class="mb-3">
+                <!-- Historial de mensajes -->
+                <div id="ticketMensajesUsuario" class="soporte-chat-admin mb-3">
+                    Cargando mensajes...
+                </div>
 
-                        <label class="form-label">
-                            Asunto
-                        </label>
+                <!-- Formulario para responder -->
+                <form id="formResponderTicketUsuario">
 
-                        <input
-                            type="text"
-                            name="asunto"
-                            class="form-control"
-                            placeholder="Ej: No puedo descargar un recurso"
-                            required>
+                    <label class="form-label">
+                        Responder
+                    </label>
+
+                    <textarea
+                        id="mensajeRespuestaUsuario"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Escribe una respuesta si necesitas continuar la consulta..."
+                        required></textarea>
+
+                    <div class="d-flex gap-2 mt-3">
+
+                        <button type="submit" class="btn btn-primary">
+                            Enviar respuesta
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger"
+                            id="btnFinalizarTicketUsuario">
+                            Finalizar consulta
+                        </button>
 
                     </div>
-
-                    <!-- Mensaje -->
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Mensaje
-                        </label>
-
-                        <textarea
-                            name="mensaje"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Explícanos qué problema tienes..."
-                            required></textarea>
-
-                    </div>
-
-                    <!-- Enviar -->
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-                        Enviar mensaje
-                    </button>
 
                 </form>
 
-                <hr>
-
                 <!-- Respuesta AJAX -->
-                <div id="soporteRespuesta"></div>
+                <div id="respuestaTicketUsuario" class="mt-3"></div>
 
             </div>
 
@@ -571,28 +790,67 @@
     </div>
 
 </div>
-<div class="modal fade" id="modalTicketUsuario" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+<!-- Modal añadir reseña -->
+
+<div class="modal fade" id="modalResena" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
 
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 id="modalTicketUsuarioTitulo" class="modal-title">
-                    Conversación
+
+                <h5 class="modal-title" id="modalResenaTitulo">
+                    Añadir reseña
                 </h5>
 
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal"></button>
+
             </div>
 
             <div class="modal-body">
 
-                <div id="ticketMensajesUsuario" class="soporte-chat-admin">
-                    Cargando mensajes...
-                </div>
+                <form id="formResena">
+
+                    <input type="hidden" id="resenaProductoId" name="producto_id">
+
+                    <div class="mb-3">
+                        <label class="form-label">Puntuación</label>
+
+                        <select name="puntuacion" id="resenaPuntuacion" class="form-select" required>
+                            <option value="">Selecciona puntuación</option>
+                            <option value="5">★★★★★ Excelente</option>
+                            <option value="4">★★★★ Muy bueno</option>
+                            <option value="3">★★★ Correcto</option>
+                            <option value="2">★★ Mejorable</option>
+                            <option value="1">★ Malo</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Comentario</label>
+
+                        <textarea
+                            name="comentario"
+                            id="resenaComentario"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Escribe tu opinión sobre el recurso..."
+                            required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Guardar reseña
+                    </button>
+
+                </form>
+
+                <div id="respuestaResena" class="mt-3"></div>
 
             </div>
 

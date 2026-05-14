@@ -45,7 +45,7 @@
 
                 <div class="auth-field">
                     <label>Correo electrónico</label>
-                    <input type="email" name="email" placeholder="ejemplo@correo.com" required>
+                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($email ?? '') ?>"placeholder="ejemplo@correo.com" required>
                 </div>
 
                 <div class="auth-field">
@@ -55,6 +55,11 @@
                     </div>
 
                     <input type="password" name="password" placeholder="••••••••" required>
+                    <?php if (!empty($errorLogin)): ?>
+                        <div class="text-danger small mt-2">
+                            <?= htmlspecialchars($errorLogin) ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="auth-check">

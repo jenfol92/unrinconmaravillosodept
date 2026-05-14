@@ -33,6 +33,14 @@
                     <i class="bi bi-chat-dots"></i>
                     Soporte
                 </button>
+                <button class="admin-link" data-section="sugerencias">
+                    <i class="bi bi-chat-heart"></i>
+                    Sugerencias
+                </button>
+                <button class="admin-link" data-section="contacto">
+                    <i class="bi bi-envelope-heart"></i>
+                    Contacto web
+                </button>
 
                 <button class="admin-link" data-section="configuracion">
                     <i class="bi bi-gear"></i>
@@ -40,14 +48,14 @@
                 </button>
 
             </nav>
-    <div>
-            <a href="/UNRINCONDEPT/public/index.php" class="admin-back">
-                <i class="bi bi-house"></i>
-                Volver a la Web
-            </a>
- <a href="/UNRINCONDEPT/public/logout.php" class="admin-back">
-                Cerrar sessión
-            </a>
+            <div>
+                <a href="/UNRINCONDEPT/public/index.php" class="admin-back">
+                    <i class="bi bi-house"></i>
+                    Volver a la Web
+                </a>
+                <a href="/UNRINCONDEPT/public/logout.php" class="admin-back">
+                    Cerrar sessión
+                </a>
             </div>
         </aside>
 
@@ -247,656 +255,736 @@
 
 
             <!-- SUBIR / EDITAR RECURSO -->
-<section id="admin-section-subir" class="admin-section">
+            <section id="admin-section-subir" class="admin-section">
 
-    <div class="admin-header">
-        <div>
-            <h1 id="tituloFormularioProducto">Subir Recurso</h1>
-            <p>Crea un nuevo recurso para la tienda o edita uno existente.</p>
-        </div>
-    </div>
-
-    <div class="admin-card">
-
-        <form id="formSubirRecurso" enctype="multipart/form-data">
-
-            <!-- ID oculto: vacío = crear / con valor = editar -->
-            <input type="hidden" name="id" id="productoId">
-
-            <div class="row g-3">
-
-                <!-- Título -->
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Título</label>
-                    <input 
-                        type="text" 
-                        name="titulo" 
-                        id="productoTitulo" 
-                        class="form-control" 
-                        required
-                    >
+                <div class="admin-header">
+                    <div>
+                        <h1 id="tituloFormularioProducto">Subir Recurso</h1>
+                        <p>Crea un nuevo recurso para la tienda o edita uno existente.</p>
+                    </div>
                 </div>
 
-                <!-- Precio -->
-                <div class="col-12 col-md-6">
-                    <label class="form-label">Precio</label>
-                    <input 
-                        type="number" 
-                        step="0.01" 
-                        name="precio" 
-                        id="productoPrecio" 
-                        class="form-control" 
-                        required
-                    >
+                <div class="admin-card">
+
+                    <form id="formSubirRecurso" enctype="multipart/form-data">
+
+                        <!-- ID oculto: vacío = crear / con valor = editar -->
+                        <input type="hidden" name="id" id="productoId">
+
+                        <div class="row g-3">
+
+                            <!-- Título -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Título</label>
+                                <input
+                                    type="text"
+                                    name="titulo"
+                                    id="productoTitulo"
+                                    class="form-control"
+                                    required>
+                            </div>
+
+                            <!-- Precio -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Precio</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="precio"
+                                    id="productoPrecio"
+                                    class="form-control"
+                                    required>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea
+                                    name="descripcion"
+                                    id="productoDescripcion"
+                                    class="form-control"
+                                    rows="4"></textarea>
+                            </div>
+
+                            <!-- Contenido -->
+                            <div class="col-12">
+                                <label class="form-label">Contenido</label>
+                                <textarea
+                                    name="contenido"
+                                    id="productoContenido"
+                                    class="form-control"
+                                    rows="6"></textarea>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Categoría</label>
+
+                                <div class="input-group">
+
+                                    <select
+                                        name="categoria_id"
+                                        id="productoCategoria"
+                                        class="form-select"
+                                        required>
+                                        <option value="">Selecciona categoría</option>
+
+                                        <?php foreach ($categorias as $cat): ?>
+                                            <option value="<?= $cat['id'] ?>">
+                                                <?= htmlspecialchars($cat['nombre']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalNuevaCategoria"
+                                        title="Crear nueva categoría">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+
+                                </div>
+
+                                <small class="text-muted">
+                                    Elige una categoría existente o crea una nueva.
+                                </small>
+
+                            </div>
+
+                            <!-- Nivel -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Nivel educativo</label>
+
+                                <select
+                                    name="nivel_id"
+                                    id="productoNivel"
+                                    class="form-select"
+                                    required>
+                                    <option value="">Selecciona nivel</option>
+
+                                    <?php foreach ($niveles as $nivel): ?>
+                                        <option value="<?= $nivel['id'] ?>">
+                                            <?= htmlspecialchars($nivel['nombre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Estado</label>
+
+                                <select
+                                    name="estado"
+                                    id="productoEstado"
+                                    class="form-select"
+                                    required>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                </select>
+
+                            </div>
+
+                            <!-- Imagen -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Imagen</label>
+
+                                <input
+                                    type="file"
+                                    name="imagen"
+                                    id="productoImagen"
+                                    class="form-control"
+                                    accept="image/*">
+
+                                <small class="text-muted">
+                                    JPG, PNG, WEBP. Si editas y no seleccionas nueva imagen, se conserva la actual.
+                                </small>
+
+                                <div id="previewImagenActual" class="mt-3 d-none">
+                                    <label class="small text-muted d-block mb-2">
+                                        Imagen actual
+                                    </label>
+
+                                    <img
+                                        id="productoImagenPreview"
+                                        src=""
+                                        alt="Imagen actual del producto"
+                                        class="img-fluid rounded shadow-sm"
+                                        style="max-width: 180px; max-height: 180px; object-fit: cover;">
+                                </div>
+
+                            </div>
+
+                            <!-- Vídeo opcional -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Vídeo de presentación opcional</label>
+
+                                <input
+                                    type="file"
+                                    name="video"
+                                    id="productoVideo"
+                                    class="form-control"
+                                    accept="video/mp4,video/webm,video/ogg">
+
+                                <small class="text-muted">
+                                    MP4, WEBM u OGG. Si editas y no seleccionas nuevo vídeo, se conserva el actual.
+                                </small>
+
+                                <div id="previewVideoActual" class="mt-3 d-none">
+
+                                    <label class="small text-muted d-block mb-2">
+                                        Vídeo actual
+                                    </label>
+
+                                    <video
+                                        id="productoVideoPreview"
+                                        controls
+                                        class="w-100 rounded shadow-sm"
+                                        style="max-width: 320px; max-height: 220px;">
+                                        <source src="" type="video/mp4">
+                                        Tu navegador no soporta la reproducción de vídeo.
+                                    </video>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Archivo recurso -->
+                            <div class="col-12 col-md-6">
+
+                                <label class="form-label">Archivo PDF/ZIP</label>
+
+                                <input
+                                    type="file"
+                                    name="archivo"
+                                    id="productoArchivo"
+                                    class="form-control"
+                                    accept=".pdf,.zip">
+
+                                <small class="text-muted">
+                                    PDF o ZIP. Si editas y no subes nuevo archivo, se conserva el actual.
+                                </small>
+
+                            </div>
+
+                            <!-- Botón guardar -->
+                            <div class="col-12">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    id="btnGuardarProducto">
+                                    Guardar recurso
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary ms-2 admin-open-section"
+                                    data-section="productos">
+                                    Cancelar
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
                 </div>
 
-                <!-- Descripción -->
-                <div class="col-12">
-                    <label class="form-label">Descripción</label>
-                    <textarea 
-                        name="descripcion" 
-                        id="productoDescripcion" 
-                        class="form-control" 
-                        rows="4"
-                    ></textarea>
-                </div>
+            </section>
 
-                <!-- Contenido -->
-                <div class="col-12">
-                    <label class="form-label">Contenido</label>
-                    <textarea 
-                        name="contenido" 
-                        id="productoContenido" 
-                        class="form-control" 
-                        rows="6"
-                    ></textarea>
-                </div>
+            <!-- PRODUCTOS -->
+            <section id="admin-section-productos" class="admin-section">
 
-                <!-- Categoría -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Categoría</label>
-
-                    <div class="input-group">
-
-                        <select 
-                            name="categoria_id" 
-                            id="productoCategoria" 
-                            class="form-select"
-                            required
-                        >
-                            <option value="">Selecciona categoría</option>
-
-                            <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= $cat['id'] ?>">
-                                    <?= htmlspecialchars($cat['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <button 
-                            type="button" 
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalNuevaCategoria"
-                            title="Crear nueva categoría"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
-
+                <div class="admin-header">
+                    <div>
+                        <h1>Productos</h1>
+                        <p>Gestiona recursos activos e inactivos, edita precios, contenido y visibilidad.</p>
                     </div>
 
-                    <small class="text-muted">
-                        Elige una categoría existente o crea una nueva.
-                    </small>
-
-                </div>
-
-                <!-- Nivel -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Nivel educativo</label>
-
-                    <select 
-                        name="nivel_id" 
-                        id="productoNivel" 
-                        class="form-select"
-                        required
-                    >
-                        <option value="">Selecciona nivel</option>
-
-                        <?php foreach ($niveles as $nivel): ?>
-                            <option value="<?= $nivel['id'] ?>">
-                                <?= htmlspecialchars($nivel['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                </div>
-
-                <!-- Estado -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Estado</label>
-
-                    <select 
-                        name="estado" 
-                        id="productoEstado" 
-                        class="form-select"
-                        required
-                    >
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-
-                </div>
-
-                <!-- Imagen -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Imagen</label>
-
-                    <input 
-                        type="file" 
-                        name="imagen" 
-                        id="productoImagen"
-                        class="form-control" 
-                        accept="image/*"
-                    >
-
-                    <small class="text-muted">
-                        JPG, PNG, WEBP. Si editas y no seleccionas nueva imagen, se conserva la actual.
-                    </small>
-
-                    <div id="previewImagenActual" class="mt-3 d-none">
-                        <label class="small text-muted d-block mb-2">
-                            Imagen actual
-                        </label>
-
-                        <img
-                            id="productoImagenPreview"
-                            src=""
-                            alt="Imagen actual del producto"
-                            class="img-fluid rounded shadow-sm"
-                            style="max-width: 180px; max-height: 180px; object-fit: cover;"
-                        >
-                    </div>
-
-                </div>
-
-                <!-- Vídeo opcional -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Vídeo de presentación opcional</label>
-
-                    <input
-                        type="file"
-                        name="video"
-                        id="productoVideo"
-                        class="form-control"
-                        accept="video/mp4,video/webm,video/ogg"
-                    >
-
-                    <small class="text-muted">
-                        MP4, WEBM u OGG. Si editas y no seleccionas nuevo vídeo, se conserva el actual.
-                    </small>
-
-                    <div id="previewVideoActual" class="mt-3 d-none">
-
-                        <label class="small text-muted d-block mb-2">
-                            Vídeo actual
-                        </label>
-
-                        <video
-                            id="productoVideoPreview"
-                            controls
-                            class="w-100 rounded shadow-sm"
-                            style="max-width: 320px; max-height: 220px;"
-                        >
-                            <source src="" type="video/mp4">
-                            Tu navegador no soporta la reproducción de vídeo.
-                        </video>
-
-                    </div>
-
-                </div>
-
-                <!-- Archivo recurso -->
-                <div class="col-12 col-md-6">
-
-                    <label class="form-label">Archivo PDF/ZIP</label>
-
-                    <input 
-                        type="file" 
-                        name="archivo" 
-                        id="productoArchivo"
-                        class="form-control" 
-                        accept=".pdf,.zip"
-                    >
-
-                    <small class="text-muted">
-                        PDF o ZIP. Si editas y no subes nuevo archivo, se conserva el actual.
-                    </small>
-
-                </div>
-
-                <!-- Botón guardar -->
-                <div class="col-12">
-
-                    <button 
-                        type="submit" 
-                        class="btn btn-primary"
-                        id="btnGuardarProducto"
-                    >
-                        Guardar recurso
-                    </button>
-
-                    <button 
-                        type="button" 
-                        class="btn btn-outline-secondary ms-2 admin-open-section" 
-                        data-section="productos"
-                    >
-                        Cancelar
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</section>
-
-    <!-- PRODUCTOS -->
-    <section id="admin-section-productos" class="admin-section">
-
-        <div class="admin-header">
-            <div>
-                <h1>Productos</h1>
-                <p>Gestiona recursos activos e inactivos, edita precios, contenido y visibilidad.</p>
-            </div>
-
-            <button
-                type="button"
-                class="btn btn-primary admin-open-section"
-                data-section="subir">
-                <i class="bi bi-plus"></i> Nuevo producto
-            </button>
-        </div>
-
-        <!-- Filtros -->
-        <div class="admin-card mb-4">
-
-            <div class="row g-3">
-
-                <div class="col-12 col-md-4">
-                    <input
-                        type="text"
-                        id="adminBuscarProducto"
-                        class="form-control"
-                        placeholder="Buscar producto...">
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <select id="adminFiltroCategoria" class="form-select">
-                        <option value="">Todas las categorías</option>
-
-                        <?php foreach ($categorias as $cat): ?>
-                            <option value="<?= $cat['id'] ?>">
-                                <?= htmlspecialchars($cat['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <select id="adminFiltroEstado" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="activo">Activos</option>
-                        <option value="inactivo">Inactivos</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-2">
                     <button
                         type="button"
-                        class="btn btn-outline-primary w-100"
-                        id="btnFiltrarProductosAdmin">
-                        Filtrar
+                        class="btn btn-primary admin-open-section"
+                        data-section="subir">
+                        <i class="bi bi-plus"></i> Nuevo producto
                     </button>
                 </div>
 
-            </div>
+                <!-- Filtros -->
+                <div class="admin-card mb-4">
 
-        </div>
+                    <div class="row g-3">
 
-        <!-- Tabla productos -->
-        <div class="admin-card">
+                        <div class="col-12 col-md-4">
+                            <input
+                                type="text"
+                                id="adminBuscarProducto"
+                                class="form-control"
+                                placeholder="Buscar producto...">
+                        </div>
 
-            <?php if (empty($productosAdmin)): ?>
+                        <div class="col-12 col-md-3">
+                            <select id="adminFiltroCategoria" class="form-select">
+                                <option value="">Todas las categorías</option>
 
-                <div class="panel-empty">
-                    No hay productos registrados.
+                                <?php foreach ($categorias as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>">
+                                        <?= htmlspecialchars($cat['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <select id="adminFiltroEstado" class="form-select">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary w-100"
+                                id="btnFiltrarProductosAdmin">
+                                Filtrar
+                            </button>
+                        </div>
+
+                    </div>
+
                 </div>
 
-            <?php else: ?>
+                <!-- Tabla productos -->
+                <div class="admin-card">
 
-                <div class="table-responsive">
+                    <?php if (empty($productosAdmin)): ?>
 
-                    <table class="table align-middle admin-table">
+                        <div class="panel-empty">
+                            No hay productos registrados.
+                        </div>
 
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Descargas</th>
-                                <th>Reseñas</th>
-                                <th>Clics</th>
-                                <th>Estado</th>
-                                <th class="text-end">Acciones</th>
-                            </tr>
-                        </thead>
+                    <?php else: ?>
 
-                        <tbody>
+                        <div class="table-responsive">
 
-                            <?php foreach ($productosAdmin as $p): ?>
+                            <table class="table align-middle admin-table">
 
-                                <tr>
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Descargas</th>
+                                        <th>Reseñas</th>
+                                        <th>Clics</th>
+                                        <th>Estado</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <!-- Se carga por AJAX -->
+                                <tbody id="adminProductosTbody">
 
-                                    <td>
-                                        <div class="admin-product-info">
-                                            <img
-                                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($p['imagen']) ?>"
-                                                alt="<?= htmlspecialchars($p['titulo']) ?>">
+                                    <?php foreach ($productosAdmin as $p): ?>
 
-                                            <div>
-                                                <strong>
-                                                    <?= htmlspecialchars($p['titulo']) ?>
-                                                </strong>
+                                        <tr>
 
-                                                <div class="text-muted small">
-                                                    ID #<?= $p['id'] ?>
+                                            <td>
+                                                <div class="admin-product-info">
+                                                    <img
+                                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($p['imagen']) ?>"
+                                                        alt="<?= htmlspecialchars($p['titulo']) ?>">
+
+                                                    <div>
+                                                        <strong>
+                                                            <?= htmlspecialchars($p['titulo']) ?>
+                                                        </strong>
+
+                                                        <div class="text-muted small">
+                                                            ID #<?= $p['id'] ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </td>
+                                            </td>
 
-                                    <td>
-                                        <span class="admin-badge">
-                                            <?= htmlspecialchars($p['categoria_nombre']) ?>
-                                        </span>
-                                    </td>
+                                            <td>
+                                                <span class="admin-badge">
+                                                    <?= htmlspecialchars($p['categoria_nombre']) ?>
+                                                </span>
+                                            </td>
 
-                                    <td>
-                                        <strong>
-                                            <?= number_format((float)$p['precio'], 2) ?> €
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        <i class="bi bi-download"></i>
-                                        <?= (int)($p['total_descargas'] ?? 0) ?>
-                                    </td>
-
-                                    <td>
-                                        <i class="bi bi-chat-square-text"></i>
-                                        <?= (int)($p['total_resenas'] ?? 0) ?>
-                                    </td>
-
-                                    <td>
-                                        <i class="bi bi-cursor"></i>
-                                        <?= (int)($p['total_clicks'] ?? 0) ?>
-                                    </td>
-
-                                    <td>
-                                        <?php if ($p['estado'] === 'activo'): ?>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                                Activo
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                                                Inactivo
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-outline-primary btn-editar-producto"
-
-                                            data-id="<?= $p['id'] ?>"
-                                            data-titulo="<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>"
-                                            data-precio="<?= htmlspecialchars($p['precio'], ENT_QUOTES) ?>"
-                                            data-descripcion="<?= htmlspecialchars($p['descripcion'] ?? '', ENT_QUOTES) ?>"
-                                            data-contenido="<?= htmlspecialchars($p['contenido'] ?? '', ENT_QUOTES) ?>"
-                                            data-categoria="<?= $p['categoria_id'] ?>"
-                                            data-nivel="<?= $p['nivel_id'] ?>"
-                                            data-estado="<?= htmlspecialchars($p['estado'], ENT_QUOTES) ?>">
-                                            <i class="bi bi-pencil"></i>
-                                            Editar
-                                        </button>
-
-                                        <a
-                                            href="/UNRINCONDEPT/public/detalle.php?id=<?= $p['id'] ?>"
-                                            class="btn btn-sm btn-outline-secondary"
-                                            target="_blank">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            <?php endif; ?>
-
-        </div>
-
-    </section>
-
-
-    <!-- USUARIOS -->
-    <section id="admin-section-usuarios" class="admin-section">
-
-        <!-- Cabecera -->
-        <div class="admin-header">
-            <div>
-                <h1>Usuarios Registrados</h1>
-                <p>Gestiona las cuentas de clientes y controla su acceso a la plataforma.</p>
-            </div>
-        </div>
-
-        <!-- Tarjeta principal -->
-        <div class="admin-card">
-
-            <?php if (empty($usuarios)): ?>
-
-                <!-- Sin usuarios -->
-                <div class="panel-empty">
-                    <i class="bi bi-people fs-1 d-block mb-3"></i>
-                    <p>No hay usuarios registrados.</p>
-                </div>
-
-            <?php else: ?>
-
-                <!-- Tabla responsive -->
-                <div class="table-responsive">
-
-                    <table class="table align-middle admin-table">
-
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Email</th>
-                                <th>Fecha de Registro</th>
-                                <th>Estado</th>
-                                <th class="text-end">Acciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($usuarios as $usuario): ?>
-
-                                <tr>
-
-                                    <!-- Nombre y apellidos -->
-                                    <td>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                                style="width:48px; height:48px;">
-                                                <i class="bi bi-person-fill text-secondary"></i>
-                                            </div>
-
-                                            <div>
+                                            <td>
                                                 <strong>
-                                                    <?= htmlspecialchars(
-                                                        trim($usuario['nombre'] . ' ' . $usuario['apellidos'])
-                                                    ) ?>
+                                                    <?= number_format((float)$p['precio'], 2) ?> €
                                                 </strong>
-                                                <div class="text-muted small">
-                                                    ID #<?= $usuario['id'] ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
+                                            </td>
 
-                                    <!-- Email -->
-                                    <td>
-                                        <?= htmlspecialchars($usuario['email']) ?>
-                                    </td>
+                                            <td>
+                                                <i class="bi bi-download"></i>
+                                                <?= (int)($p['total_descargas'] ?? 0) ?>
+                                            </td>
 
-                                    <!-- Fecha de registro -->
-                                    <td>
-                                        <?= date('d/m/Y', strtotime($usuario['fecha_registro'])) ?>
-                                    </td>
-
-                                    <!-- Estado -->
-                                    <td>
-                                        <?php if ((int)$usuario['activo'] === 1): ?>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                                Activo
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
-                                                Bloqueado
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <!-- Acciones -->
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
-
-                                            <!-- Ver perfil -->
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                title="Ver perfil">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-
-                                            <!-- Gestionar reseñas -->
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-warning"
-                                                title="Gestionar reseñas">
+                                            <td>
                                                 <i class="bi bi-chat-square-text"></i>
-                                            </button>
+                                                <?= (int)($p['total_resenas'] ?? 0) ?>
+                                            </td>
 
-                                            <!-- Bloquear / Desbloquear -->
-                                            <?php if ((int)$usuario['activo'] === 1): ?>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    title="Bloquear usuario">
-                                                    <i class="bi bi-lock"></i>
+                                            <td>
+                                                <i class="bi bi-cursor"></i>
+                                                <?= (int)($p['total_clicks'] ?? 0) ?>
+                                            </td>
+
+                                            <td>
+                                                <?php if ($p['estado'] === 'activo'): ?>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                        Activo
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                                        Inactivo
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-warning btn-ver-resenas-producto"
+                                                    data-producto-id="<?= $p['id'] ?>"
+                                                    data-producto-titulo="<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>">
+                                                    <i class="bi bi-star"></i>
+                                                    Reseñas
                                                 </button>
-                                            <?php else: ?>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-success"
-                                                    title="Desbloquear usuario">
-                                                    <i class="bi bi-unlock"></i>
+
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-editar-producto"
+
+                                                    data-id="<?= $p['id'] ?>"
+                                                    data-titulo="<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>"
+                                                    data-precio="<?= htmlspecialchars($p['precio'], ENT_QUOTES) ?>"
+                                                    data-descripcion="<?= htmlspecialchars($p['descripcion'] ?? '', ENT_QUOTES) ?>"
+                                                    data-contenido="<?= htmlspecialchars($p['contenido'] ?? '', ENT_QUOTES) ?>"
+                                                    data-categoria="<?= $p['categoria_id'] ?>"
+                                                    data-nivel="<?= $p['nivel_id'] ?>"
+                                                    data-estado="<?= htmlspecialchars($p['estado'], ENT_QUOTES) ?>">
+                                                    <i class="bi bi-pencil"></i>
+                                                    Editar
                                                 </button>
-                                            <?php endif; ?>
 
-                                        </div>
-                                    </td>
+                                                <a
+                                                    href="/UNRINCONDEPT/public/detalle.php?id=<?= $p['id'] ?>"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    target="_blank">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
 
-                                </tr>
+                                            </td>
 
-                            <?php endforeach; ?>
+                                        </tr>
 
-                        </tbody>
+                                    <?php endforeach; ?>
 
-                    </table>
+                                </tbody>
+
+                            </table>
+                            <div id="adminProductosPaginacion" class="mt-4 text-center"></div>
+                        </div>
+
+                    <?php endif; ?>
 
                 </div>
 
-            <?php endif; ?>
-
-        </div>
-
-    </section>
+            </section>
 
 
- <!-- SOPORTE -->
-<section id="admin-section-soporte" class="admin-section">
+            <!-- USUARIOS -->
+            <section id="admin-section-usuarios" class="admin-section">
+
+                <!-- Cabecera -->
+                <div class="admin-header">
+                    <div>
+                        <h1>Usuarios Registrados</h1>
+                        <p>Gestiona las cuentas de clientes y controla su acceso a la plataforma.</p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta principal -->
+                <div class="admin-card">
+
+                    <?php if (empty($usuarios)): ?>
+
+                        <!-- Sin usuarios -->
+                        <div class="panel-empty">
+                            <i class="bi bi-people fs-1 d-block mb-3"></i>
+                            <p>No hay usuarios registrados.</p>
+                        </div>
+
+                    <?php else: ?>
+
+                        <!-- Tabla responsive -->
+                        <div class="table-responsive">
+
+                            <table class="table align-middle admin-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Fecha de Registro</th>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Recursos adquiridos</th>
+                                        <th>Descargas</th>
+                                        <th>Estado</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    <?php foreach ($usuarios as $usuario): ?>
+
+                                        <tr>
+                                            <!-- Fecha de registro -->
+                                            <td>
+                                                <?= date('d/m/Y', strtotime($usuario['fecha_registro'])) ?>
+                                            </td>
+
+                                            <!-- Nombre y apellidos -->
+                                            <td>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                                        style="width:48px; height:48px;">
+                                                        <i class="bi bi-person-fill text-secondary"></i>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>
+                                                            <?= htmlspecialchars(
+                                                                trim($usuario['nombre'] . ' ' . $usuario['apellidos'])
+                                                            ) ?>
+                                                        </strong>
+                                                        <div class="text-muted small">
+                                                            ID #<?= $usuario['id'] ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Email -->
+                                            <td>
+                                                <?= htmlspecialchars($usuario['email']) ?>
+                                            </td>
+                                            <!--Recursos adquiridos-->
+                                            <th>Recursos adquiridos</th>
+                                            <td>
+                                                <strong><?= (int)($usuario['total_recursos_adquiridos'] ?? 0) ?></strong>
+                                            </td>
+                                            <!--Descargas por recurso-->
+                                            <td>
+                                                <strong><?= (int)($usuario['total_descargas'] ?? 0) ?></strong>
+                                            </td>
+
+
+                                            <!-- Estado -->
+                                            <td>
+                                                <?php if ((int)$usuario['activo'] === 1): ?>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                        Activo
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                                        Bloqueado
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+
+                                            <!-- Acciones -->
+                                            <td class="text-end">
+                                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+
+                                                    <!-- Ver perfil -->
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-primary btn-ver-descargas-usuario"
+                                                        data-usuario-id="<?= $usuario['id'] ?>"
+                                                        data-usuario-nombre="<?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidos'], ENT_QUOTES) ?>">
+
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+                                                    <!-- Gestionar reseñas -->
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-outline-warning btn-ver-resenas-usuario"
+                                                        data-usuario-id="<?= $usuario['id'] ?>"
+                                                        data-usuario-nombre="<?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidos'], ENT_QUOTES) ?>">
+                                                        <i class="bi bi-star"></i>
+                                                    </button>
+
+                                                    <!-- Bloquear / Desbloquear -->
+                                                    <?php if ((int)$usuario['activo'] === 1): ?>
+
+                                                        <!-- Usuario ACTIVO → mostrar botón para BLOQUEAR -->
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-danger btn-cambiar-estado-usuario"
+                                                            data-usuario-id="<?= $usuario['id'] ?>"
+                                                            data-activo="1"
+                                                            title="Bloquear usuario">
+                                                            <i class="bi bi-lock"></i>
+                                                        </button>
+
+                                                    <?php else: ?>
+
+                                                        <!-- Usuario BLOQUEADO → mostrar botón para DESBLOQUEAR -->
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-success btn-cambiar-estado-usuario"
+                                                            data-usuario-id="<?= $usuario['id'] ?>"
+                                                            data-activo="0"
+                                                            title="Desbloquear usuario">
+                                                            <i class="bi bi-unlock"></i>
+                                                        </button>
+
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                    <?php endforeach; ?>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </section>
+
+
+            <!-- SOPORTE -->
+            <section id="admin-section-soporte" class="admin-section">
+
+                <div class="admin-header">
+                    <div>
+                        <h1>Soporte</h1>
+                        <p>Consulta y responde mensajes enviados por los usuarios.</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+
+                    <?php if (empty($tickets)): ?>
+
+                        <div class="panel-empty">
+                            No hay tickets de soporte.
+                        </div>
+
+                    <?php else: ?>
+
+                        <?php foreach ($tickets as $ticket): ?>
+
+                            <div class="admin-ticket">
+
+                                <div>
+                                    <strong>
+                                        <?= htmlspecialchars($ticket['asunto']) ?>
+                                    </strong>
+
+                                    <p>
+                                        <?= htmlspecialchars($ticket['usuario_nombre'] . ' ' . $ticket['usuario_apellidos']) ?>
+                                        · <?= htmlspecialchars($ticket['usuario_email']) ?>
+                                        · <?= date('d/m/Y H:i', strtotime($ticket['fecha'])) ?>
+                                    </p>
+
+                                    <span class="badge bg-info">
+                                        <?= htmlspecialchars($ticket['estado']) ?>
+                                    </span>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary btn-responder-ticket"
+                                    data-ticket-id="<?= $ticket['id'] ?>"
+                                    data-asunto="<?= htmlspecialchars($ticket['asunto'], ENT_QUOTES) ?>">
+                                    Responder
+                                </button>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </section>
+            <section id="admin-section-contacto" class="admin-section">
 
     <div class="admin-header">
         <div>
-            <h1>Soporte</h1>
-            <p>Consulta y responde mensajes enviados por los usuarios.</p>
+            <h1>Contacto web</h1>
+            <p>Mensajes enviados desde la página de contacto por usuarios invitados o no registrados.</p>
         </div>
     </div>
 
     <div class="admin-card">
 
-        <?php if (empty($tickets)): ?>
+        <?php if (empty($mensajesContacto)): ?>
 
             <div class="panel-empty">
-                No hay tickets de soporte.
+                No hay mensajes de contacto todavía.
             </div>
 
         <?php else: ?>
 
-            <?php foreach ($tickets as $ticket): ?>
+            <?php foreach ($mensajesContacto as $mensaje): ?>
 
                 <div class="admin-ticket">
 
                     <div>
+
                         <strong>
-                            <?= htmlspecialchars($ticket['asunto']) ?>
+                            <?= htmlspecialchars($mensaje['asunto']) ?>
                         </strong>
 
-                        <p>
-                            <?= htmlspecialchars($ticket['usuario_nombre'] . ' ' . $ticket['usuario_apellidos']) ?>
-                            · <?= htmlspecialchars($ticket['usuario_email']) ?>
-                            · <?= date('d/m/Y H:i', strtotime($ticket['fecha'])) ?>
+                        <?php if (!empty($mensaje['producto_titulo'])): ?>
+                            <div class="badge bg-info-subtle text-info border border-info-subtle my-2">
+                                Consulta sobre: <?= htmlspecialchars($mensaje['producto_titulo']) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <p class="mb-2">
+                            <?= nl2br(htmlspecialchars($mensaje['mensaje'])) ?>
                         </p>
 
-                        <span class="badge bg-info">
-                            <?= htmlspecialchars($ticket['estado']) ?>
-                        </span>
+                        <small class="text-muted">
+                            <?= htmlspecialchars($mensaje['nombre']) ?>
+                            · <?= htmlspecialchars($mensaje['email']) ?>
+                            · <?= date('d/m/Y H:i', strtotime($mensaje['fecha'])) ?>
+                        </small>
+
                     </div>
 
-                    <button 
-                        type="button"
-                        class="btn btn-sm btn-primary btn-responder-ticket"
-                        data-ticket-id="<?= $ticket['id'] ?>"
-                        data-asunto="<?= htmlspecialchars($ticket['asunto'], ENT_QUOTES) ?>"
-                    >
-                        Responder
-                    </button>
+                    <a
+                        href="mailto:<?= htmlspecialchars($mensaje['email']) ?>?subject=<?= urlencode('Respuesta: ' . $mensaje['asunto']) ?>"
+                        class="btn btn-sm btn-primary">
+                        Responder por email
+                    </a>
 
                 </div>
 
@@ -907,18 +995,56 @@
     </div>
 
 </section>
+            <section id="admin-section-sugerencias" class="admin-section">
 
-    <!-- CONFIGURACIÓN -->
-    <section id="admin-section-configuracion" class="admin-section">
-        <h1>Configuración</h1>
-        <p>Ajustes generales del panel.</p>
+                <h1>Sugerencias</h1>
+                <p>Ideas y propuestas enviadas por los usuarios.</p>
 
-        <div class="admin-card">
-            Próximamente.
-        </div>
-    </section>
+                <div class="admin-card">
 
-    </section>
+                    <?php if (empty($sugerencias)): ?>
+
+                        <p>No hay sugerencias todavía.</p>
+
+                    <?php else: ?>
+
+                        <?php foreach ($sugerencias as $s): ?>
+
+                            <div class="admin-ticket">
+                                <div>
+                                    <strong>
+                                        <?= htmlspecialchars(trim(($s['nombre'] ?? '') . ' ' . ($s['apellidos'] ?? ''))) ?: 'Usuario' ?>
+                                    </strong>
+
+                                    <p class="mb-1">
+                                        <?= nl2br(htmlspecialchars($s['mensaje'])) ?>
+                                    </p>
+
+                                    <small>
+                                        <?= htmlspecialchars($s['email'] ?? '') ?>
+                                        · <?= date('d/m/Y H:i', strtotime($s['fecha'])) ?>
+                                    </small>
+                                </div>
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </section>
+            <!-- CONFIGURACIÓN -->
+            <section id="admin-section-configuracion" class="admin-section">
+                <h1>Configuración</h1>
+                <p>Ajustes generales del panel.</p>
+
+                <div class="admin-card">
+                    Próximamente.
+                </div>
+            </section>
+
+        </section>
 
     </div>
 
@@ -936,12 +1062,11 @@
                     Nueva categoría
                 </h5>
 
-                <button 
-                    type="button" 
-                    class="btn-close" 
+                <button
+                    type="button"
+                    class="btn-close"
                     data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                    aria-label="Cerrar"></button>
 
             </div>
 
@@ -953,14 +1078,13 @@
                         Nombre de la categoría
                     </label>
 
-                    <input 
-                        type="text" 
-                        name="nombre" 
+                    <input
+                        type="text"
+                        name="nombre"
                         id="nuevaCategoriaNombre"
                         class="form-control"
                         placeholder="Ej: Lectoescritura"
-                        required
-                    >
+                        required>
 
                     <div id="respuestaNuevaCategoria" class="mt-3"></div>
 
@@ -968,18 +1092,16 @@
 
                 <div class="modal-footer">
 
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         class="btn btn-outline-secondary"
-                        data-bs-dismiss="modal"
-                    >
+                        data-bs-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <button 
-                        type="submit" 
-                        class="btn btn-primary"
-                    >
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
                         Guardar categoría
                     </button>
 
@@ -1005,11 +1127,10 @@
                     Responder ticket
                 </h5>
 
-                <button 
-                    type="button" 
-                    class="btn-close" 
-                    data-bs-dismiss="modal"
-                ></button>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"></button>
 
             </div>
 
@@ -1027,13 +1148,12 @@
                         Respuesta
                     </label>
 
-                    <textarea 
+                    <textarea
                         id="mensajeRespuestaTicket"
                         name="mensaje"
                         class="form-control"
                         rows="4"
-                        required
-                    ></textarea>
+                        required></textarea>
 
                     <button class="btn btn-primary mt-3">
                         Enviar respuesta
@@ -1050,6 +1170,108 @@
     </div>
 
 </div>
+
+<!-- ====================================== -->
+<!-- MODAL USUARIO: DESCARGAS Y RESEÑAS -->
+<!-- ====================================== -->
+<div class="modal fade" id="modalUsuarioDetalle" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+
+        <div class="modal-content admin-modal-soft">
+
+            <!-- Cabecera -->
+            <div class="modal-header border-0 pb-0">
+
+                <h4 class="modal-title" id="modalUsuarioDetalleTitulo">
+                    Detalle del usuario
+                </h4>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                </button>
+
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="modal-body pt-3">
+
+                <div id="modalUsuarioDetalleContenido">
+
+                    <div class="text-center py-5 text-muted">
+                        Cargando información...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!--MODAL PARA USUARIOS EN PANEL ADMIN-->
+
+<div class="modal fade" id="modalAdminUsuarios" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 id="modalAdminUsuariosTitulo" class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="modalAdminUsuariosContenido">
+                    Cargando...
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!--MODAL PARA VER TODAS LAS RESEÑAS DE UN PRODUCTO-->
+
+<div class="modal fade" id="modalResenasProductoAdmin" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 id="modalResenasTitulo" class="modal-title">
+                    Reseñas del producto
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div id="contenedorResenasProductoAdmin">
+                    Cargando reseñas...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 <script src="/UNRINCONDEPT/static/js/admin.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

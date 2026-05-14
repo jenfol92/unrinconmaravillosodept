@@ -169,6 +169,7 @@ function obtenerRecursosFiltrados($categoria=null){
             return $stmt->fetch(PDO::FETCH_ASSOC);
         }
     }
+    //Funcion que obtiene recursos relacionados con el que se está viendo.
     public function obtenerProductosRelacionados($categoria_id, $producto_actual_id, $limite = 4)
     {
 
@@ -192,6 +193,8 @@ function obtenerRecursosFiltrados($categoria=null){
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    //Funcion para obtener todas las reseñas de un producto.
     public function obtenerResenasPorProducto($producto_id)
     {
         $sql = "SELECT 
@@ -260,7 +263,7 @@ public function obtenerFavoritosUsuario($usuario_id)
 }
 
 
-// Devuelve los productos favoritos completos para el panel
+// Devuelve todos los  productos favoritos para el panel
 public function obtenerProductosFavoritos($usuario_id)
 {
     // Consulta favoritos con datos del producto
@@ -394,6 +397,150 @@ public function incrementarClicks($producto_id)
 
     $stmt = $this->conexion->prepare($sql);
     return $stmt->execute([$producto_id]);
+}
+// Crear o actualizar reseña de un usuario sobre un producto comprado
+public function guardarResena($usuario_id, $producto_id, $puntuacion, $comentario)
+{
+    // Comprobamos si ya existe una reseña de ese usuario para ese producto
+    $sql = "SELECT id 
+            FROM reseñas 
+            WHERE usuario_id = ? AND producto_id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$usuario_id, $producto_id]);
+
+    $resena = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Si ya existe, actualizamos
+    if ($resena) {
+        $sql = "UPDATE reseñas 
+                SET puntuacion = ?, comentario = ?, fecha = NOW()
+                WHERE usuario_id = ? AND producto_id = ?";
+
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([
+            $puntuacion,
+            $comentario,
+            $usuario_id,
+            $producto_id
+        ]);
+    }
+
+    // Si no existe, insertamos
+    $sql = "INSERT INTO reseñas 
+            (usuario_id, producto_id, puntuacion, comentario)
+            VALUES (?, ?, ?, ?)";
+
+    $stmt = $this->conexion->prepare($sql);
+    return $stmt->execute([
+        $usuario_id,
+        $producto_id,
+        $puntuacion,
+        $comentario
+    ]);
+}
+// Obtener productos comprados por un usuario para historial de descargas
+public function obtenerProductosCompradosUsuario($usuario_id)
+{
+    $sql = "SELECT 
+                p.id,
+                p.titulo,
+                p.imagen,
+                dp.cantidad,
+                dp.precio_unitario,
+                pe.fecha_pedido,
+                pe.id AS pedido_id
+            FROM pedidos pe
+            INNER JOIN detalle_pedido dp ON dp.pedido_id = pe.id
+            INNER JOIN productos p ON p.id = dp.producto_id
+            WHERE pe.usuario_id = ?
+            AND pe.estado = 'pagado'
+            ORDER BY pe.fecha_pedido DESC";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$usuario_id]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+// Obtener reseñas de un producto para admin
+public function obtenerResenasAdminPorProducto($producto_id)
+{
+    $sql = "SELECT 
+                r.id,
+                r.producto_id,
+                r.usuario_id,
+                r.comentario,
+                r.puntuacion,
+                r.fecha,
+                r.estado,
+                u.nombre,
+                u.apellidos,
+                u.email,
+                u.puede_resenar
+            FROM reseñas r
+            INNER JOIN usuarios u ON u.id = r.usuario_id
+            WHERE r.producto_id = ?
+            ORDER BY r.fecha DESC";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$producto_id]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+// Denunciar reseña y bloquear al usuario para futuras reseñas
+public function denunciarResenaYBloquearUsuario($resena_id, $usuario_id)
+{
+    $this->conexion->beginTransaction();
+
+    $sql = "UPDATE reseñas 
+            SET estado = 'denunciada'
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$resena_id]);
+
+    $sql = "UPDATE usuarios 
+            SET puede_resenar = 0
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$usuario_id]);
+
+    $this->conexion->commit();
+
+    return true;
+}
+// Comprobar si el usuario puede publicar reseñas
+public function usuarioPuedeResenar($usuario_id)
+{
+    $sql = "SELECT puede_resenar 
+            FROM usuarios 
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$usuario_id]);
+
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $usuario && (int)$usuario['puede_resenar'] === 1;
+}
+// Cambiar estado de una reseña
+public function cambiarEstadoResena($resena_id, $estado)
+{
+    $estadosPermitidos = ['visible', 'oculta', 'denunciada'];
+
+    if (!in_array($estado, $estadosPermitidos)) {
+        return false;
+    }
+
+    $sql = "UPDATE reseñas 
+            SET estado = ?
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    return $stmt->execute([$estado, $resena_id]);
 }
 }
 

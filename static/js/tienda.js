@@ -369,3 +369,29 @@ document.addEventListener("click", function (e) {
             alert("Error al guardar favorito");
         });
 });
+// Comprar ahora: añade al carrito y redirige al carrito
+function comprarAhora(id) {
+
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("accion", "add_carrito");
+
+    fetch("/UNRINCONDEPT/public/ajax_operaciones_carrito.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "success") {
+            window.location.href = "/UNRINCONDEPT/public/carrito.php";
+        } else {
+            alert(data.message || "No se pudo procesar la compra.");
+        }
+
+    })
+    .catch(error => {
+        console.error("Error comprar ahora:", error);
+        alert("Error al procesar la compra.");
+    });
+}

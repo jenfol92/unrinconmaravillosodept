@@ -77,13 +77,22 @@
         <?= number_format($producto['precio'], 2) ?> €
     </h2>
 
-    <button class="btn btn-success w-100 mb-3 py-3 rounded-3">
-        🛒 Añadir al carrito
-    </button>
+  <button
+    type="button"
+    class="btn btn-outline-success"
+    onclick="gestionarSesion(<?= $producto['id'] ?>, 'add_carrito')"
+>
+    <i class="bi bi-cart"></i>
+    Añadir al carrito
+</button>
 
-    <button class="btn btn-outline-dark w-100 py-3 rounded-3 mb-4">
-        Comprar ahora
-    </button>
+  <button
+    type="button"
+    class="btn btn-primary"
+    onclick="comprarAhora(<?= $producto['id'] ?>)"
+>
+    Comprar ahora
+</button>
 
     <!-- CHECKS -->
     <div class="small text-muted">
@@ -227,11 +236,29 @@
                 escríbeme y te responderé en menos de 24h.
             </p>
 
-            <a href="https://www.instagram.com/tu_instagram/"
-               target="_blank"
-               class="btn w-100">
-                Contactar con la autora
-            </a>
+            <?php if (!isset($_SESSION['usuario_id'])): ?>
+
+    <a 
+        href="/UNRINCONDEPT/public/contacto.php?producto_id=<?= $producto['id'] ?>"
+        class="btn btn-outline-primary"
+    >
+        <i class="bi bi-chat-dots"></i>
+        Contactar con la autora
+    </a>
+
+<?php else: ?>
+
+    <button 
+        type="button"
+        class="btn btn-outline-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#modalChatProducto"
+    >
+        <i class="bi bi-chat-dots"></i>
+        Contactar con la autora
+    </button>
+
+<?php endif; ?>
         </div>
 
     </div>
@@ -304,5 +331,64 @@
     </div>
 
 </div>
+<div class="modal fade" id="modalChatProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content chat-autora-modal">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Chat con la autora
+                </h5>
+
+                <button 
+                    type="button" 
+                    class="btn-close" 
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="chat-box-intro mb-3">
+                    <strong><?= htmlspecialchars($producto['titulo']) ?></strong>
+                    <p class="mb-0">
+                        Escribe tu duda sobre este material. La autora podrá responderte desde tu panel.
+                    </p>
+                </div>
+
+                <form id="formChatProducto">
+
+                    <input type="hidden" name="producto_id" value="<?= htmlspecialchars($producto['id']) ?>">
+
+                    <input 
+                        type="hidden" 
+                        name="asunto" 
+                        value="Consulta sobre: <?= htmlspecialchars($producto['titulo'], ENT_QUOTES) ?>"
+                    >
+
+                    <textarea 
+                        name="mensaje"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Escribe tu mensaje..."
+                        required
+                    ></textarea>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        Enviar mensaje
+                    </button>
+
+                </form>
+
+                <div id="respuestaChatProducto" class="mt-3"></div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
+<script src="/UNRINCONDEPT/static/js/detalle_producto.js"></script>
+
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>
