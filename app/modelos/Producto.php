@@ -30,29 +30,27 @@ class Producto
 El parámetro límite será 3 por defecto.
 Datos de obtención: id, titulo, descripcion, precio, imagen, categoria(nombre), nivel (nivel).
 */
-    function obtenerRecursosDestacados($limite = 3)
+    public function obtenerRecursosDestacados($limite = 3)
     {
-        $consulta = " SELECT 
-            p.id,
-            p.titulo,
-            p.descripcion,
-            p.precio,
-            p.imagen,
-            p.estado,
-            c.nombre AS categoria,
-            n.nombre AS nivel,
-            SUM(d.numero_descargas) AS total_descargas
-        FROM productos p
-        LEFT JOIN categorias c ON c.id = p.categoria_id
-        LEFT JOIN niveles n ON n.id = p.nivel_id
-        LEFT JOIN descargas d ON d.producto_id = p.id
-        WHERE p.estado = 'activo'
-        GROUP BY p.id
-        ORDER BY total_descargas DESC
-        LIMIT :limite ";
-        $stmt = $this->conexion->prepare($consulta);
-        $stmt->bindParam(":limite", $limite, PDO::PARAM_INT);
+        $sql = "SELECT 
+                p.id,
+                p.titulo,
+                p.imagen,
+                p.precio,
+                COALESCE(p.clicks, 0) AS clicks,
+                c.nombre AS categoria_nombre,
+                c.nombre AS categoria
+            FROM productos p
+            LEFT JOIN categorias c ON c.id = p.categoria_id
+            WHERE p.estado = 'activo'
+            AND (p.es_gratuito IS NULL OR p.es_gratuito = 0)
+            ORDER BY COALESCE(p.clicks, 0) DESC, p.id DESC
+            LIMIT ?";
+
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bindValue(1, (int)$limite, PDO::PARAM_INT);
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     /*
@@ -215,59 +213,59 @@ function obtenerRecursosFiltrados($categoria=null){
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-// Añade o elimina un favorito
-public function toggleFavorito($usuario_id, $producto_id)
-{
-    // Comprobamos si ya existe ese favorito
-    $sql = "SELECT id FROM favoritos 
+    // Añade o elimina un favorito
+    public function toggleFavorito($usuario_id, $producto_id)
+    {
+        // Comprobamos si ya existe ese favorito
+        $sql = "SELECT id FROM favoritos 
             WHERE usuario_id = ? AND producto_id = ?";
-
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id, $producto_id]);
-
-    $favorito = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Si existe, lo quitamos
-    if ($favorito) {
-        $sql = "DELETE FROM favoritos 
-                WHERE usuario_id = ? AND producto_id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id, $producto_id]);
 
-        return 'eliminado';
-    }
+        $favorito = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Si no existe, lo guardamos
-    $sql = "INSERT INTO favoritos (usuario_id, producto_id) 
+        // Si existe, lo quitamos
+        if ($favorito) {
+            $sql = "DELETE FROM favoritos 
+                WHERE usuario_id = ? AND producto_id = ?";
+
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$usuario_id, $producto_id]);
+
+            return 'eliminado';
+        }
+
+        // Si no existe, lo guardamos
+        $sql = "INSERT INTO favoritos (usuario_id, producto_id) 
             VALUES (?, ?)";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id, $producto_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $producto_id]);
 
-    return 'guardado';
-}
+        return 'guardado';
+    }
 
 
-// Devuelve solo los IDs favoritos del usuario
-public function obtenerFavoritosUsuario($usuario_id)
-{
-    $sql = "SELECT producto_id 
+    // Devuelve solo los IDs favoritos del usuario
+    public function obtenerFavoritosUsuario($usuario_id)
+    {
+        $sql = "SELECT producto_id 
             FROM favoritos 
             WHERE usuario_id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 
 
-// Devuelve todos los  productos favoritos para el panel
-public function obtenerProductosFavoritos($usuario_id)
-{
-    // Consulta favoritos con datos del producto
-    $sql = "SELECT 
+    // Devuelve todos los  productos favoritos para el panel
+    public function obtenerProductosFavoritos($usuario_id)
+    {
+        // Consulta favoritos con datos del producto
+        $sql = "SELECT 
                 p.id,
                 p.titulo,
                 p.precio,
@@ -282,16 +280,16 @@ public function obtenerProductosFavoritos($usuario_id)
             WHERE f.usuario_id = ?
             ORDER BY f.fecha DESC";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-// Obtiene productos para el panel de administración con filtros
-public function obtenerProductosAdmin($categorias = [], $niveles = [], $busqueda = '', $estado = '', $limite = 10, $offset = 0)
-{
-    // Consulta base: no filtramos solo activos porque en admin queremos ver todos
-$sql = "SELECT 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // Obtiene productos para el panel de administración con filtros
+    public function obtenerProductosAdmin($categorias = [], $niveles = [], $busqueda = '', $estado = '', $limite = 10, $offset = 0)
+    {
+        // Consulta base: no filtramos solo activos porque en admin queremos ver todos
+        $sql = "SELECT 
             p.*,
             n.nombre AS nivel_nombre,
             c.nombre AS categoria_nombre,
@@ -305,144 +303,144 @@ $sql = "SELECT
         LEFT JOIN reseñas r ON r.producto_id = p.id
         WHERE 1=1";
 
-    $params = [];
+        $params = [];
 
-    // Filtro por estado
-    if (!empty($estado)) {
-        $sql .= " AND p.estado = ?";
-        $params[] = $estado;
+        // Filtro por estado
+        if (!empty($estado)) {
+            $sql .= " AND p.estado = ?";
+            $params[] = $estado;
+        }
+
+        // Filtro por categorías
+        if (!empty($categorias)) {
+            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+            $sql .= " AND p.categoria_id IN ($placeholders)";
+            $params = array_merge($params, $categorias);
+        }
+
+        // Filtro por niveles
+        if (!empty($niveles)) {
+            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+            $sql .= " AND p.nivel_id IN ($placeholders)";
+            $params = array_merge($params, $niveles);
+        }
+
+        // Filtro por búsqueda
+        if (!empty($busqueda)) {
+            $sql .= " AND p.titulo LIKE ?";
+            $params[] = "%$busqueda%";
+        }
+
+        // Orden y paginación
+        $sql .= " GROUP BY p.id ORDER BY p.id DESC LIMIT $limite OFFSET $offset";
+
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute($params);
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Consulta total
+        $sql_total = "SELECT COUNT(*) FROM productos p WHERE 1=1";
+        $params_total = [];
+
+        if (!empty($estado)) {
+            $sql_total .= " AND p.estado = ?";
+            $params_total[] = $estado;
+        }
+
+        if (!empty($categorias)) {
+            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+            $sql_total .= " AND p.categoria_id IN ($placeholders)";
+            $params_total = array_merge($params_total, $categorias);
+        }
+
+        if (!empty($niveles)) {
+            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+            $sql_total .= " AND p.nivel_id IN ($placeholders)";
+            $params_total = array_merge($params_total, $niveles);
+        }
+
+        if (!empty($busqueda)) {
+            $sql_total .= " AND p.titulo LIKE ?";
+            $params_total[] = "%$busqueda%";
+        }
+
+        $stmt_total = $this->conexion->prepare($sql_total);
+        $stmt_total->execute($params_total);
+        $total = $stmt_total->fetchColumn();
+
+        return [
+            'productos' => $productos,
+            'total_paginas' => ceil($total / $limite)
+        ];
     }
+    // Crear nueva categoría
+    public function crearCategoria($nombre)
+    {
+        $sql = "INSERT INTO categorias (nombre) VALUES (?)";
 
-    // Filtro por categorías
-    if (!empty($categorias)) {
-        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-        $sql .= " AND p.categoria_id IN ($placeholders)";
-        $params = array_merge($params, $categorias);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$nombre]);
+
+        return [
+            'id' => $this->conexion->lastInsertId(),
+            'nombre' => $nombre
+        ];
     }
-
-    // Filtro por niveles
-    if (!empty($niveles)) {
-        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-        $sql .= " AND p.nivel_id IN ($placeholders)";
-        $params = array_merge($params, $niveles);
-    }
-
-    // Filtro por búsqueda
-    if (!empty($busqueda)) {
-        $sql .= " AND p.titulo LIKE ?";
-        $params[] = "%$busqueda%";
-    }
-
-    // Orden y paginación
-   $sql .= " GROUP BY p.id ORDER BY p.id DESC LIMIT $limite OFFSET $offset";
-
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute($params);
-    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Consulta total
-    $sql_total = "SELECT COUNT(*) FROM productos p WHERE 1=1";
-    $params_total = [];
-
-    if (!empty($estado)) {
-        $sql_total .= " AND p.estado = ?";
-        $params_total[] = $estado;
-    }
-
-    if (!empty($categorias)) {
-        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-        $sql_total .= " AND p.categoria_id IN ($placeholders)";
-        $params_total = array_merge($params_total, $categorias);
-    }
-
-    if (!empty($niveles)) {
-        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-        $sql_total .= " AND p.nivel_id IN ($placeholders)";
-        $params_total = array_merge($params_total, $niveles);
-    }
-
-    if (!empty($busqueda)) {
-        $sql_total .= " AND p.titulo LIKE ?";
-        $params_total[] = "%$busqueda%";
-    }
-
-    $stmt_total = $this->conexion->prepare($sql_total);
-    $stmt_total->execute($params_total);
-    $total = $stmt_total->fetchColumn();
-
-    return [
-        'productos' => $productos,
-        'total_paginas' => ceil($total / $limite)
-    ];
-}
-// Crear nueva categoría
-public function crearCategoria($nombre)
-{
-    $sql = "INSERT INTO categorias (nombre) VALUES (?)";
-
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$nombre]);
-
-    return [
-        'id' => $this->conexion->lastInsertId(),
-        'nombre' => $nombre
-    ];
-}
-// Incrementar contador de clics del producto
-public function incrementarClicks($producto_id)
-{
-    $sql = "UPDATE productos
+    // Incrementar contador de clics del producto
+    public function incrementarClicks($producto_id)
+    {
+        $sql = "UPDATE productos
             SET clicks = clicks + 1
             WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    return $stmt->execute([$producto_id]);
-}
-// Crear o actualizar reseña de un usuario sobre un producto comprado
-public function guardarResena($usuario_id, $producto_id, $puntuacion, $comentario)
-{
-    // Comprobamos si ya existe una reseña de ese usuario para ese producto
-    $sql = "SELECT id 
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([$producto_id]);
+    }
+    // Crear o actualizar reseña de un usuario sobre un producto comprado
+    public function guardarResena($usuario_id, $producto_id, $puntuacion, $comentario)
+    {
+        // Comprobamos si ya existe una reseña de ese usuario para ese producto
+        $sql = "SELECT id 
             FROM reseñas 
             WHERE usuario_id = ? AND producto_id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id, $producto_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $producto_id]);
 
-    $resena = $stmt->fetch(PDO::FETCH_ASSOC);
+        $resena = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Si ya existe, actualizamos
-    if ($resena) {
-        $sql = "UPDATE reseñas 
+        // Si ya existe, actualizamos
+        if ($resena) {
+            $sql = "UPDATE reseñas 
                 SET puntuacion = ?, comentario = ?, fecha = NOW()
                 WHERE usuario_id = ? AND producto_id = ?";
 
-        $stmt = $this->conexion->prepare($sql);
-        return $stmt->execute([
-            $puntuacion,
-            $comentario,
-            $usuario_id,
-            $producto_id
-        ]);
-    }
+            $stmt = $this->conexion->prepare($sql);
+            return $stmt->execute([
+                $puntuacion,
+                $comentario,
+                $usuario_id,
+                $producto_id
+            ]);
+        }
 
-    // Si no existe, insertamos
-    $sql = "INSERT INTO reseñas 
+        // Si no existe, insertamos
+        $sql = "INSERT INTO reseñas 
             (usuario_id, producto_id, puntuacion, comentario)
             VALUES (?, ?, ?, ?)";
 
-    $stmt = $this->conexion->prepare($sql);
-    return $stmt->execute([
-        $usuario_id,
-        $producto_id,
-        $puntuacion,
-        $comentario
-    ]);
-}
-// Obtener productos comprados por un usuario para historial de descargas
-public function obtenerProductosCompradosUsuario($usuario_id)
-{
-    $sql = "SELECT 
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([
+            $usuario_id,
+            $producto_id,
+            $puntuacion,
+            $comentario
+        ]);
+    }
+    // Obtener productos comprados por un usuario para historial de descargas
+    public function obtenerProductosCompradosUsuario($usuario_id)
+    {
+        $sql = "SELECT 
                 p.id,
                 p.titulo,
                 p.imagen,
@@ -457,15 +455,15 @@ public function obtenerProductosCompradosUsuario($usuario_id)
             AND pe.estado = 'pagado'
             ORDER BY pe.fecha_pedido DESC";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-// Obtener reseñas de un producto para admin
-public function obtenerResenasAdminPorProducto($producto_id)
-{
-    $sql = "SELECT 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // Obtener reseñas de un producto para admin
+    public function obtenerResenasAdminPorProducto($producto_id)
+    {
+        $sql = "SELECT 
                 r.id,
                 r.producto_id,
                 r.usuario_id,
@@ -482,65 +480,64 @@ public function obtenerResenasAdminPorProducto($producto_id)
             WHERE r.producto_id = ?
             ORDER BY r.fecha DESC";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$producto_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$producto_id]);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
-// Denunciar reseña y bloquear al usuario para futuras reseñas
-public function denunciarResenaYBloquearUsuario($resena_id, $usuario_id)
-{
-    $this->conexion->beginTransaction();
+    // Denunciar reseña y bloquear al usuario para futuras reseñas
+    public function denunciarResenaYBloquearUsuario($resena_id, $usuario_id)
+    {
+        $this->conexion->beginTransaction();
 
-    $sql = "UPDATE reseñas 
+        $sql = "UPDATE reseñas 
             SET estado = 'denunciada'
             WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$resena_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$resena_id]);
 
-    $sql = "UPDATE usuarios 
+        $sql = "UPDATE usuarios 
             SET puede_resenar = 0
             WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-    $this->conexion->commit();
+        $this->conexion->commit();
 
-    return true;
-}
-// Comprobar si el usuario puede publicar reseñas
-public function usuarioPuedeResenar($usuario_id)
-{
-    $sql = "SELECT puede_resenar 
+        return true;
+    }
+    // Comprobar si el usuario puede publicar reseñas
+    public function usuarioPuedeResenar($usuario_id)
+    {
+        $sql = "SELECT puede_resenar 
             FROM usuarios 
             WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    return $usuario && (int)$usuario['puede_resenar'] === 1;
-}
-// Cambiar estado de una reseña
-public function cambiarEstadoResena($resena_id, $estado)
-{
-    $estadosPermitidos = ['visible', 'oculta', 'denunciada'];
-
-    if (!in_array($estado, $estadosPermitidos)) {
-        return false;
+        return $usuario && (int)$usuario['puede_resenar'] === 1;
     }
+    // Cambiar estado de una reseña
+    public function cambiarEstadoResena($resena_id, $estado)
+    {
+        $estadosPermitidos = ['visible', 'oculta', 'denunciada'];
 
-    $sql = "UPDATE reseñas 
+        if (!in_array($estado, $estadosPermitidos)) {
+            return false;
+        }
+
+        $sql = "UPDATE reseñas 
             SET estado = ?
             WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    return $stmt->execute([$estado, $resena_id]);
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([$estado, $resena_id]);
+    }
 }
-}
-

@@ -1,6 +1,7 @@
 <?php
 //Incluimos los datos que producto.php extrae de la base de datos.
 require_once __DIR__ . '/../modelos/Producto.php';
+require_once __DIR__ . '/../modelos/recursosGratuitos.php';
 
 //Creamos la clase ProductoController
 class ProductoController{
@@ -15,10 +16,12 @@ public function __construct(){
 Obtenemos datos con el controlador del modelo Producto.php para cargar los recursos en home (index) 
 obteniendo los datos de la base de datos y cargar la vista index.view.php */
 public function home(){
+     $recursosGratuitosModel = new RecursoGratuito();
 
         // Obtener datos desde el modelo
         $categorias = $this->productModel->obtenerCategorias();
         $destacados = $this->productModel->obtenerRecursosDestacados();
+        $gratuitosHome = $recursosGratuitosModel->obtenerRecursosGratuitosHome(3);
 
         // Cargar vista
         require_once __DIR__ . '/../vistas/index_view.php';
@@ -79,46 +82,55 @@ $resenas = $this->productModel->obtenerResenasPorProducto($id);
         // Cargar vista
         require_once __DIR__ . '/../vistas/producto_detalle.php';
     }
-    public function carrito() {
-       $productos_carrito = []; 
-        $totales = [
+public function carrito() 
+{
+    $productos_carrito = []; 
+
+    $totales = [
         'subtotal' => 0,
         'iva' => 0,
         'total' => 0
     ];
-    // 2. ¿Hay algo en la sesión?
+
+    // ¿Hay algo en la sesión?
     if (!empty($_SESSION['carrito'])) {
-        // Obtenemos solo los IDs (las llaves del array de sesión)
+
+        // Obtenemos solo los IDs del carrito
         $ids = array_keys($_SESSION['carrito']);
-        
-        // Llamamos a tu función universal del modelo
+
+        // Obtenemos los productos desde la BD
         $productos_data = $this->productModel->obtenerProductosID($ids);
 
-        // 3. Cruzamos datos: Información de BD + Cantidades de Sesión
+        // Cruzamos datos de BD + cantidades de sesión
         foreach ($productos_data as $p) {
-            $id_actual = $p['id'];
-            $cantidad = $_SESSION['carrito'][$id_actual];
-            $precio_total = $p['precio'] * $cantidad;
 
-            // Añadimos la cantidad al array del producto para la vista
+            $id_actual = $p['id'];
+
+            $cantidad = (int)($_SESSION['carrito'][$id_actual] ?? 1);
+            $precio = (float)($p['precio'] ?? 0);
+
+            $precio_total = $precio * $cantidad;
+
+            // Añadimos datos extra para la vista
             $p['cantidad'] = $cantidad;
             $p['total_fila'] = $precio_total;
 
             $productos_carrito[] = $p;
-            
+
             // Sumamos al subtotal
             $totales['subtotal'] += $precio_total;
         }
+    }
 
+    // Como no hay IVA ni gastos añadidos, el total es igual al subtotal
+    $totales['total'] = $totales['subtotal'];
 
-}
+    // Variables simples para carrito_view.php
+    $subtotal = $totales['subtotal'];
+    $iva = $totales['iva'];
+    $total = $totales['total'];
 
-// Variables simples para carrito_view.php
-$subtotal = $totales['subtotal'];
-$iva = $totales['iva'];
-$total = $totales['total'];
-
-// 5. Llamamos a la vista
-require_once __DIR__ . '/../vistas/carrito_view.php';
+    // Cargamos la vista
+    require_once __DIR__ . '/../vistas/carrito_view.php';
 }
 }

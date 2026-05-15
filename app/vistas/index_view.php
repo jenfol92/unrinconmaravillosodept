@@ -1,164 +1,319 @@
-<?php
+<?php require_once __DIR__ . '/../../templates/header.php'; ?>
 
-require_once __DIR__ . '/../../templates/header.php';
+<main class="home-page">
 
-?>
+    <!-- HERO -->
+    <section class="home-hero">
 
-<section class="hero_seccion">
+        <div class="container">
 
-    <div class="container">
+            <div class="row align-items-center g-5">
 
-        <div class="row align-items-center">
+                <!-- TEXTO -->
+                <div class="col-12 col-lg-6">
 
-            <!-- TEXTO — izquierda en desktop, arriba en móvil col-12 d-flex flex-column-->
+                    <span class="home-pill">
+                        <i class="bi bi-stars me-1"></i>
+                        Nuevos recursos cada semana
+                    </span>
 
-            <div class="col-md-6 d-flex- fex-column" style="min-height: 420px;">
+                    <h1 class="home-title">
+                        ¡Bienvenidos a <span>Un mundo maravilloso</span> de PT!
+                    </h1>
 
-                <div class="d-none d-md-inline-block">
+                    <p class="home-subtitle">
+                        Aquí encontrarás propuestas reales, materiales pictografiados,
+                        adaptaciones curriculares y herramientas prácticas para facilitar
+                        el aprendizaje del alumnado con necesidades educativas.
+                    </p>
 
-                    <span class="hero_etiqueta"> <i class="bi bi-stars me-1"></i> Nuevos recursos cada semana</span>
+                    <div class="home-actions">
 
-                </div>
+                        <a href="/UNRINCONDEPT/public/tienda.php" class="home-btn-primary">
+                            Explorar recursos
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
 
-                <h1 class="hero_titulo">¡ Bienvenidos a <span>Un mundo maravilloso </span>de PT!.</h1>
-
-                <div class="d-none d-md-inline-block">
-
-                    <p> Aquí encontrarás propuestas reales, materiales pictografiados, adaptaciones curriculares, herramientas prácticas...Todo con el objetivo de facilitar el aprendizaje del alumnado con necesidades educativas. </p>
-
-                </div>
-
-                <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 flex-wrap mt-auto pb-4">
-
-                    <a href="tienda.php" class="mi-btn-acceder">Explorar Recursos -></a>
-
-                    <a href="recursos_gratuitos.php" class="hero_link">Material Gratuito</a>
-
-                </div>
-
-            </div>
-
-            <!--Imagen-->
-
-            <div class="col-md-6 d-none d-md-block">
-
-                <div class="hero_deco">
-
-                    <div class="hero_fondo_amarillo"></div>
-
-                    <div class="hero_fondo_turq">
-
-                        <img src="../static/images/logo/logo.jpeg" class="imagen_hero">
+                        <a href="/UNRINCONDEPT/public/recursos_gratuitos.php" class="home-btn-link">
+                            Ver material gratuito
+                        </a>
 
                     </div>
 
                 </div>
 
+                <!-- IMAGEN -->
+                <div class="col-12 col-lg-6">
 
+                    <div class="home-hero-image-wrap">
+
+                        <div class="home-hero-bg-one"></div>
+                        <div class="home-hero-bg-two"></div>
+
+                        <img
+                            src="/UNRINCONDEPT/static/images/logo/logo.jpeg"
+                            alt="Un rincón maravilloso de PT"
+                            class="home-hero-image">
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
-
-</section>
+    </section>
 
 
-<section class="aqui_encontraras">
-    <div class="container py-5">
-            <div class="row">
-            <div class="col-12 d-md-none aquiencontraras">
-                <h1 class="title_section">Aquí encontrarás</h1>
-                <p> Propuestas reales, materiales pictografiados, adaptaciones curriculares, herramientas prácticas...Todo con el objetivo de facilitar el aprendizaje del alumnado con necesidades educativas.</p>
-            </div>
+    <!-- RECURSOS DESTACADOS -->
+<section class="home-section home-destacados">
+
+    <div class="container">
+
+        <div class="home-section-heading">
+
+            <span class="home-small-label">
+                <i class="bi bi-fire"></i>
+                Más visitados
+            </span>
+
+            <h2>Recursos destacados</h2>
+
+            <p>
+                Los materiales que más interés están generando entre los usuarios.
+            </p>
+
         </div>
 
-        <div class="container my-5">
-            <h2>Recursos Destacados</h2>
+        <?php if (empty($destacados)): ?>
 
-            <div id="resourceCarousel" class="carousel slide d-md-none" data-bs-ride="carousel">
+            <div class="home-empty">
+                Todavía no hay recursos destacados.
+            </div>
+
+        <?php else: ?>
+
+            <?php
+            $colores = ['home-card-pink', 'home-card-green', 'home-card-yellow'];
+            ?>
+
+            <!-- CARRUSEL SOLO MÓVIL -->
+            <div id="homeDestacadosCarousel" class="carousel slide d-md-none" data-bs-ride="carousel">
+
                 <div class="carousel-indicators">
                     <?php foreach ($destacados as $index => $recurso): ?>
-                        <button type="button" data-bs-target="#resourceCarousel" data-bs-slide-to="<?= $index ?>" class="<?= $index === 0 ? 'active' : '' ?>" aria-current="true"></button>
+                        <button 
+                            type="button" 
+                            data-bs-target="#homeDestacadosCarousel" 
+                            data-bs-slide-to="<?= $index ?>" 
+                            class="<?= $index === 0 ? 'active' : '' ?>"
+                            aria-current="<?= $index === 0 ? 'true' : 'false' ?>">
+                        </button>
                     <?php endforeach; ?>
                 </div>
 
                 <div class="carousel-inner">
-                    <?php
-                    $colores = ['card-pink', 'card-green', 'card-yellow'];
-                    foreach ($destacados as $index => $recurso):
+
+                    <?php foreach ($destacados as $index => $recurso): ?>
+
+                        <?php
                         $colorClase = $colores[$index % count($colores)];
-                    ?>
+
+                        $categoria = $recurso['categoria_nombre']
+                            ?? $recurso['categoria']
+                            ?? 'Recurso';
+
+                        $precio = number_format((float)$recurso['precio'], 2);
+                        ?>
+
                         <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                            <div class="resource-card <?= $colorClase ?>">
-                                <div class="card-badge"><?= htmlspecialchars($recurso['categoria']) ?></div>
-                                <img src="../../static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>" class="d-block w-100">
-                                <div class="card-body">
-                                    <h3><?= htmlspecialchars($recurso['titulo']) ?></h3>
-                                    <div class="card-footer-custom">
-                                        <span class="price"><?= htmlspecialchars($recurso['precio']) ?>€</span>
-                                        <button class="btn-carrito"><i class="bi bi-bag"></i></button>
-                                    </div>
+
+                            <article
+                                class="home-resource-card <?= $colorClase ?>"
+                                onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
+
+                                <span class="home-card-badge">
+                                    <?= htmlspecialchars($categoria) ?>
+                                </span>
+
+                                <div class="home-card-img-wrap">
+                                    <img
+                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
+                                        alt="<?= htmlspecialchars($recurso['titulo']) ?>">
                                 </div>
-                            </div>
+
+                                <div class="home-card-body">
+
+                                    <h3>
+                                        <?= htmlspecialchars($recurso['titulo']) ?>
+                                    </h3>
+
+                                    <div class="home-card-meta">
+
+                                        <span class="home-card-price">
+                                            <?= $precio ?> €
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            class="home-card-cart"
+                                            title="Añadir al carrito"
+                                            onclick="event.stopPropagation(); gestionarSesion(<?= (int)$recurso['id'] ?>, 'add_carrito')">
+                                            <i class="bi bi-bag"></i>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
                         </div>
+
                     <?php endforeach; ?>
+
                 </div>
 
-                <button class="carousel-control-prev" type="button" data-bs-target="#resourceCarousel" data-bs-slide="prev">
+                <button class="carousel-control-prev" type="button" data-bs-target="#homeDestacadosCarousel" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#resourceCarousel" data-bs-slide="next">
+
+                <button class="carousel-control-next" type="button" data-bs-target="#homeDestacadosCarousel" data-bs-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 </button>
+
             </div>
 
-            <div class="row d-none d-md-flex">
-                <?php foreach ($destacados as $index => $recurso):
+
+            <!-- GRID TABLET / ESCRITORIO -->
+            <div class="row g-4 d-none d-md-flex">
+
+                <?php foreach ($destacados as $index => $recurso): ?>
+
+                    <?php
                     $colorClase = $colores[$index % count($colores)];
-                ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="resource-card <?= $colorClase ?>">
-                            <div class="card-badge"><?= htmlspecialchars($recurso['categoria']) ?></div>
-                            <img src="../../static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>" class="img-fluid">
-                            <div class="card-body">
-                                <h3><?= htmlspecialchars($recurso['titulo']) ?></h3>
-                                <div class="card-footer-custom">
-                                    <span class="price"><?= htmlspecialchars($recurso['precio']) ?>€</span>
-                                    <button class="btn-carrito"><i class="bi bi-bag"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
 
+                    $categoria = $recurso['categoria_nombre']
+                        ?? $recurso['categoria']
+                        ?? 'Recurso';
+
+                    $precio = number_format((float)$recurso['precio'], 2);
+                    ?>
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <article
+                            class="home-resource-card <?= $colorClase ?>"
+                            onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
+
+                            <span class="home-card-badge">
+                                <?= htmlspecialchars($categoria) ?>
+                            </span>
+
+                            <div class="home-card-img-wrap">
+                                <img
+                                    src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
+                                    alt="<?= htmlspecialchars($recurso['titulo']) ?>">
+                            </div>
+
+                            <div class="home-card-body">
+
+                                <h3>
+                                    <?= htmlspecialchars($recurso['titulo']) ?>
+                                </h3>
+
+                                <div class="home-card-meta">
+
+                                    <span class="home-card-price">
+                                        <?= $precio ?> €
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="home-card-cart"
+                                        title="Añadir al carrito"
+                                        onclick="event.stopPropagation(); gestionarSesion(<?= (int)$recurso['id'] ?>, 'add_carrito')">
+                                        <i class="bi bi-bag"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
 
 </section>
 
-<section class="sobre_mi">
+    <!-- SOBRE MÍ -->
+<section class="home-about">
 
     <div class="container">
 
-        <div class="row">
+        <div class="home-about-card">
 
-            <div class="col-12">
+            <div class="row align-items-center g-4">
 
-                <div class="col-12 d-flex justify-content-end">
+                <div class="col-12 col-lg-4">
 
-                    <span class="etiqueta_blanca"> <i class="bi bi-stars me-1"></i> Sobre mi</span>
+                    <div class="home-about-avatar">
+                        <span>R</span>
+                    </div>
+
+                    <div class="home-about-label">
+                        <i class="bi bi-stars me-1"></i>
+                        Sobre mí
+                    </div>
 
                 </div>
-                <div class="col-md-12 d-flex justify-content-center">
-                    <p> "Soy Raquel, maestra especialista en Pedagogía Terapéutica y apasionada por la educación inclusiva.
-                        Creo en una educación manipulativa, visual y funcional, donde todo el alumnado tenga su espacio, su ritmo y su manera de aprender.
 
-                        Este espacio nace de la experiencia, la vocación y las ganas de seguir creciendo y compartiendo."
-                        ¡Gracias por estar aquí!</p>
+                <div class="col-12 col-lg-8">
+
+                    <h2>
+                        Recursos creados desde la experiencia real del aula
+                    </h2>
+
+                    <p>
+                        Soy Raquel, maestra especialista en Pedagogía Terapéutica y apasionada
+                        por la educación inclusiva.
+                    </p>
+
+                    <p>
+                        Creo en una educación manipulativa, visual y funcional, donde todo el
+                        alumnado tenga su espacio, su ritmo y su manera de aprender.
+                    </p>
+
+                    <div class="home-about-features">
+
+                        <div>
+                            <i class="bi bi-heart"></i>
+                            Material visual
+                        </div>
+
+                        <div>
+                            <i class="bi bi-puzzle"></i>
+                            Aprendizaje manipulativo
+                        </div>
+
+                        <div>
+                            <i class="bi bi-stars"></i>
+                            Inclusión real
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
 
         </div>
@@ -167,9 +322,180 @@ require_once __DIR__ . '/../../templates/header.php';
 
 </section>
 
+   <!-- RECURSOS GRATUITOS -->
+<section class="home-section home-gratuitos">
 
-<?php
+    <div class="container">
 
-require_once __DIR__ . '/../../templates/footer.php';
+        <div class="home-section-heading">
 
-?>
+            <span class="home-small-label">
+                <i class="bi bi-gift"></i>
+                Material gratuito
+            </span>
+
+            <h2>Recursos gratuitos</h2>
+
+            <p>
+                Descarga materiales gratuitos listos para usar en el aula, en casa o en sesiones de apoyo.
+            </p>
+
+        </div>
+
+        <?php if (empty($gratuitosHome)): ?>
+
+            <div class="home-empty">
+                Todavía no hay recursos gratuitos disponibles.
+            </div>
+
+        <?php else: ?>
+
+            <!-- CARRUSEL SOLO MÓVIL -->
+            <div id="homeGratuitosCarousel" class="carousel slide d-md-none" data-bs-ride="carousel">
+
+                <div class="carousel-indicators">
+                    <?php foreach ($gratuitosHome as $index => $gratis): ?>
+                        <button
+                            type="button"
+                            data-bs-target="#homeGratuitosCarousel"
+                            data-bs-slide-to="<?= $index ?>"
+                            class="<?= $index === 0 ? 'active' : '' ?>"
+                            aria-current="<?= $index === 0 ? 'true' : 'false' ?>">
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="carousel-inner">
+
+                    <?php foreach ($gratuitosHome as $index => $gratis): ?>
+
+                        <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+
+                            <article class="home-free-card">
+
+                                <?php if (!empty($gratis['imagen'])): ?>
+
+                                    <div class="home-free-img-wrap">
+                                        <img
+                                            src="/UNRINCONDEPT/static/images/gratuitos/<?= htmlspecialchars($gratis['imagen']) ?>"
+                                            alt="<?= htmlspecialchars($gratis['titulo']) ?>">
+                                    </div>
+
+                                <?php else: ?>
+
+                                    <div class="home-free-placeholder">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </div>
+
+                                <?php endif; ?>
+
+                                <div class="home-free-body">
+
+                                    <span class="home-free-badge">
+                                        <?= htmlspecialchars($gratis['categoria_nombre'] ?? 'Gratuito') ?>
+                                    </span>
+
+                                    <h3>
+                                        <?= htmlspecialchars($gratis['titulo']) ?>
+                                    </h3>
+
+                                    <a
+                                        href="<?= htmlspecialchars($gratis['url_drive']) ?>"
+                                        target="_blank"
+                                        class="home-free-btn">
+                                        Ver recurso
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+
+                                </div>
+
+                            </article>
+
+                        </div>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#homeGratuitosCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </button>
+
+                <button class="carousel-control-next" type="button" data-bs-target="#homeGratuitosCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </button>
+
+            </div>
+
+
+            <!-- GRID TABLET / ESCRITORIO -->
+            <div class="row g-4 d-none d-md-flex">
+
+                <?php foreach ($gratuitosHome as $gratis): ?>
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <article class="home-free-card">
+
+                            <?php if (!empty($gratis['imagen'])): ?>
+
+                                <div class="home-free-img-wrap">
+                                    <img
+                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
+                                        alt="<?= htmlspecialchars($gratis['titulo']) ?>">
+                                </div>
+
+                            <?php else: ?>
+
+                                <div class="home-free-placeholder">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </div>
+
+                            <?php endif; ?>
+
+                            <div class="home-free-body">
+
+                                <span class="home-free-badge">
+                                    <?= htmlspecialchars($gratis['categoria_nombre'] ?? 'Gratuito') ?>
+                                </span>
+
+                                <h3>
+                                    <?= htmlspecialchars($gratis['titulo']) ?>
+                                </h3>
+
+                                <a
+                                    href="<?= htmlspecialchars($gratis['url_drive']) ?>"
+                                    target="_blank"
+                                    class="home-free-btn">
+                                    Ver recurso
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+            <div class="text-center mt-4">
+
+                <a href="/UNRINCONDEPT/public/recursos_gratuitos.php" class="home-btn-outline">
+                    Ver todos los recursos gratuitos
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+
+</section>
+
+</main>
+
+<?php require_once __DIR__ . '/../../templates/footer.php'; ?>
