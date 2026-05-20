@@ -123,7 +123,7 @@
                     <div>
                         <strong>Creado por Raquel</strong><br>
                         <small class="text-muted">
-                            Maestra de Primaria con +10 años de experiencia
+                            Maestra de PT con +10 años de experiencia
                         </small>
                     </div>
 

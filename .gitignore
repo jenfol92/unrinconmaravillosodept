@@ -1,0 +1,7 @@
+/vendor/
+
+/config/r2.php
+/config/stripe.php
+
+.env
+*.log

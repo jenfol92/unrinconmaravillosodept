@@ -52,36 +52,32 @@ public function home(){
     }
 
     //DETALLE DE PRODUCTO
-    public function detalle() {
+    public function detalle()
+{
+    $id = $_GET['id'] ?? null;
 
-        // Obtener id desde la URL
-        $id = $_GET['id'] ?? null;
-
-        if(!$id){
-            die("Producto no encontrado");
-        }
-        // Registrar visita al producto
-$this->productModel->incrementarClicks($id);
-
-        // Obtener producto
-        $producto = $this->productModel->obtenerProductosID($id);
-
-        if(!$producto){
-            die("Producto no existe");
-        }
-// Incrementar contador de visitas
-$this->productModel->incrementarClicks($id);
-
-$relacionados = $this->productModel->obtenerProductosRelacionados(
-    $producto['categoria_id'],
-    $producto['id']
-);
-       
-    //Obtener reseñas
-$resenas = $this->productModel->obtenerResenasPorProducto($id);
-        // Cargar vista
-        require_once __DIR__ . '/../vistas/producto_detalle.php';
+    if (!$id) {
+        die("Producto no encontrado");
     }
+
+    $producto = $this->productModel->obtenerProductosID($id);
+
+    if (!$producto) {
+        die("Producto no existe");
+    }
+
+    // Registrar una sola visita/clic al producto
+    $this->productModel->incrementarClicks($id);
+
+    $relacionados = $this->productModel->obtenerProductosRelacionados(
+        $producto['categoria_id'],
+        $producto['id']
+    );
+
+    $resenas = $this->productModel->obtenerResenasPorProducto($id);
+
+    require_once __DIR__ . '/../vistas/producto_detalle.php';
+}
 public function carrito() 
 {
     $productos_carrito = []; 

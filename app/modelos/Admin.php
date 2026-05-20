@@ -13,39 +13,94 @@ class Admin
         $this->conexion = conectarBD();
     }
 
-    // Obtiene tarjetas superiores del dashboard
-    public function obtenerEstadisticas()
-    {
-        // Total productos activos
-        $productosActivos = $this->conexion
-            ->query("SELECT COUNT(*) FROM productos WHERE estado = 'activo'")
-            ->fetchColumn();
+    // Obtiene tarjetas superiores del dashboard.
+   public function obtenerEstadisticas($fechaInicio = null, $fechaFin = null)
+{
+    // Total productos activos
+    $productosActivos = $this->conexion
+        ->query("SELECT COUNT(*) FROM productos WHERE estado = 'activo'")
+        ->fetchColumn();
 
-        // Total usuarios clientes
-        $usuarios = $this->conexion
-            ->query("SELECT COUNT(*) FROM usuarios WHERE rol_id = 3")
-            ->fetchColumn();
+    // Total usuarios clientes
+    $usuarios = $this->conexion
+        ->query("SELECT COUNT(*) FROM usuarios WHERE rol_id = 3")
+        ->fetchColumn();
 
-        // Total descargas
-        $descargas = $this->conexion
-            ->query("SELECT COALESCE(SUM(numero_descargas), 0) FROM descargas")
-            ->fetchColumn();
+    // Total descargas
+    $descargas = $this->conexion
+        ->query("SELECT COALESCE(SUM(numero_descargas), 0) FROM descargas")
+        ->fetchColumn();
 
-       
-       // Total de ventas pagadas
-$ventas = $this->conexion
-    ->query("SELECT COALESCE(SUM(monto), 0) 
-            FROM pagos 
-             WHERE estado = 'pagado'")
-    ->fetchColumn();
+    // Ventas pagadas según periodo
+    $sqlVentas = "SELECT COALESCE(SUM(monto), 0) 
+                  FROM pagos 
+                  WHERE estado = 'pagado'";
 
-        return [
-            'ventas' => $ventas,
-            'usuarios' => $usuarios,
-            'descargas' => $descargas,
-            'productos_activos' => $productosActivos
-        ];
+    $params = [];
+
+    if ($fechaInicio && $fechaFin) {
+        $sqlVentas .= " AND fecha_pago BETWEEN ? AND ?";
+        $params[] = $fechaInicio . ' 00:00:00';
+        $params[] = $fechaFin . ' 23:59:59';
     }
+
+    $stmt = $this->conexion->prepare($sqlVentas);
+    $stmt->execute($params);
+    $ventas = $stmt->fetchColumn();
+
+    return [
+        'ventas' => $ventas,
+        'usuarios' => $usuarios,
+        'descargas' => $descargas,
+        'productos_activos' => $productosActivos
+    ];
+}
+public function obtenerProductosMasVendidos($fechaInicio = null, $fechaFin = null, $limite = 5)
+{
+    $sql = "SELECT 
+                p.id,
+                p.titulo,
+                p.precio,
+                p.imagen,
+                p.estado,
+                c.nombre AS categoria_nombre,
+                COALESCE(SUM(dp.cantidad), 0) AS unidades_vendidas,
+                COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0) AS importe_vendido
+            FROM productos p
+            INNER JOIN detalle_pedido dp ON dp.producto_id = p.id
+            INNER JOIN pedidos pe ON pe.id = dp.pedido_id
+            INNER JOIN pagos pa ON pa.pedido_id = pe.id
+            LEFT JOIN categorias c ON c.id = p.categoria_id
+            WHERE pe.estado = 'pagado'
+            AND pa.estado = 'pagado'";
+
+    $params = [];
+
+    if ($fechaInicio && $fechaFin) {
+        $sql .= " AND pa.fecha_pago BETWEEN ? AND ?";
+        $params[] = $fechaInicio . ' 00:00:00';
+        $params[] = $fechaFin . ' 23:59:59';
+    }
+
+    $sql .= " GROUP BY p.id
+              ORDER BY unidades_vendidas DESC, importe_vendido DESC
+              LIMIT ?";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    $pos = 1;
+
+    foreach ($params as $param) {
+        $stmt->bindValue($pos, $param);
+        $pos++;
+    }
+
+    $stmt->bindValue($pos, $limite, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     // Obtiene últimos productos para la tabla
     public function obtenerUltimosProductos($limite = 5)

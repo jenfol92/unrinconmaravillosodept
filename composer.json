@@ -1,0 +1,7 @@
+{
+    "require": {
+        "stripe/stripe-php": "^20.1",
+        "aws/aws-sdk-php": "^3.381",
+        "dompdf/dompdf": "^3.1"
+    }
+}

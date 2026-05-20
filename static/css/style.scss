@@ -152,374 +152,9 @@ a {
     }
 }
 
-.hero_titulo {
-    font-family: $font-titles;
-    font-size: 1.8rem;
-    text-align: left;
-    height: 300px;
-    max-width: 100%;
-    line-height: 1.2;
-    margin: 2rem 0;
-    position: relative;
-    z-index: 2;
 
-    @media (min-width: 769px) {
-        height: auto;
-        font-size: 3.2rem;
-
-
-    }
-
-    & span {
-        color: $textturq;
-    }
-}
-
-.hero_link {
-    color: $textturq;
-    font-weight: bold;
-}
-
-.title_section {
-    font-family: $font-titles;
-
-}
-// Botón favorito en la tienda
-.btn-favorito {
-    transition: all 0.2s ease;
-
-    // Icono del corazón
-    i,
-    .heart-symbol {
-        pointer-events: none;
-    }
-
-    // Estado activo: producto ya guardado en favoritos
-    &.activo {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
-    }
-
-    // Hover
-    &:hover {
-        transform: scale(1.08);
-    }
-}
-//HERO imagen de fondo_______________________
-.hero_seccion {
-
-    background-image: url('../images/logo/logo.jpeg');
-    background-size: cover; // imagen ocupa 55% del ancho
-    background-position: center; // pegada arriba a la derecha
-    background-repeat: no-repeat;
-    padding-bottom: 0;
-    margin: 0;
-    position: relative;
-
-
-
-    // degradado para que el texto sea legible
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to right,
-                rgba(255, 255, 255, 1.0) 5%, // blanco opaco en la izquierda
-                rgba(255, 255, 255, 0.6) 60%, // semitransparente en el medio
-                rgba(255, 255, 255, 0.0) 100% // transparente a la derecha
-
-            );
-        z-index: 0;
-    }
-
-    // el contenido por encima del degradado
-    .container {
-        position: relative;
-        z-index: 1;
-    }
-
-    @media (min-width: 769px) {
-        padding-top: 1rem;
-        background-image: none;
-    }
-}
-
-.hero_etiqueta {
-    display: inline-block;
-    background-color: $resalteamarillo;
-    color: $textturq;
-    font-family: $font-body;
-    font-size: 0.85rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    margin-bottom: 1rem;
-}
-
-.hero_deco {
-    height: 380px;
-    max-width: 260px;
-    margin: 0 auto 2rem auto;
-
-
-
-    @media (min-width: 769px) {
-        position: relative;
-        width: 100%;
-        height: 45vw;
-        max-height: 480px;
-        max-width: 400px;
-        margin-left: auto;
-    }
-
-    .hero_fondo_amarillo {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color: $backgroundamarillo ;
-        z-index: 1;
-        top: 15px;
-        left: -15px;
-        padding: 5px;
-        border-radius: 20px;
-
-    }
-
-    .hero_fondo_turq {
-        position: relative;
-        z-index: 2;
-        height: 100%;
-        background-color: rgba(#a8e6e2, 0.3);
-        border-radius: 20px;
-        padding: 2rem;
-        overflow: hidden;
-        transform: rotate(-4deg);
-
-    }
-.imagen_hero {
-    max-height: 480px;
-    border-radius: 30px;
-    width: 100%;
-    object-fit: cover;
-    display: block;
-    position: relative;
-}
-
-}
-
-
-//SOBRE_MI___________________________________________
-.sobre_mi {
-    padding: 1.5rem 0;
-    margin: 0 auto;
-    background-color: $backgroundamarillo ;
-
-
-    @media (min-width: 769px) {
-        background-color: $fondoazul ;
-        width: 85%;
-        padding: 1.5rem;
-        text-align: center;
-        margin: 0 auto;
-
-    }
-}
-
-.etiqueta_blanca {
-    @extend .hero_etiqueta;
-    background-color: white;
-    color: $textturq;
-    border: 1px solid $textturq;
-
-}
-
-.aquiencontraras{
-    width: 100%;
-    & h1{font-family: $font-titles;
-   }
-    text-align: center;
-    background-color: $fondoazul
-    ;
-}
-//____Index -cards_________________________
-.resource-card {
-  border-radius: $border-radius;
-  overflow: hidden;
-  border: none;
-  height: 100%;
-  position: relative;
-  transition: transform 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    &.card-pink { background-color: $color-pink !important; }
-    &.card-green { background-color: $color-green !important; }
-    &.card-yellow { background-color: $color-yellow !important; }
-
-  img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  .card-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: white;
-    padding: 4px 12px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    z-index: 2;
-  }
-
-  .card-body {
-    padding: 20px;
-    
-    h3 {
-      font-size: 1.1rem;
-      color: #633b3b; // Color marrón oscuro del texto
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-  }
-
-  .card-footer-custom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-
-    .price {
-      font-weight: 900;
-      font-size: 1.2rem;
-    }
-
-    .btn-carrito {
-      background: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      &:hover { background: #f8f9fa; }
-    }
-  }
-}
-
-.help-box {
-    background: #fff;
-    border: 2px dashed #e5e5e5;
-    border-radius: 22px;
-    padding: 1.6rem;
-    box-shadow: none;
-
-
-    h5 {
-        font-family: $font-titles;
-        font-size: 1.15rem;
-        color: $dark;
-        margin-bottom: .8rem;
-    }
-    p {
-        font-family: $font-body;
-        color: #777;
-        font-size: .9rem;
-        line-height: 1.6;
-        margin-bottom: 1.2rem;
-    }
-
-   .btn {
-        background: #f5f5f5;
-        border: none;
-        border-radius: 999px;
-        color: #555;
-        font-family: $font-body;
-        font-weight: 600;
-        padding: .75rem 1rem;
-         &:hover {
-            background: $textturq;
-            color: white;
-        }
-    }
-}
-.reviews-section {
-    margin-top: 4rem;
-
-    .section-title {
-        font-weight: 700;
-        margin-bottom: 2rem;
-        color: $dark;
-    }
-}
-
-.review-card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid #f2f2f2;
-    box-shadow: 0 10px 30px rgba(0,0,0,.03);
-
-    h5 {
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .stars {
-        color: #f4b400;
-        font-size: 18px;
-        letter-spacing: 2px;
-    }
-
-    p {
-        margin: 0;
-        color: #555;
-        line-height: 1.7;
-    }
-}
-h1{font-family: $font-titles;}
-.resenas-section {
-    margin-top: 4rem;
-
-    .section-title {
-        font-family: $font-titles;
-        margin-bottom: 2rem;
-    }
-}
-
-.resena-card {
-    background: #fdf6ec; // beige suave
-    border-radius: 18px;
-    padding: 1.5rem;
-    margin-bottom: 1.2rem;
-
-    .stars {
-        color: #f4b400;
-        font-size: 16px;
-        letter-spacing: 3px;
-    }
-
-    .comentario {
-        font-family: $font-body;
-        font-style: italic;
-        color: #555;
-        margin: 0.5rem 0 1rem 0;
-        line-height: 1.6;
-    }
-
-    .autor {
-        font-size: 0.9rem;
-        color: #777;
-        font-weight: 600;
-    }
-}
-// ─────────────────────────────────────────────
 // PRODUCTO DETALLE - MOBILE FIRST
-// ─────────────────────────────────────────────
+
 
 // Estructura general
 .producto-detalle-top {
@@ -899,9 +534,9 @@ h1{font-family: $font-titles;}
         }
     }
 }
-// ─────────────────────────────────────────────
-// LOGIN / REGISTRO - MOBILE FIRST
-// ─────────────────────────────────────────────
+
+// LOGIN / REGISTRO - MOBILE FIRST____________________________________
+
 
 .auth-page {
     min-height: 100vh;
@@ -1123,9 +758,8 @@ h1{font-family: $font-titles;}
     gap: 0;
 }
 
-// ─────────────────────────────────────────────
-// TABLET
-// ─────────────────────────────────────────────
+/// TABLET
+
 @media (min-width: 768px) {
 
     .auth-right {
@@ -1146,9 +780,9 @@ h1{font-family: $font-titles;}
     }
 }
 
-// ─────────────────────────────────────────────
+
 // ESCRITORIO
-// ─────────────────────────────────────────────
+
 @media (min-width: 992px) {
 
     .auth-page {
@@ -1230,18 +864,20 @@ h1{font-family: $font-titles;}
         max-width: 460px;
     }
 }
-// ===============================
-// PANEL DE USUARIO
-// ===============================
+//______________________________________________
+
+
+// PANEL DE USUARIO________________________
+
 
 .user-panel {
     
     // Espaciado general del panel
     padding: 4rem 0;
  background: #fafafa;
-    // ===============================
+    
     // SIDEBAR (MENÚ IZQUIERDO)
-    // ===============================
+   
     .panel-sidebar {
 
         // Fondo blanco tipo card
@@ -1338,9 +974,9 @@ h1{font-family: $font-titles;}
             font-weight: 700;
         }
     }
-    // ===============================
+   
     // CONTENIDO DERECHO
-    // ===============================
+
     .panel-content {
 
         // Fondo tipo card
@@ -1354,9 +990,8 @@ h1{font-family: $font-titles;}
         min-height: 420px;
     }
 
-    // ===============================
     // SECCIONES (DESCARGAS / FAVORITOS / ETC)
-    // ===============================
+   
     .panel-section {
 
         // Ocultamos todas por defecto
@@ -1380,9 +1015,9 @@ h1{font-family: $font-titles;}
         transform: translateY(0);
     }
 }
-    // ===============================
+
     // TABLA FAVORITOS
-    // ===============================
+
     .panel-table {
 
         // Fondo limpio
@@ -1544,224 +1179,203 @@ h1{font-family: $font-titles;}
         resize: none;
     }
 }
+//_______________________________________________________________________
 
-// CONTENEDOR GENERAL DEL PANEL ADMIN
+// PANEL ADMIN - BASE, RESPONSIVE Y COMPONENTES
+
+
+// Finalidad de este bloque:
+// 1. Definir el layout principal del panel de administración.
+// 2. Mantener sidebar lateral en escritorio/tablet.
+// 3. Cambiar a header superior + menú desplegable en móvil.
+// 4. Evitar que tablas grandes se salgan del contenedor.
+// 5. Documentar estilos para que el proyecto sea fácil de explicar.
+//
+// Breakpoints usados:
+// - >= 769px: escritorio/tablet, sidebar lateral y tablas normales.
+// - <= 768px: móvil/tablet pequeña, header móvil y sidebar desplegable.
+// - <= 576px: móvil, filtros desplegables y cards compactas.
+// ======================================================
+
+
+/// 1. CONTENEDORES GENERALES DEL PANEL ADMIN
+
 
 .admin-page {
+    // Fondo exterior del dashboard.
+    background: #eef5fc;
 
-    // Fondo general suave (gris claro tipo dashboard moderno)
-    background: #fbfbfb;
-
-    // Altura mínima para ocupar toda la pantalla
+    // El panel ocupa como mínimo toda la pantalla.
     min-height: 100vh;
+
+    // Evita barras horizontales provocadas por tablas o cards anchas.
+    width: 100%;
+    overflow-x: hidden;
 }
-
-
-// LAYOUT PRINCIPAL (SIDEBAR + CONTENIDO)
 
 .admin-layout {
-
-    // Usamos GRID para dividir en dos columnas
+    // Divide el panel en dos columnas: sidebar + contenido.
     display: grid;
 
-    // Sidebar fijo (260px) + contenido flexible
-    grid-template-columns: 260px 1fr;
+    // minmax(0, 1fr) impide que el contenido fuerce el ancho total.
+    // Esto es clave para que las tablas no se salgan visualmente.
+    grid-template-columns: 260px minmax(0, 1fr);
 
-    // Altura completa menos navbar
+    // Altura mínima descontando la cabecera pública si existe.
     min-height: calc(100vh - 80px);
-}
 
-// SIDEBAR (MENÚ IZQUIERDO)
-
-.admin-sidebar {
-
-    // Fondo blanco tipo card
+    width: 100%;
     background: #fff;
-
-    // Línea separadora derecha
-    border-right: 1px solid #eee;
-
-    // Espaciado interno
-    padding: 1rem;
-
-    // Organización vertical
-    display: flex;
-    flex-direction: column;
-
-    // Separar menú arriba y botón abajo
-    justify-content: space-between;
 }
-
-
-
-// MENÚ DEL SIDEBAR
-
-.admin-menu {
-
-    // Menú en columna
-    display: flex;
-    flex-direction: column;
-
-    // Separación entre botones
-    gap: .4rem;
-}
-
-// BOTONES DEL SIDEBAR
-
-.admin-link {
-
-    // Quitamos estilos por defecto de button
-    border: none;
-    background: transparent;
-
-    // Espaciado cómodo
-    padding: .9rem 1rem;
-
-    // Bordes redondeados modernos
-    border-radius: 14px;
-
-    // Alineación texto izquierda
-    text-align: left;
-
-    // Tipografía coherente con tu proyecto
-    font-family: $font-body;
-    font-weight: 700;
-
-    // Color base gris
-    color: #555;
-
-    // Icono + texto alineados
-    display: flex;
-    align-items: center;
-    gap: .8rem;
-
-    // Tamaño icono
-    i {
-        font-size: 1.1rem;
-    }
-
-    // Hover + estado activo
-    &:hover,
-    &.active {
-
-        // Fondo suave turquesa
-        background: rgba($textturq, .12);
-
-        // Texto en color marca
-        color: $textturq;
-    }
-}
-
-
-// BOTÓN "VOLVER A LA WEB"
-
-.admin-back {
-
-    // Espaciado
-    padding: 1rem;
-
-    // Color naranja de tu branding
-    color: $naranja;
-
-    // Texto destacado
-    font-weight: 700;
-}
-
-
-// CONTENIDO DERECHO
 
 .admin-content {
+    // Zona derecha del panel, donde aparecen las secciones.
+    padding: 32px clamp(16px, 3vw, 36px);
 
-    // Espaciado interior amplio
-    padding: 2rem;
+    // Control de ancho. Evita que una tabla rompa el layout.
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    background: #fafafa;
+    overflow-x: hidden;
 }
 
-// SECCIONES (DASHBOARD, PRODUCTOS, ETC)
-
 .admin-section {
-
-    // Ocultamos todas por defecto
+    // Todas las secciones del panel quedan ocultas por defecto.
     display: none;
 
-    // Solo se muestra la activa
+    // Control de ancho para evitar desbordes.
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    // La sección activa se muestra mediante JS añadiendo .active.
     &.active {
         display: block;
     }
 }
 
 
-// HEADER DEL DASHBOARD
+// 2. SIDEBAR DEL PANEL ADMIN
+
+
+.admin-sidebar {
+    // Menú lateral izquierdo en escritorio/tablet.
+    background: #fff;
+    border-right: 1px solid #eee;
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.admin-menu {
+    // Lista vertical de accesos del panel.
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.admin-link {
+    // Botón del sidebar sin apariencia nativa.
+    border: none;
+    background: transparent;
+
+    // Espaciado y forma.
+    padding: .9rem 1rem;
+    border-radius: 14px;
+
+    // Texto.
+    text-align: left;
+    font-family: $font-body;
+    font-weight: 700;
+    color: #555;
+
+    // Icono + texto alineados.
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+
+    i {
+        font-size: 1.1rem;
+    }
+
+    // Estado hover y sección activa.
+    &:hover,
+    &.active {
+        background: rgba($textturq, .12);
+        color: $textturq;
+    }
+}
+
+.admin-back {
+    // Enlace inferior para volver a la web pública.
+    padding: 1rem;
+    color: $naranja;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+
+// 3. CABECERAS, ACCIONES Y TARJETAS GENERALES
+
 
 .admin-header {
-
-    // Distribución horizontal
+    // Cabecera de cada sección del panel.
     display: flex;
-
-    // Espacio entre texto y botones
     justify-content: space-between;
-
-    // Separación vertical
-    gap: 1rem;
-
-    // Alineación vertical
     align-items: center;
-
-    // Margen inferior
+    gap: 1rem;
     margin-bottom: 2rem;
 
-    // Título
+    width: 100%;
+    max-width: 100%;
+
     h1 {
         font-family: $font-titles;
         margin-bottom: .2rem;
     }
 
-    // Subtítulo
     p {
         color: #666;
         margin: 0;
     }
 }
 
-
-// BOTONES HEADER (EXPORTAR / CREAR)
-
 .admin-actions {
-
+    // Grupo de botones del header: exportar, crear, etc.
     display: flex;
     gap: .8rem;
     flex-wrap: wrap;
 }
 
-
-// TARJETAS GENERALES (REUTILIZABLE)
-
 .admin-stat-card,
 .admin-card,
 .admin-upload-box,
 .admin-tip {
-
-    // Fondo blanco
+    // Estilo común de las cards del panel.
     background: #fff;
-
-    // Bordes redondeados
     border-radius: 22px;
-
-    // Sombra suave moderna
-    box-shadow: 0 8px 24px rgba(0,0,0,.05);
-
-    // Borde ligero
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .05);
     border: 1px solid #f0f0f0;
 }
 
+.admin-card {
+    // Card normal para tablas, formularios y listados.
+    padding: 1.5rem;
 
-// TARJETAS DE ESTADÍSTICAS
+    // Impide que tablas anchas rompan el fondo de la card.
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
 
 .admin-stat-card {
-
-    // Posición relativa para icono flotante
+    // Card de métricas del dashboard.
     position: relative;
-
-    // Espaciado interno
     padding: 1.5rem;
 
     span {
@@ -1778,16 +1392,14 @@ h1{font-family: $font-titles;}
         color: #555;
     }
 
-    // Icono flotante derecha
     .stat-icon {
-
+        // Icono flotante de la card estadística.
         position: absolute;
         right: 1.3rem;
         top: 1.5rem;
 
         width: 52px;
         height: 52px;
-
         border-radius: 14px;
 
         background: rgba($textturq, .12);
@@ -1801,21 +1413,11 @@ h1{font-family: $font-titles;}
     }
 }
 
-
-// CARD NORMAL (TABLAS, FORMULARIOS)
-
-.admin-card {
-    padding: 1.5rem;
-}
-
-
-// HEADER DE CARD (TÍTULO + OPCIONES)
-
 .admin-card-header {
-
+    // Encabezado interno de una card.
     display: flex;
     justify-content: space-between;
-
+    gap: 1rem;
     margin-bottom: 1rem;
 
     h2 {
@@ -1831,26 +1433,64 @@ h1{font-family: $font-titles;}
 }
 
 
+// 4. TABLAS DEL PANEL ADMIN
 
-// TABLA DE ADMIN
+
+.table-responsive {
+    // Bootstrap ya trae esta clase, aquí reforzamos su comportamiento.
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
 
 .admin-table {
+    // Tabla principal del panel admin.
+    width: 100%;
+    margin-bottom: 0;
+    vertical-align: middle;
+    border-collapse: separate;
+    border-spacing: 0;
 
-    th {
+    thead th {
+        font-size: .82rem;
         font-weight: 900;
-        color: #333;
+        color: #111;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 14px 16px;
+        white-space: nowrap;
+        background: #fff;
     }
 
-    td {
+    tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #edf0f2;
+        font-size: .92rem;
         vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    tbody tr:hover {
+        background: #f8fdff;
+    }
+
+    .btn {
+        border-radius: 10px;
     }
 }
 
-
-// INFO PRODUCTO EN TABLA
+.table-responsive .admin-table {
+    // Ancho mínimo para que en tablet no se aplasten columnas.
+    // Si no cabe, aparecerá scroll horizontal dentro de la card.
+    min-width: 850px;
+}
 
 .admin-product-info {
-
+    // Celda con imagen + título de producto.
     display: flex;
     align-items: center;
     gap: .8rem;
@@ -1863,75 +1503,104 @@ h1{font-family: $font-titles;}
     }
 }
 
-
-// BADGE DE CATEGORÍA
-
 .admin-badge {
-
+    // Badge reutilizable para categorías.
     background: rgba($textturq, .12);
     color: $textturq;
-
     border: 1px solid rgba($textturq, .25);
-
     padding: .25rem .7rem;
-
     border-radius: 999px;
-
     font-size: .8rem;
     font-weight: 700;
 }
 
-
-// ESTADO DEL PRODUCTO
-
 .admin-status {
-
+    // Texto de estado de producto/recurso.
     font-size: .85rem;
     font-weight: 700;
 }
 
 
+// 5. TABLA DE USUARIOS EN ESCRITORIO/TABLET
 
-// CAJA DE SUBIDA (DRAG & DROP)
+
+.admin-user-cell {
+    // Celda compacta para usuario: avatar + nombre + ID.
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 170px;
+}
+
+.admin-user-avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    background: #f2f6f7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.admin-user-name {
+    font-weight: 900;
+    color: #111;
+    line-height: 1.2;
+}
+
+.admin-user-id {
+    font-size: .78rem;
+    color: #8a8a8a;
+    margin-top: 2px;
+}
+
+.admin-user-actions {
+    // Botonera de acciones de usuarios en tabla.
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+
+    .btn {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+
+// 6. FORMULARIOS DE SUBIDA Y BLOQUES AUXILIARES
 
 .admin-upload-box {
-
+    // Caja visual para subida de archivos.
     min-height: 330px;
-
     border: 2px dashed rgba($textturq, .35);
 
     display: flex;
     flex-direction: column;
-
     justify-content: center;
     align-items: center;
-
     gap: .8rem;
 
     padding: 2rem;
-
     text-align: center;
-
     cursor: pointer;
 
-    // Icono central
     .upload-icon {
-
         width: 64px;
         height: 64px;
-
         border-radius: 50%;
-
         background: #fff;
-
-        box-shadow: 0 6px 18px rgba(0,0,0,.08);
-
+        box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
         display: flex;
         align-items: center;
         justify-content: center;
-
         color: $textturq;
-
         font-size: 2rem;
     }
 
@@ -1951,13 +1620,9 @@ h1{font-family: $font-titles;}
     }
 }
 
-
-// TARJETA TIP DEL DÍA
-
 .admin-tip {
-
+    // Tarjeta informativa del dashboard.
     background: #fff8df;
-
     padding: 1.4rem;
 
     strong {
@@ -1975,19 +1640,13 @@ h1{font-family: $font-titles;}
     }
 }
 
-
-// TICKETS DE SOPORTE
-
 .admin-ticket {
-
+    // Elemento de listado para tickets, soporte o sugerencias.
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     gap: 1rem;
-
     padding: 1rem;
-
     border-bottom: 1px solid #eee;
 
     p {
@@ -1998,47 +1657,892 @@ h1{font-family: $font-titles;}
 }
 
 
-// RESPONSIVE TABLET Y MÓVIL
+// 7. FILTROS ADMIN RESPONSIVE
 
-@media (max-width: 991px) {
 
+.admin-filtros-panel {
+    // Contenedor visual de filtros.
+    background: linear-gradient(135deg, #ffffff 0%, #f5fdff 100%);
+    border: 1px solid rgba($textturq, 0.28);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.admin-filtros-toggle {
+    // Botón que solo aparece en móvil para desplegar filtros.
+    display: none;
+    width: 100%;
+    border: 1px solid rgba($textturq, 0.28);
+    background: linear-gradient(135deg, #e9fbff 0%, #ffffff 100%);
+    color: $dark;
+    border-radius: 18px;
+    padding: 12px 14px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 8px 20px rgba(117, 224, 248, 0.20);
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(117, 224, 248, 0.28);
+    }
+}
+
+.admin-filtros-toggle-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-filtros-toggle-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: $fondoazul;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba($textturq, 0.25);
+
+    i {
+        font-size: 1rem;
+    }
+}
+
+.admin-filtros-chevron {
+    color: $textturq;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.admin-filtros-toggle.is-open .admin-filtros-chevron {
+    transform: rotate(180deg);
+}
+
+.admin-filtros-body {
+    display: block;
+}
+
+.admin-filtros-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+}
+
+.admin-filtro-item {
+    flex: 0 0 auto;
+    min-width: 150px;
+}
+
+.admin-filtro-grow {
+    flex: 1 1 260px;
+    min-width: 240px;
+}
+
+.admin-filtro-button {
+    min-width: 130px;
+}
+
+.admin-fechas-gratuito,
+.admin-fechas-producto {
+    min-width: 150px;
+}
+
+.admin-filtros-panel .form-control,
+.admin-filtros-panel .form-select {
+    border-radius: 14px;
+    border-color: rgba($textturq, 0.25);
+
+    &:focus {
+        border-color: $textturq;
+        box-shadow: 0 0 0 0.18rem rgba(117, 224, 248, 0.22);
+    }
+}
+
+
+// 8. HEADER MÓVIL Y SIDEBAR DESPLEGABLE
+
+
+.admin-mobile-topbar,
+.admin-mobile-overlay {
+    // Ocultos por defecto. Solo aparecen en móvil.
+    display: none;
+}
+
+@media (min-width: 769px) {
+    // En escritorio/tablet se fuerza el sidebar lateral normal.
+    // Esto sustituye al responsive antiguo que hacía el menú horizontal.
     .admin-layout {
-
-        // Sidebar pasa arriba
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
     }
 
     .admin-sidebar {
-
-        // Sticky arriba
-        position: sticky;
-        top: 0;
-        z-index: 10;
+        position: static;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+        max-height: none;
     }
 
     .admin-menu {
-
-        // Menú horizontal scrollable
-        flex-direction: row;
-        overflow-x: auto;
+        flex-direction: column;
+        overflow: visible;
     }
 
     .admin-link {
-
-        // Evita que se rompa en varias líneas
-        min-width: max-content;
+        width: 100%;
+        min-width: 0;
     }
 
     .admin-back {
+        display: flex;
+    }
+
+    .admin-mobile-topbar,
+    .admin-mobile-overlay {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-page {
+        // Deja espacio para el header móvil fijo.
+        padding-top: 72px;
+    }
+
+    .admin-layout {
+        display: block;
+        min-height: auto;
+        background: #fafafa;
+    }
+
+    .admin-content {
+        padding: 16px 12px;
+        background: #fafafa;
+    }
+
+    .admin-mobile-topbar {
+        // Barra superior fija del panel admin en móvil.
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+
+        background: linear-gradient(135deg, #ffffff 0%, #f2fcff 100%);
+        border-bottom: 1px solid rgba($textturq, 0.22);
+        padding: 10px 14px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .admin-mobile-menu-btn {
+        border: 1px solid rgba($textturq, 0.25);
+        background: linear-gradient(135deg, #e9fbff 0%, #ffffff 100%);
+        border-radius: 18px;
+        padding: 9px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        color: $dark;
+        min-width: 0;
+        flex: 1;
+        box-shadow: 0 8px 20px rgba(117, 224, 248, 0.20);
+    }
+
+    .admin-mobile-menu-icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 50%;
+        background: $fondoazul;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-mobile-menu-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-mobile-menu-chevron {
+        margin-left: auto;
+        color: $textturq;
+        transition: transform .2s ease;
+    }
+
+    .admin-mobile-menu-btn.is-open .admin-mobile-menu-chevron {
+        transform: rotate(180deg);
+    }
+
+    .admin-mobile-home {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 16px;
+        background: #fff;
+        color: $textturq;
+        border: 1px solid rgba($textturq, 0.22);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+        text-decoration: none;
+    }
+
+    .admin-mobile-overlay {
         display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(2px);
+
+        &.is-open {
+            display: block;
+        }
+    }
+
+    .admin-sidebar {
+        // En móvil el sidebar se transforma en panel desplegable.
+        position: fixed;
+        top: 72px;
+        left: 12px;
+        right: 12px;
+        z-index: 1051;
+
+        max-height: calc(100vh - 88px);
+        overflow-y: auto;
+
+        background: #fff;
+        border: 1px solid rgba($textturq, 0.18);
+        border-radius: 22px;
+        padding: 14px;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+
+        transform: translateY(-16px);
+        opacity: 0;
+        pointer-events: none;
+        transition: all .2s ease;
+
+        &.is-open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    .admin-sidebar .admin-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow: visible;
+    }
+
+    .admin-sidebar .admin-link {
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 0;
+        background: transparent;
+        text-align: left;
+
+        i {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 50%;
+            background: rgba(117, 224, 248, 0.22);
+            color: $textturq;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &.active {
+            background: $fondoazul;
+            color: #fff;
+
+            i {
+                background: #fff;
+                color: $textturq;
+            }
+        }
+    }
+
+    .admin-sidebar .admin-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 14px;
+        border-radius: 16px;
+        margin-top: 8px;
+        background: #f8f9fa;
+        text-decoration: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-content {
+        padding: 14px 10px;
     }
 
     .admin-header {
-
         flex-direction: column;
         align-items: flex-start;
+        margin-bottom: 18px;
+
+        h1 {
+            font-size: 1.55rem;
+        }
+
+        p {
+            font-size: .92rem;
+        }
+    }
+
+    .admin-card {
+        padding: 14px;
+        border-radius: 20px;
+    }
+
+    .admin-filtros-panel {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .admin-filtros-toggle {
+        display: flex;
+    }
+
+    .admin-filtros-body {
+        display: none;
+        margin-top: 14px;
+
+        &.is-open {
+            display: block;
+        }
+    }
+
+    .admin-filtros-flex {
+        gap: 10px;
+    }
+
+    .admin-filtro-item,
+    .admin-filtro-grow,
+    .admin-filtro-button,
+    .admin-fechas-gratuito,
+    .admin-fechas-producto {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .table-responsive.d-none.d-md-block {
+        display: none !important;
     }
 }
+
+
+
+// 9. TARJETAS MÓVILES: PRODUCTOS Y CONTENIDO GRATUITO
+
+
+.admin-product-cards-mobile,
+.admin-free-cards-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-product-card-mobile,
+.admin-free-card-mobile {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fdff 100%);
+    border: 1px solid rgba($textturq, 0.18);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.admin-product-card-mobile__top,
+.admin-free-card-mobile__top {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.admin-product-card-mobile__image,
+.admin-free-card-mobile__image {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f5f5f5;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.admin-product-card-mobile__info,
+.admin-free-card-mobile__info {
+    min-width: 0;
+
+    h6 {
+        margin: 0;
+        font-size: .98rem;
+        font-weight: 800;
+        color: #222;
+    }
+
+    > span {
+        display: block;
+        font-size: .78rem;
+        color: #8a8a8a;
+        margin-top: 2px;
+    }
+}
+
+.admin-product-card-mobile__category,
+.admin-free-card-mobile__category {
+    margin-top: 6px;
+    font-size: .84rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+        color: $textturq;
+    }
+}
+
+.admin-product-card-mobile__menu,
+.admin-free-card-mobile__menu {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 1px solid rgba($textturq, 0.20);
+    background: #fff;
+    color: $textturq;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.admin-product-card-mobile__price {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #222;
+    margin-bottom: 12px;
+}
+
+.admin-product-card-mobile__stats,
+.admin-free-card-mobile__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.admin-product-card-mobile__stats {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-product-card-mobile__stat,
+.admin-free-card-mobile__stat {
+    background: rgba(117, 224, 248, 0.10);
+    border: 1px solid rgba($textturq, 0.12);
+    border-radius: 16px;
+    padding: 10px 8px;
+    text-align: center;
+
+    i {
+        color: $textturq;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    strong {
+        display: block;
+        font-size: 1rem;
+        color: #222;
+    }
+
+    span {
+        font-size: .72rem;
+        color: #6c757d;
+    }
+}
+
+.admin-product-card-mobile__footer,
+.admin-free-card-mobile__footer {
+    margin-top: 12px;
+}
+
+@media (max-width: 400px) {
+    .admin-product-card-mobile__top,
+    .admin-free-card-mobile__top {
+        grid-template-columns: 54px minmax(0, 1fr) auto;
+    }
+
+    .admin-product-card-mobile__image,
+    .admin-free-card-mobile__image {
+        width: 54px;
+        height: 54px;
+    }
+
+    .admin-product-card-mobile__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// 10. TARJETAS MÓVILES DE USUARIOS
+
+
+.admin-user-cards-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-user-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fdff 100%);
+    border: 1px solid rgba($textturq, 0.18);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.admin-user-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.admin-user-card__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .85rem;
+    color: #6c757d;
+
+    i {
+        color: $textturq;
+    }
+}
+
+.admin-user-card__status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: .80rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+
+    &.is-active {
+        background: rgba(25, 135, 84, 0.12);
+        color: #198754;
+        border-color: rgba(25, 135, 84, 0.22);
+    }
+
+    &.is-blocked {
+        background: rgba(220, 53, 69, 0.12);
+        color: #dc3545;
+        border-color: rgba(220, 53, 69, 0.22);
+    }
+}
+
+.admin-user-card__body {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.admin-user-card__avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: #f2f6f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.admin-user-card__info {
+    min-width: 0;
+}
+
+.admin-user-card__name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #222;
+}
+
+.admin-user-card__id {
+    font-size: .78rem;
+    color: #8a8a8a;
+    margin-top: 2px;
+    margin-bottom: 6px;
+}
+
+.admin-user-card__email {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    font-size: .88rem;
+    min-width: 0;
+
+    i {
+        color: $textturq;
+        flex-shrink: 0;
+    }
+
+    span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.admin-user-card__menu {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 1px solid rgba($textturq, 0.20);
+    background: #fff;
+    color: $textturq;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+        background: #f5fdff;
+        color: darken($textturq, 10%);
+    }
+}
+
+.admin-user-card__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.admin-user-card__stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(117, 224, 248, 0.10);
+    border: 1px solid rgba($textturq, 0.12);
+    border-radius: 16px;
+    padding: 10px 12px;
+}
+
+.admin-user-card__stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #fff;
+    color: $textturq;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-user-card__stat-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+
+    strong {
+        font-size: 1rem;
+        color: #222;
+    }
+
+    span {
+        font-size: .78rem;
+        color: #6c757d;
+    }
+}
+
+@media (min-width: 768px) {
+    .admin-user-cards-mobile {
+        display: none;
+    }
+}
+
+@media (max-width: 400px) {
+    .admin-user-card__stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-user-card__body {
+        grid-template-columns: 46px minmax(0, 1fr) auto;
+    }
+
+    .admin-user-card__avatar {
+        width: 46px;
+        height: 46px;
+    }
+}
+//_______________________________________________________________
+
+
+// 11. PANEL USUARIO - TABLA RESPONSIVE DE RECURSOS___
+
+// Esta parte afecta al perfil del usuario, concretamente a la tabla
+// "Mis recursos adquiridos". En móvil se transforma en tarjetas.
+
+.panel-mobile-cards {
+    width: 100%;
+}
+
+.panel-recurso-info {
+    min-width: 220px;
+}
+
+.panel-product-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    object-fit: cover;
+    background: #f5f5f5;
+}
+
+.panel-acciones-recursos {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+@media (max-width: 576px) {
+    .panel-mobile-cards {
+        overflow: visible;
+    }
+
+    .panel-mobile-cards table,
+    .panel-mobile-cards thead,
+    .panel-mobile-cards tbody,
+    .panel-mobile-cards th,
+    .panel-mobile-cards td,
+    .panel-mobile-cards tr {
+        display: block;
+        width: 100%;
+    }
+
+    .panel-mobile-cards thead {
+        display: none;
+    }
+
+    .panel-mobile-cards tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .panel-mobile-cards tr {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fdff 100%);
+        border: 1px solid rgba($textturq, 0.18);
+        border-radius: 20px;
+        padding: 14px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .panel-mobile-cards td {
+        border: none !important;
+        padding: 9px 0 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: right;
+    }
+
+    .panel-mobile-cards td::before {
+        // El contenido sale del atributo data-label del HTML.
+        content: attr(data-label);
+        font-weight: 800;
+        color: $textturq;
+        text-align: left;
+        min-width: 110px;
+        max-width: 45%;
+    }
+
+    .panel-mobile-cards td[data-label="Recurso"],
+    .panel-mobile-cards td[data-label="Acciones"] {
+        display: block;
+        text-align: left;
+    }
+
+    .panel-mobile-cards td[data-label="Recurso"]::before,
+    .panel-mobile-cards td[data-label="Acciones"]::before {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .panel-recurso-info {
+        min-width: 0;
+    }
+
+    .panel-product-img {
+        width: 58px;
+        height: 58px;
+    }
+
+    .panel-acciones-recursos {
+        justify-content: flex-start;
+    }
+
+    .panel-acciones-recursos .btn {
+        flex: 1 1 auto;
+        min-width: 120px;
+    }
+
+    .panel-mobile-cards td[colspan] {
+        display: block !important;
+        text-align: center !important;
+        padding: 18px 8px !important;
+    }
+
+    .panel-mobile-cards td[colspan]::before {
+        display: none !important;
+    }
+}
+
+
 //CHAT SOPORTE
 .soporte-chat-admin {
     max-height: 360px;
@@ -2243,7 +2747,9 @@ h1{font-family: $font-titles;}
     margin-bottom: 1rem;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
 }
-//PAGINA DE CONTACTO------------------------
+//_____________________________________________________
+
+//PAGINA DE CONTACTO___________________________
 .contacto-page {
     background: #fff;
 }
@@ -2480,7 +2986,9 @@ h1{font-family: $font-titles;}
         padding: 1.4rem;
     }
 }
-//TIENDA DE RECURSOS GRATUITOS.
+//____________________________________________________
+
+//TIENDA DE RECURSOS GRATUITOS.________________________
 .recursos-gratis-page {
     background: #fff;
 }
@@ -2678,9 +3186,10 @@ h1{font-family: $font-titles;}
         border-color: $textturq;
     }
 }
-// ─────────────────────────────────────────────
-// TIENDA DE RECURSOS - VISTA MEJORADA
-// ─────────────────────────────────────────────
+//__________________________________________________________
+
+// TIENDA DE RECURSOS - VISTA MEJORADA____________
+
 
 .tienda-page {
     background: #fff;
@@ -2926,6 +3435,10 @@ h1{font-family: $font-titles;}
 }
 
 // TARJETAS DE PRODUCTO TIENDA
+// - Todas las tarjetas tienen la misma estructura.
+// - La imagen no puede hacer crecer la tarjeta.
+// - Se usa una sola imagen.
+// - La imagen rellena el espacio de la tarjeta sin dejar huecos.
 
 .tienda-productos-grid {
     row-gap: 1.5rem;
@@ -2940,22 +3453,20 @@ h1{font-family: $font-titles;}
     background: #fff;
     box-shadow: 0 10px 26px rgba(15, 23, 42, .06);
     transition: transform .2s ease, box-shadow .2s ease;
+     display: flex;
+    flex-direction: column;
 
     &:hover {
         transform: translateY(-3px);
         box-shadow: 0 16px 36px rgba(15, 23, 42, .10);
     }
 
-    .tienda-card-img {
-        width: 100%;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        display: block;
-        background: #f8fafc;
-    }
 
     .card-body {
         padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
 
     .badge-cat {
@@ -2999,8 +3510,36 @@ h1{font-family: $font-titles;}
     }
 }
 
-// ACCIONES TARJETA: VER + FAVORITO + CARRITO
+// Contenedor fijo de la imagen.
+// Esta es la parte importante: la imagen queda encerrada aquí.
+.tienda-card-img-wrap {
+    width: 100%;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+    flex: 0 0 220px;
 
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+// Imagen única de la tarjeta.
+.tienda-card-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    // Llena el hueco sin dejar blancos.
+    object-fit: cover;
+
+    // En recursos tipo ficha suele interesar ver la parte superior.
+    object-position: top center;
+
+    padding: 0;
+}
+
+// ACCIONES TARJETA: VER + FAVORITO + CARRITO
+// Los botones bajan al final de la tarjeta.
 .tienda-card-actions {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 38px 38px;
@@ -3162,6 +3701,12 @@ h1{font-family: $font-titles;}
             font-size: .94rem;
         }
     }
+     .tienda-card-img-wrap {
+        height: 205px;
+        min-height: 205px;
+        max-height: 205px;
+        flex-basis: 205px;
+    }
 
     .tienda-pill {
         font-size: .76rem;
@@ -3223,18 +3768,19 @@ h1{font-family: $font-titles;}
         min-width: 36px;
     }
 }
-/// ─────────────────────────────────────────────
-// HOME / INDEX - VISTA ACTUALIZADA
-// ─────────────────────────────────────────────
+//________________________________________________________________________
+
+// HOME / INDEX _____________________________________________________
+
 
 .home-page {
     background: #fff;
     overflow-x: hidden;
 }
 
-// ─────────────────────────────────────────────
+
 // HERO HOME
-// ─────────────────────────────────────────────
+
 
 .home-hero {
     padding: 4.2rem 0 4.8rem;
@@ -3361,9 +3907,9 @@ h1{font-family: $font-titles;}
     box-shadow: 0 24px 60px rgba(15, 23, 42, .12);
 }
 
-// ─────────────────────────────────────────────
+
 // SECCIONES GENERALES HOME
-// ─────────────────────────────────────────────
+
 
 .home-section {
     padding: 4rem 0;
@@ -3397,9 +3943,8 @@ h1{font-family: $font-titles;}
     background: #fff;
 }
 
-// ─────────────────────────────────────────────
 // RECURSOS DESTACADOS
-// ─────────────────────────────────────────────
+
 
 .home-destacados {
     background: #fff;
@@ -3514,9 +4059,8 @@ h1{font-family: $font-titles;}
     }
 }
 
-// ─────────────────────────────────────────────
 // CARRUSEL MÓVIL DESTACADOS
-// ─────────────────────────────────────────────
+
 
 #homeDestacadosCarousel {
     padding: 0 1.6rem 2.4rem;
@@ -3568,9 +4112,8 @@ h1{font-family: $font-titles;}
     }
 }
 
-// ─────────────────────────────────────────────
 // SOBRE MÍ
-// ─────────────────────────────────────────────
+
 
 .home-about {
     padding: 4rem 0;
@@ -3661,9 +4204,9 @@ h1{font-family: $font-titles;}
     }
 }
 
-// ─────────────────────────────────────────────
+
 // RECURSOS GRATUITOS EN HOME
-// ─────────────────────────────────────────────
+
 
 .home-gratuitos {
     background: #fff;
@@ -3758,9 +4301,9 @@ h1{font-family: $font-titles;}
     width: 100%;
 }
 
-// ─────────────────────────────────────────────
+
 // RESPONSIVE HOME
-// ─────────────────────────────────────────────
+
 
 @media (max-width: 991px) {
     .home-hero {
@@ -3950,9 +4493,10 @@ h1{font-family: $font-titles;}
         }
     }
 }
-// ─────────────────────────────────────────────
+//_______________________________________________________________________
+
 // CARRITO - VISTA MEJORADA
-// ─────────────────────────────────────────────
+
 
 .carrito-page {
     background: #fff;

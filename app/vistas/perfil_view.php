@@ -163,7 +163,7 @@
                             <?php else: ?>
 
                                 <!-- Tabla responsive -->
-                                <div class="table-responsive">
+                                <div class="table-responsive panel-mobile-cards">
 
                                     <table class="table align-middle panel-table">
 
@@ -173,88 +173,100 @@
                                                 <th>Recurso</th>
                                                 <th>Precio</th>
                                                 <th>Descargas</th>
-                                          
                                                 <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
 
                                         <tbody>
 
-                                            <?php foreach ($productosComprados as $producto): ?>
+                                            <?php if (empty($productosComprados)): ?>
 
                                                 <tr>
-                                                    <td>
-                                                        <?= date('d/m/Y', strtotime($producto['fecha_compra'])) ?>
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        Todavía no has adquirido ningún recurso.
                                                     </td>
-                                                    <!-- Imagen + título -->
-                                                    <td>
-                                                        <div class="d-flex align-items-center gap-3">
-
-                                                            <img
-                                                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
-                                                                class="panel-product-img">
-
-                                                            <div>
-                                                                <strong>
-                                                                    <?= htmlspecialchars($producto['titulo']) ?>
-                                                                </strong>
-
-                                                                <div class="text-muted small">
-                                                                   Recurso adquirido #<?= $producto['descarga_id'] ?>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </td>
-
-                                                    <!-- Precio unitario -->
-                                                    <td>
-                                                        <strong>
-                                                            <?= number_format((float)$producto['precio'], 2) ?> €
-                                                        </strong>
-                                                    </td>
-
-                                                    <td>
-                                                        <?= (int)($producto['numero_descargas'] ?? 0) ?> /
-                                                        <?= (int)($producto['max_descargas'] ?? 0) ?>
-                                                    </td>
-
-                                                    <!-- Acciones -->
-                                                    <td class="text-end">
-
-                                                        <!-- Descargar archivo -->
-                                                        <a
-                                                            href="/UNRINCONDEPT/public/descargar.php?id=<?= $producto['descarga_id'] ?>"
-                                                            class="btn btn-sm btn-success"
-                                                            title="Descargar recurso">
-                                                            <i class="bi bi-download"></i>
-                                                            Descargar
-                                                        </a>
-
-                                                        <!-- Ver detalle -->
-                                                        <a
-                                                            href="/UNRINCONDEPT/public/detalle.php?id=<?= $producto['id'] ?>"
-                                                            class="btn btn-sm btn-outline-primary"
-                                                            title="Ver detalle">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-
-                                                        <!-- Añadir reseña -->
-                                                        <button
-                                                            type="button"
-                                                            class="btn btn-sm btn-outline-warning btn-abrir-resena"
-                                                            data-producto-id="<?= (int)$producto['id'] ?>"
-                                                            data-producto-titulo="<?= htmlspecialchars($producto['titulo'], ENT_QUOTES) ?>"
-                                                            title="Añadir o editar reseña">
-                                                            <i class="bi bi-star"></i>
-                                                            Reseña
-                                                        </button>
-
-                                                    </td>
-
                                                 </tr>
 
-                                            <?php endforeach; ?>
+                                            <?php else: ?>
+
+                                                <?php foreach ($productosComprados as $producto): ?>
+
+                                                    <tr>
+                                                        <td data-label="Fecha">
+                                                            <?= !empty($producto['fecha_compra'])
+                                                                ? date('d/m/Y', strtotime($producto['fecha_compra']))
+                                                                : 'Sin fecha' ?>
+                                                        </td>
+
+                                                        <td data-label="Recurso">
+                                                            <div class="d-flex align-items-center gap-3 panel-recurso-info">
+
+                                                                <img
+                                                                    src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen'] ?? 'default.png') ?>"
+                                                                    alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
+                                                                    class="panel-product-img"
+                                                                    onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+
+                                                                <div>
+                                                                    <strong>
+                                                                        <?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>
+                                                                    </strong>
+
+                                                                    <div class="text-muted small">
+                                                                        Recurso adquirido #<?= (int)($producto['descarga_id'] ?? 0) ?>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </td>
+
+                                                        <td data-label="Precio">
+                                                            <strong>
+                                                                <?= number_format((float)($producto['precio'] ?? 0), 2) ?> €
+                                                            </strong>
+                                                        </td>
+
+                                                        <td data-label="Descargas">
+                                                            <?= (int)($producto['numero_descargas'] ?? 0) ?> /
+                                                            <?= (int)($producto['max_descargas'] ?? 0) ?>
+                                                        </td>
+
+                                                        <td data-label="Acciones" class="text-end">
+
+                                                            <div class="panel-acciones-recursos">
+
+                                                                <a href="/UNRINCONDEPT/public/descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
+                                                                    class="btn btn-sm btn-success">
+                                                                    <i class="bi bi-download"></i>
+                                                                    Descargar
+                                                                </a>
+
+                                                                <a
+                                                                    href="/UNRINCONDEPT/public/detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
+                                                                    class="btn btn-sm btn-outline-primary"
+                                                                    title="Ver detalle">
+                                                                    <i class="bi bi-eye"></i>
+                                                                </a>
+
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm btn-outline-warning btn-abrir-resena"
+                                                                    data-producto-id="<?= (int)($producto['id'] ?? 0) ?>"
+                                                                    data-producto-titulo="<?= htmlspecialchars($producto['titulo'] ?? '', ENT_QUOTES) ?>"
+                                                                    title="Añadir o editar reseña">
+                                                                    <i class="bi bi-star"></i>
+                                                                    Reseña
+                                                                </button>
+
+                                                            </div>
+
+                                                        </td>
+
+                                                    </tr>
+
+                                                <?php endforeach; ?>
+
+                                            <?php endif; ?>
 
                                         </tbody>
 
@@ -858,6 +870,24 @@
 
     </div>
 
+</div>
+
+<!--MODAL PARA VER FAVORITOS DEL USUARIO-->
+
+<div class="modal fade" id="modalAdminUsuarios" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdminUsuariosTitulo"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="modalAdminUsuariosContenido">
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <!-- JS específico del panel de usuario -->

@@ -85,22 +85,38 @@ public function cambiarEstadoUsuario($usuario_id, $activo)
 }
 
 
-// Obtener descargas/compras de un usuario
+// Obtener descargas/compras de un usuario para admin.
 public function obtenerDescargasUsuario($usuario_id)
 {
+    /*
+        Esta función se usa en el panel admin para ver qué recursos
+        tiene adquiridos un usuario concreto.
+    */
+
     $sql = "SELECT 
-                d.id,
+                d.id AS descarga_id,
+                d.usuario_id,
                 d.producto_id,
                 d.archivo_path,
                 d.fecha_compra,
                 d.fecha_expiracion,
                 d.max_descargas,
                 d.numero_descargas,
+                d.token_descarga,
+
+                p.id AS producto_id_real,
                 p.titulo,
-                p.imagen
+                p.imagen,
+                p.precio,
+                p.archivo_s3_key
+
             FROM descargas d
-            INNER JOIN productos p ON p.id = d.producto_id
+
+            INNER JOIN productos p 
+                ON p.id = d.producto_id
+
             WHERE d.usuario_id = ?
+
             ORDER BY d.fecha_compra DESC";
 
     $stmt = $this->conexion->prepare($sql);
@@ -131,24 +147,45 @@ public function obtenerResenasUsuario($usuario_id)
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-//Funcion para consultar las descargas de los productos comprados.
+// Función para consultar los recursos adquiridos por el usuario en su perfil.
 public function obtenerRecursosAdquiridosUsuario($usuario_id)
 {
+    /*
+        Esta función se usa en perfil_view.php.
+
+        Devuelve los recursos que el usuario puede descargar.
+        La descarga se controla desde la tabla descargas.
+
+        Importante:
+        - token_descarga sirve para generar el botón Descargar.
+        - numero_descargas y max_descargas sirven para mostrar el límite.
+        - fecha_expiracion sirve para saber si el recurso ha caducado.
+    */
+
     $sql = "SELECT 
                 d.id AS descarga_id,
+                d.usuario_id,
                 d.producto_id,
                 d.archivo_path,
                 d.fecha_compra,
                 d.fecha_expiracion,
                 d.max_descargas,
                 d.numero_descargas,
-                p.id,
+                d.token_descarga,
+
+                p.id AS id,
                 p.titulo,
                 p.imagen,
-                p.precio
+                p.precio,
+                p.archivo_s3_key
+
             FROM descargas d
-            INNER JOIN productos p ON p.id = d.producto_id
+
+            INNER JOIN productos p 
+                ON p.id = d.producto_id
+
             WHERE d.usuario_id = ?
+
             ORDER BY d.fecha_compra DESC";
 
     $stmt = $this->conexion->prepare($sql);

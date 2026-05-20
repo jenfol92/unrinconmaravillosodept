@@ -43,6 +43,17 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
         <img src="../static/images/logo/logo.jpeg" class="mi-logo">
         <span class="mi-logo-texto">Unrinconmaravillosodept</span>
       </a>
+    <!-- CARRITO VISIBLE EN MÓVIL -->
+      <a href="/UNRINCONDEPT/public/carrito.php"
+   class="mi-icono mobile-cart-header position-relative d-lg-none ms-auto me-3">
+    <i class="bi bi-bag"></i>
+
+    <?php if ($contadorCarrito > 0): ?>
+        <span id="cart-count-mobile" class="mi-badge">
+            <?= $contadorCarrito ?>
+        </span>
+    <?php endif; ?>
+</a>
 
             <!-- BOTÓN HAMBURGUESA  Siempre junto al brand-->
       <button class="navbar-toggler" type="button"
