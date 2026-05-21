@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Un Rincón Maravilloso de PT</title>
+
+    <style>
+        :root {
+            --turquesa: #56B3AD;
+            --turquesa-oscuro: #078991;
+            --amarillo: #FACC15;
+            --naranja: #F28C6F;
+            --fondo: #f4fbfc;
+            --texto: #263238;
+            --muted: #667781;
+            --blanco: #ffffff;
+            --borde: #d6edf1;
+            --sombra: rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f4fbfc 0%, #fff9db 100%);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            background:
+                radial-gradient(circle at top left, rgba(86, 179, 173, 0.25), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(250, 204, 21, 0.22), transparent 35%),
+                #ffffff;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(86, 179, 173, 0.13);
+            color: var(--turquesa-oscuro);
+            border: 1px solid rgba(86, 179, 173, 0.28);
+            border-radius: 999px;
+            padding: .45rem 1rem;
+            font-weight: 700;
+            font-size: .9rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.1rem, 5vw, 4rem);
+            line-height: 1.08;
+            color: var(--texto);
+        }
+
+        h1 span {
+            color: var(--turquesa);
+        }
+
+        .subtitle {
+            max-width: 850px;
+            margin: 1.2rem auto 0;
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: .85rem 1.2rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 800;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .btn-primary {
+            background: var(--turquesa);
+            color: white;
+            box-shadow: 0 8px 20px rgba(86, 179, 173, .28);
+        }
+
+        .btn-secondary {
+            background: var(--amarillo);
+            color: #1f2d33;
+            box-shadow: 0 8px 20px rgba(250, 204, 21, .25);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        main {
+            width: min(1150px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 3rem 0 4rem;
+        }
+
+        .section-title {
+            margin-bottom: 1.2rem;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .section-title p {
+            margin: .3rem 0 0;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--blanco);
+            border: 1px solid var(--borde);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 12px 28px var(--sombra);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.11);
+            border-color: rgba(86, 179, 173, .45);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(86, 179, 173, .15);
+            color: var(--turquesa-oscuro);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            margin: 0 0 .5rem;
+            font-size: 1.15rem;
+        }
+
+        .card p {
+            color: var(--muted);
+            margin: 0 0 1rem;
+            font-size: .96rem;
+        }
+
+        .card a {
+            color: var(--turquesa-oscuro);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, .75);
+            border: 1px solid var(--borde);
+            border-radius: 18px;
+            padding: 1rem;
+            font-weight: 700;
+            color: var(--texto);
+        }
+
+        .feature span {
+            color: var(--turquesa-oscuro);
+            margin-right: .35rem;
+        }
+
+        .status-box {
+            background: #ffffff;
+            border-radius: 26px;
+            border: 1px solid var(--borde);
+            box-shadow: 0 12px 28px var(--sombra);
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .status-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: .8rem;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .status-list li {
+            background: #f8fdff;
+            border: 1px solid #e2f1f3;
+            border-radius: 16px;
+            padding: .85rem 1rem;
+        }
+
+        .ok {
+            color: #198754;
+            font-weight: 900;
+        }
+
+        .pending {
+            color: #d97706;
+            font-weight: 900;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: #ffffff;
+            border-top: 1px solid var(--borde);
+            color: var(--muted);
+        }
+
+        footer strong {
+            color: var(--turquesa-oscuro);
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 3rem 1rem 2.4rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="badge">
+        📘 Documentación técnica del proyecto
+    </div>
+
+    <h1>
+        Un Rincón Maravilloso de <span>PT</span>
+    </h1>
+
+    <p class="subtitle">
+        Documentación del proyecto web desarrollado con PHP, MySQL, JavaScript, AJAX, jQuery,
+        Bootstrap y Sass. Incluye tienda de recursos educativos, panel de usuario, administración,
+        soporte, recursos gratuitos, validaciones y despliegue.
+    </p>
+
+    <div class="header-actions">
+        <a href="01-descripcion-general.html" class="btn btn-primary">Ver documentación</a>
+        <a href="04-despliegue.html" class="btn btn-secondary">Guía de despliegue</a>
+    </div>
+</header>
+
+<main>
+
+    <section>
+        <div class="section-title">
+            <h2>Índice de documentación</h2>
+            <p>Accede a cada apartado del proyecto desde las siguientes secciones.</p>
+        </div>
+
+        <div class="grid">
+
+            <article class="card">
+                <div class="card-icon">🏠</div>
+                <h3>Descripción general</h3>
+                <p>Resumen del proyecto, objetivos, tecnologías utilizadas y funcionalidades principales.</p>
+                <a href="01-descripcion-general.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">🖥️</div>
+                <h3>DAWES - Servidor</h3>
+                <p>PHP, MySQL, PDO, sesiones, cookies, roles, CRUD, subida de ficheros y PDF.</p>
+                <a href="02-dawes-servidor.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">⚡</div>
+                <h3>DWEC - Cliente</h3>
+                <p>JavaScript, Date, validaciones, expresiones regulares, DOM, eventos, jQuery, AJAX y slideshow.</p>
+                <a href="03-dwec-cliente.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">🚀</div>
+                <h3>Despliegue</h3>
+                <p>Funcionamiento local, GitHub, ramas, commits, tags, GitHub Pages y hosting.</p>
+                <a href="04-despliegue.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">📁</div>
+                <h3>Estructura del proyecto</h3>
+                <p>Organización de carpetas, controladores, modelos, vistas, plantillas y archivos estáticos.</p>
+                <a href="05-estructura-proyecto.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">👤</div>
+                <h3>Manual de usuario</h3>
+                <p>Explicación del uso de la tienda, registro, login, favoritos, compras y soporte.</p>
+                <a href="06-manual-usuario.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">🛠️</div>
+                <h3>Manual de administrador</h3>
+                <p>Gestión de productos, usuarios, soporte, sugerencias, contacto web y recursos gratuitos.</p>
+                <a href="07-manual-administrador.html">Abrir documento →</a>
+            </article>
+
+            <article class="card">
+                <div class="card-icon">🌱</div>
+                <h3>Mejoras futuras</h3>
+                <p>Funcionalidades pendientes y posibles ampliaciones: OAuth, recuperación de contraseña y notificaciones.</p>
+                <a href="08-mejoras-futuras.html">Abrir documento →</a>
+            </article>
+
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">
+            <h2>Funcionalidades principales</h2>
+            <p>Resumen visual de los módulos implementados en la aplicación.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature"><span>✓</span> Registro e inicio de sesión</div>
+            <div class="feature"><span>✓</span> Roles cliente y administrador</div>
+            <div class="feature"><span>✓</span> Tienda de recursos digitales</div>
+            <div class="feature"><span>✓</span> Recursos gratuitos</div>
+            <div class="feature"><span>✓</span> Carrito y favoritos</div>
+            <div class="feature"><span>✓</span> Descarga de recursos</div>
+            <div class="feature"><span>✓</span> Panel de usuario</div>
+            <div class="feature"><span>✓</span> Panel administrador</div>
+            <div class="feature"><span>✓</span> Soporte y sugerencias</div>
+            <div class="feature"><span>✓</span> Contacto web</div>
+            <div class="feature"><span>✓</span> Validaciones cliente/servidor</div>
+            <div class="feature"><span>✓</span> AJAX y jQuery</div>
+        </div>
+    </section>
+
+    <section class="status-box">
+        <div class="section-title">
+            <h2>Estado de requisitos</h2>
+            <p>Resumen del cumplimiento de los módulos trabajados.</p>
+        </div>
+
+        <ul class="status-list">
+            <li><span class="ok">✓</span> PHP y MySQL</li>
+            <li><span class="ok">✓</span> PDO y consultas preparadas</li>
+            <li><span class="ok">✓</span> Sesiones y roles</li>
+            <li><span class="ok">✓</span> Cookies técnicas</li>
+            <li><span class="ok">✓</span> CRUD</li>
+            <li><span class="ok">✓</span> Subida de ficheros</li>
+            <li><span class="ok">✓</span> JavaScript y DOM</li>
+            <li><span class="ok">✓</span> Validaciones y regex</li>
+            <li><span class="ok">✓</span> jQuery y efectos</li>
+            <li><span class="ok">✓</span> AJAX</li>
+            <li><span class="ok">✓</span> Slideshow</li>
+            <li><span class="pending">◷</span> Hosting final pendiente</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer>
+    Proyecto <strong>Un Rincón Maravilloso de PT</strong> · Documentación técnica para DAWES, DWEC y Despliegue.
+</footer>
+
+</body>
+</html>
