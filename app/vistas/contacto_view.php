@@ -33,7 +33,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form id="formContactoPublico" class="contacto-form">
+                        <form id="formContactoPublico" class="contacto-form" novalidate>
 
                             <?php if (!empty($producto)): ?>
                                 <input type="hidden" name="producto_id" value="<?= (int)$producto['id'] ?>">

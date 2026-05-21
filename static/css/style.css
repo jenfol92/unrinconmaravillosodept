@@ -1,3 +1,4 @@
+@charset "UTF-8";
 #navbar-principal {
   background-color: white;
   border-bottom: 1px solid #f0f0f0;
@@ -1132,7 +1133,7 @@ a {
   height: 42px;
   min-width: 42px;
   border-radius: 50%;
-  background: #f2f6f7;
+  background: #a7d2df;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2609,6 +2610,97 @@ a {
   border-color: #56B3AD;
 }
 
+.tienda-sugerencia-widget {
+  margin-bottom: 2rem;
+}
+
+.tienda-sugerencia-content {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.6rem 1.8rem;
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(86, 179, 173, 0.14) 0%, rgba(250, 204, 21, 0.14) 100%);
+  border: 1px solid rgba(86, 179, 173, 0.2);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+.tienda-sugerencia-content::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  right: -60px;
+  top: -70px;
+  border-radius: 50%;
+  background: rgba(86, 179, 173, 0.18);
+  pointer-events: none;
+}
+
+.tienda-sugerencia-text {
+  position: relative;
+  z-index: 2;
+}
+.tienda-sugerencia-text h3 {
+  font-family: "Chewy", sans-serif;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #1f2937;
+  margin-bottom: 0.55rem;
+}
+.tienda-sugerencia-text p {
+  max-width: 560px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.tienda-sugerencia-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: -moz-fit-content;
+  width: fit-content;
+  border: 0;
+  border-radius: 999px;
+  background: #FACC15;
+  color: #111827;
+  font-family: "Varela Round", sans-serif;
+  font-weight: 900;
+  padding: 0.8rem 1.15rem;
+  box-shadow: 0 10px 20px rgba(250, 204, 21, 0.22);
+  transition: 0.2s ease;
+}
+.tienda-sugerencia-btn:hover {
+  background: rgb(240.3640167364, 193.1129707113, 5.1359832636);
+  color: #111827;
+  transform: translateY(-1px);
+}
+
+.tienda-sugerencia-img {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+}
+.tienda-sugerencia-img img {
+  width: 180px;
+  height: 150px;
+  max-width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: center;
+     object-position: center;
+  border-radius: 22px;
+  display: block;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.1);
+}
+
 .tienda-page {
   background: #fff;
 }
@@ -2756,70 +2848,6 @@ a {
   border-color: rgba(86, 179, 173, 0.45);
   background: #f8fffe;
   transform: translateX(2px);
-}
-
-.tienda-sugerencia-widget {
-  margin-bottom: 2.2rem;
-}
-
-.tienda-sugerencia-content {
-  display: grid;
-  grid-template-columns: 1.3fr 0.7fr;
-  align-items: center;
-  gap: 2rem;
-  background: rgba(86, 179, 173, 0.1);
-  border: 2px dashed rgba(86, 179, 173, 0.45);
-  border-radius: 32px;
-  padding: 2rem 2.2rem;
-}
-
-.tienda-sugerencia-text h3 {
-  font-family: "Chewy", sans-serif;
-  color: #56B3AD;
-  font-size: 2rem;
-  margin-bottom: 0.7rem;
-}
-.tienda-sugerencia-text p {
-  color: #4b5563;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  max-width: 620px;
-  margin-bottom: 1rem;
-}
-
-.tienda-sugerencia-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border: 1px solid #56B3AD;
-  color: #56B3AD;
-  background: #fff;
-  border-radius: 999px;
-  padding: 0.65rem 1.1rem;
-  font-family: "Varela Round", sans-serif;
-  font-weight: 800;
-  font-size: 0.9rem;
-}
-.tienda-sugerencia-btn:hover {
-  background: #56B3AD;
-  color: #fff;
-  border-color: #56B3AD;
-  box-shadow: 0 8px 18px rgba(86, 179, 173, 0.24);
-}
-
-.tienda-sugerencia-img {
-  display: flex;
-  justify-content: flex-end;
-}
-.tienda-sugerencia-img img {
-  width: 100%;
-  max-width: 260px;
-  height: 150px;
-  -o-object-fit: cover;
-     object-fit: cover;
-  border-radius: 22px;
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
 }
 
 .tienda-productos-grid {
@@ -4132,5 +4160,986 @@ a {
   }
   .carrito-summary-total strong {
     font-size: 1.7rem;
+  }
+}
+/*FOOTER
+
+  Pie de página principal de la aplicación.
+
+  Funciones del footer:
+  - Muestra la identidad de la web.
+  - Incluye acceso a Instagram mediante Bootstrap Icons.
+  - Muestra enlaces a recursos y páginas legales.
+  - Integra fecha.js para mostrar el año y la fecha actual
+    mediante el objeto Date de JavaScript.
+*/
+.footer-web {
+  background-color: #f4fbfc;
+  border-top: 1px solid #d6edf1;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+  color: #49636b;
+  font-size: 0.95rem;
+}
+.footer-web .footer-container {
+  max-width: 980px;
+}
+.footer-web .footer-brand {
+  gap: 0.75rem;
+}
+.footer-web .footer-brand h5 {
+  color: #00aeb7;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.footer-web .footer-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  background-color: #ffffff;
+  border: 2px solid #d6edf1;
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.footer-web .footer-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #1f2d33;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.footer-web .footer-social i {
+  color: #00aeb7;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.footer-web .footer-social:hover {
+  color: #078991;
+  transform: translateX(3px);
+}
+.footer-web .footer-social:hover i {
+  color: #078991;
+}
+.footer-web .footer-title {
+  color: #1f2d33;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+.footer-web .footer-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+.footer-web .footer-list li {
+  margin-bottom: 0.55rem;
+}
+.footer-web .footer-list a {
+  color: #49636b;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: color 0.2s ease, padding-left 0.2s ease;
+}
+.footer-web .footer-list a:hover {
+  color: #078991;
+  padding-left: 4px;
+}
+.footer-web .footer-divider {
+  border-color: #d6edf1;
+  opacity: 1;
+  margin: 1.75rem 0 1rem;
+}
+.footer-web .footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  color: #6c7f86;
+  font-size: 0.84rem;
+}
+.footer-web .footer-bottom p {
+  margin: 0;
+}
+.footer-web .footer-bottom #footer-anio,
+.footer-web .footer-bottom #footer-fecha-actual,
+.footer-web .footer-bottom #footer-ultima-visita,
+.footer-web .footer-bottom #footer-ultima-actualizacion {
+  font-weight: 700;
+  color: #1f2d33;
+}
+@media (max-width: 767.98px) {
+  .footer-web {
+    text-align: center;
+  }
+  .footer-web .footer-brand {
+    justify-content: center;
+  }
+  .footer-web .footer-social {
+    justify-content: center;
+  }
+  .footer-web .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  .footer-web .footer-list a:hover {
+    padding-left: 0;
+  }
+}
+
+/* =========================================================
+   PÁGINAS LEGALES
+   ---------------------------------------------------------
+   Estilos para:
+   - Política de privacidad
+   - Política de cookies
+   - Términos de compra
+   ========================================================= */
+.legal-page {
+  max-width: 900px;
+}
+.legal-page h1 {
+  color: #00aeb7;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+.legal-page h2 {
+  color: #1f2d33;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.legal-page p {
+  color: #49636b;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.legal-page ul {
+  color: #49636b;
+  margin-bottom: 1rem;
+}
+.legal-page ul li {
+  margin-bottom: 0.45rem;
+}
+.legal-page strong {
+  color: #1f2d33;
+}
+
+/* =========================================================
+   EFECTOS JQUERY - ADMIN
+   ---------------------------------------------------------
+   Estilos de apoyo para efectos visuales realizados con
+   jQuery en el panel de administración.
+   ========================================================= */
+/* Panel general de filtros */
+.admin-filtros-panel {
+  border: 1px solid #d6edf1;
+  border-radius: 20px;
+  background-color: #f4fbfc;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+/* Botón de filtros */
+.admin-filtros-toggle {
+  width: 100%;
+  border: 0;
+  background-color: #ffffff;
+  color: #1f2d33;
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.admin-filtros-toggle:hover {
+  background-color: #e9f8fa;
+  color: #078991;
+}
+.admin-filtros-toggle.is-open {
+  color: #078991;
+}
+.admin-filtros-toggle.is-open .admin-filtros-chevron {
+  transform: rotate(180deg);
+}
+
+.admin-filtros-toggle-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-filtros-toggle-icon {
+  color: #00aeb7;
+}
+
+.admin-filtros-chevron {
+  transition: transform 0.25s ease;
+}
+
+/* Cuerpo de filtros */
+.admin-filtros-body {
+  padding-top: 1rem;
+}
+
+/* Layout interno de filtros */
+.admin-filtros-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: end;
+}
+
+.admin-filtro-item {
+  min-width: 160px;
+}
+
+.admin-filtro-grow {
+  flex: 1 1 240px;
+}
+
+.admin-filtro-button {
+  min-width: 130px;
+}
+
+/* Alertas animadas */
+.mensaje-flash,
+.alert {
+  border-radius: 14px;
+}
+
+/* =========================================================
+   CHAT DE SOPORTE - ESTILO BURBUJAS
+   ---------------------------------------------------------
+   Estilos para mostrar los mensajes de soporte como un chat.
+   - Usuario a la izquierda.
+   - Administrador a la derecha.
+   - Colores adaptados a la identidad visual de la web.
+   ========================================================= */
+.soporte-chat-admin {
+  max-height: 420px;
+  overflow-y: auto;
+  background-color: #f4fbfc;
+  border: 1px solid #d6edf1;
+  border-radius: 22px;
+  padding: 1rem;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+.soporte-chat-admin::-webkit-scrollbar {
+  width: 8px;
+}
+.soporte-chat-admin::-webkit-scrollbar-thumb {
+  background-color: #bfe6eb;
+  border-radius: 20px;
+}
+.soporte-chat-admin::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.soporte-msg {
+  display: flex;
+  margin-bottom: 0.95rem;
+}
+
+.soporte-msg-bubble {
+  max-width: 78%;
+  position: relative;
+  padding: 0.8rem 0.95rem 0.65rem;
+  border-radius: 19px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  word-wrap: break-word;
+  line-height: 1.45;
+}
+
+.soporte-msg-autor {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #1f2d33;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.soporte-msg-autor i {
+  color: #00aeb7;
+  font-size: 0.95rem;
+}
+
+.soporte-msg-texto {
+  color: #49636b;
+  font-size: 0.95rem;
+}
+
+.soporte-msg-hora {
+  color: #7b8e95;
+  font-size: 0.74rem;
+  text-align: right;
+  margin-top: 0.45rem;
+}
+
+/* Mensajes enviados por el usuario */
+.mensaje-usuario {
+  justify-content: flex-start;
+}
+.mensaje-usuario .soporte-msg-bubble {
+  background-color: #ffffff;
+  border: 1px solid #e4eef0;
+  border-bottom-left-radius: 7px;
+}
+.mensaje-usuario .soporte-msg-bubble::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 10px;
+  width: 12px;
+  height: 12px;
+  background-color: #ffffff;
+  border-left: 1px solid #e4eef0;
+  border-bottom: 1px solid #e4eef0;
+  transform: rotate(45deg);
+}
+
+/* Mensajes enviados por administración */
+.mensaje-admin {
+  justify-content: flex-end;
+}
+.mensaje-admin .soporte-msg-bubble {
+  background-color: #dff7f9;
+  border: 1px solid #b7e8ed;
+  border-bottom-right-radius: 7px;
+}
+.mensaje-admin .soporte-msg-bubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 10px;
+  width: 12px;
+  height: 12px;
+  background-color: #dff7f9;
+  border-right: 1px solid #b7e8ed;
+  border-top: 1px solid #b7e8ed;
+  transform: rotate(45deg);
+}
+
+.soporte-chat-loading,
+.soporte-chat-empty {
+  text-align: center;
+  color: #7b8e95;
+  padding: 2rem 1rem;
+}
+.soporte-chat-loading i,
+.soporte-chat-empty i {
+  display: block;
+  color: #00aeb7;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+.soporte-chat-loading p,
+.soporte-chat-empty p {
+  margin: 0;
+}
+
+@media (max-width: 767.98px) {
+  .soporte-msg-bubble {
+    max-width: 92%;
+  }
+}
+/* =========================================================
+   ADMIN - SUGERENCIAS
+   ---------------------------------------------------------
+   Estilos para mostrar las sugerencias de usuarios en tarjetas
+   más visuales y coherentes con el diseño general.
+   ========================================================= */
+.sugerencias-admin-wrapper {
+  background-color: #f4fbfc;
+  border: 1px solid #d6edf1;
+  border-radius: 24px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.sugerencias-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.sugerencia-admin-card {
+  background-color: #ffffff;
+  border: 1px solid #d6edf1;
+  border-radius: 22px;
+  padding: 1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sugerencia-admin-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.sugerencia-admin-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+.sugerencia-admin-top h3 {
+  color: #1f2d33;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.sugerencia-admin-top span {
+  color: #7b8e95;
+  font-size: 0.82rem;
+}
+
+.sugerencia-admin-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #00aeb7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(0, 174, 183, 0.25);
+  flex-shrink: 0;
+}
+
+.sugerencia-admin-message {
+  position: relative;
+  color: #49636b;
+  background-color: #fbfeff;
+  border: 1px solid #e2f1f3;
+  border-radius: 18px;
+  padding: 0.9rem 1rem;
+  line-height: 1.55;
+  margin-bottom: 0.9rem;
+}
+.sugerencia-admin-message::before {
+  content: "“";
+  position: absolute;
+  top: -0.6rem;
+  left: 0.8rem;
+  color: rgba(0, 174, 183, 0.25);
+  font-size: 3rem;
+  font-family: serif;
+  line-height: 1;
+}
+
+.sugerencia-admin-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #7b8e95;
+  font-size: 0.82rem;
+}
+.sugerencia-admin-footer div {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sugerencia-admin-footer i {
+  color: #078991;
+}
+
+.sugerencias-admin-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7b8e95;
+}
+.sugerencias-admin-empty i {
+  display: block;
+  color: #00aeb7;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.sugerencias-admin-empty h3 {
+  color: #1f2d33;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.sugerencias-admin-empty p {
+  margin: 0;
+}
+
+/* =========================================================
+   ADMIN - LISTADO DE TICKETS DE SOPORTE
+   ---------------------------------------------------------
+   Estilo visual para mostrar tickets de soporte con un diseño
+   más moderno, limpio y legible.
+   ========================================================= */
+/* Contenedor principal */
+.tickets-admin-wrapper {
+  background-color: #f4fbfc;
+  border: 1px solid #d6edf1;
+  border-radius: 24px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.05);
+}
+
+/* Lista de tickets */
+.tickets-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Tarjeta individual */
+.ticket-admin-card {
+  background-color: #ffffff;
+  border: 1px solid #d6edf1;
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.ticket-admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07);
+  border-color: #bfe6eb;
+}
+
+/* Estructura interna */
+.ticket-admin-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Avatar */
+.ticket-admin-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #00aeb7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 174, 183, 0.25);
+}
+
+/* Contenido */
+.ticket-admin-content {
+  min-width: 0;
+}
+
+.ticket-admin-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.45rem;
+}
+
+.ticket-admin-title {
+  color: #1f2d33;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* Meta info */
+.ticket-admin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1rem;
+  color: #7b8e95;
+  font-size: 0.84rem;
+  margin-bottom: 0.35rem;
+}
+.ticket-admin-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.ticket-admin-meta i {
+  color: #078991;
+}
+
+/* Extra: localidad, CP... */
+.ticket-admin-extra {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #49636b;
+  font-size: 0.84rem;
+  background-color: #f8fcfd;
+  border: 1px solid #e2f1f3;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  margin-top: 0.2rem;
+}
+.ticket-admin-extra i {
+  color: #078991;
+}
+
+/* Columna de acciones */
+.ticket-admin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+.ticket-admin-actions .btn {
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.55rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Badges de estado */
+.ticket-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.32rem 0.7rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.estado-pendiente {
+  background-color: #fff7df;
+  color: #9a6b00;
+  border: 1px solid #f4df9b;
+}
+
+.estado-respondido {
+  background-color: #dff7f9;
+  color: #0b7a81;
+  border: 1px solid #b7e8ed;
+}
+
+.estado-cerrado {
+  background-color: #e9ecef;
+  color: #495057;
+  border: 1px solid #d4d9de;
+}
+
+/* Estado vacío */
+.tickets-admin-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7b8e95;
+}
+.tickets-admin-empty i {
+  display: block;
+  color: #00aeb7;
+  font-size: 2.6rem;
+  margin-bottom: 0.75rem;
+}
+.tickets-admin-empty h3 {
+  color: #1f2d33;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.tickets-admin-empty p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .ticket-admin-main {
+    grid-template-columns: auto 1fr;
+  }
+  .ticket-admin-actions {
+    grid-column: 1/-1;
+    justify-content: flex-start;
+    margin-top: 0.25rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .ticket-admin-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ticket-admin-meta {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .ticket-admin-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 0.95rem;
+  }
+}
+/* =========================================================
+   ADMIN - CONTACTO WEB
+   ---------------------------------------------------------
+   Estilos para la sección "Contacto web" del panel admin.
+
+   Esta vista muestra los mensajes enviados desde el formulario
+   público de contacto por usuarios invitados o no registrados.
+
+   Se crean clases propias para no depender de .admin-ticket
+   y evitar romper otras zonas del panel.
+   ========================================================= */
+/* Contenedor principal */
+.contacto-admin-wrapper {
+  background: linear-gradient(135deg, #ffffff 0%, #f4fbfc 100%);
+  border: 1px solid rgba(86, 179, 173, 0.22);
+  border-radius: 26px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+/* Listado de mensajes */
+.contacto-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Tarjeta individual */
+.contacto-admin-card {
+  background: #ffffff;
+  border: 1px solid rgba(86, 179, 173, 0.18);
+  border-radius: 24px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.045);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.contacto-admin-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(86, 179, 173, 0.38);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.075);
+}
+
+/* Estructura interna */
+.contacto-admin-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Avatar con inicial */
+.contacto-admin-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #56B3AD 0%, rgba(117, 224, 248, 0.8078431373) 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Chewy", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(86, 179, 173, 0.25);
+  flex-shrink: 0;
+}
+
+/* Contenido */
+.contacto-admin-content {
+  min-width: 0;
+}
+
+.contacto-admin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.contacto-admin-title {
+  color: #1f2d33;
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  line-height: 1.35;
+}
+
+/* Datos: nombre, email, fecha */
+.contacto-admin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  color: #7b8e95;
+  font-size: 0.84rem;
+}
+.contacto-admin-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.contacto-admin-meta i {
+  color: rgb(69.547755102, 154.652244898, 149.1616326531);
+}
+
+/* Badge de producto consultado */
+.contacto-admin-product {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(250, 204, 21, 0.18);
+  color: rgb(125.5179916318, 100.8435146444, 2.6820083682);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: 999px;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.contacto-admin-product i {
+  color: rgb(175.4510460251, 140.9606694561, 3.7489539749);
+}
+.contacto-admin-product strong {
+  color: rgb(105.5447698745, 84.7966527197, 2.2552301255);
+}
+
+/* Mensaje principal */
+.contacto-admin-message {
+  position: relative;
+  background: #fbfeff;
+  border: 1px solid #e2f1f3;
+  border-radius: 18px;
+  color: #49636b;
+  padding: 0.9rem 1rem;
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+.contacto-admin-message::before {
+  content: "“";
+  position: absolute;
+  top: -0.55rem;
+  left: 0.75rem;
+  color: rgba(86, 179, 173, 0.22);
+  font-family: serif;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* Botón de acción */
+.contacto-admin-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.contacto-admin-actions .btn {
+  border-radius: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  white-space: nowrap;
+}
+
+/* Estado leído/nuevo */
+.contacto-admin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.contacto-admin-status.is-new {
+  background: rgba(242, 140, 111, 0.16);
+  color: rgb(230.2165605096, 67.1464968153, 20.7834394904);
+  border: 1px solid rgba(242, 140, 111, 0.28);
+}
+.contacto-admin-status.is-read {
+  background: rgba(86, 179, 173, 0.14);
+  color: rgb(53.7273469388, 119.4726530612, 115.2310204082);
+  border: 1px solid rgba(86, 179, 173, 0.26);
+}
+
+/* Estado vacío */
+.contacto-admin-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7b8e95;
+}
+.contacto-admin-empty i {
+  display: block;
+  color: #56B3AD;
+  font-size: 2.7rem;
+  margin-bottom: 0.75rem;
+}
+.contacto-admin-empty h3 {
+  color: #1f2d33;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+.contacto-admin-empty p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .contacto-admin-main {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .contacto-admin-actions {
+    grid-column: 1/-1;
+    justify-content: flex-start;
+    margin-top: 0.25rem;
+  }
+  .contacto-admin-actions .btn {
+    width: auto;
+  }
+}
+@media (max-width: 575.98px) {
+  .contacto-admin-wrapper {
+    padding: 0.9rem;
+    border-radius: 22px;
+  }
+  .contacto-admin-card {
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
+  .contacto-admin-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    font-size: 1.05rem;
+  }
+  .contacto-admin-top {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .contacto-admin-meta {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .contacto-admin-product {
+    align-items: flex-start;
+    border-radius: 16px;
+    line-height: 1.4;
+  }
+  .contacto-admin-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }/*# sourceMappingURL=style.css.map */

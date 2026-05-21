@@ -223,11 +223,29 @@ document.addEventListener("click", function (e) {
 });
 
 
+/**
+ * Carga los mensajes de un ticket de soporte y los muestra
+ * con formato visual de chat.
+ *
+ * - Mensajes del usuario: izquierda.
+ * - Mensajes del administrador: derecha.
+ * - Se utiliza escapeHtml() para evitar insertar HTML peligroso.
+ * - Se mantiene el salto de línea del mensaje con replace().
+ *
+ * @param {number|string} ticketId ID del ticket seleccionado.
+ */
 function cargarMensajesTicket(ticketId) {
 
     const contenedor = document.getElementById("ticketMensajes");
 
-    contenedor.innerHTML = "Cargando mensajes...";
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div class="soporte-chat-loading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Cargando conversación...
+        </div>
+    `;
 
     fetch(`/UNRINCONDEPT/public/admin_ajax_soporte_leer.php?ticket_id=${ticketId}`)
         .then(res => res.json())
@@ -236,14 +254,19 @@ function cargarMensajesTicket(ticketId) {
             if (!data.ok) {
                 contenedor.innerHTML = `
                     <div class="alert alert-danger">
-                        ${data.error}
+                        ${escapeHtml(data.error)}
                     </div>
                 `;
                 return;
             }
 
             if (!data.mensajes.length) {
-                contenedor.innerHTML = "<p>No hay mensajes.</p>";
+                contenedor.innerHTML = `
+                    <div class="soporte-chat-empty">
+                        <i class="bi bi-chat-dots"></i>
+                        <p>No hay mensajes en esta conversación.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -251,25 +274,64 @@ function cargarMensajesTicket(ticketId) {
 
             data.mensajes.forEach(m => {
 
-                const clase = m.remitente === "admin"
+                const esAdmin = m.remitente === "admin";
+
+                const clase = esAdmin
                     ? "mensaje-admin"
                     : "mensaje-usuario";
 
+                const nombreRemitente = m.remitente_nombre
+                    ? m.remitente_nombre
+                    : (esAdmin ? "Administración" : "Usuario");
+
+                const icono = esAdmin
+                    ? "bi-shield-check"
+                    : "bi-person-circle";
+
+                const mensajeSeguro = escapeHtml(m.mensaje || "").replace(/\n/g, "<br>");
+                const fechaSegura = escapeHtml(m.fecha || "");
+
                 html += `
                     <div class="soporte-msg ${clase}">
-                        <div class="soporte-msg-body">
-                            <strong>${m.remitente_nombre || (m.remitente === "admin" ? "Admin" : "Usuario")}</strong>
-                            <p>${m.mensaje}</p>
-                            <small>${m.fecha}</small>
+                        <div class="soporte-msg-bubble">
+
+                            <div class="soporte-msg-autor">
+                                <i class="bi ${icono}"></i>
+                                ${escapeHtml(nombreRemitente)}
+                            </div>
+
+                            <div class="soporte-msg-texto">
+                                ${mensajeSeguro}
+                            </div>
+
+                            <div class="soporte-msg-hora">
+                                ${fechaSegura}
+                            </div>
+
                         </div>
                     </div>
                 `;
             });
 
             contenedor.innerHTML = html;
+
+            /*
+                Bajamos automáticamente al último mensaje.
+                Si tienes efectos-jquery.js, también se encargará,
+                pero esto asegura que funcione aunque no esté cargado.
+            */
+            contenedor.scrollTop = contenedor.scrollHeight;
+        })
+        .catch(error => {
+            console.error("Error cargando mensajes del ticket:", error);
+
+            contenedor.innerHTML = `
+                <div class="alert alert-danger">
+                    Se ha producido un error al cargar la conversación.
+                </div>
+            `;
         });
 }
-
 
 // Enviar respuesta admin
 document.addEventListener("DOMContentLoaded", function () {
@@ -1838,7 +1900,7 @@ function cerrarSidebarAdminMovil() {
 // FILTROS RESPONSIVE: DESPLEGAR EN MÓVIL
 
 
-document.addEventListener("click", function (e) {
+/*document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".admin-filtros-toggle");
 
@@ -1854,10 +1916,10 @@ document.addEventListener("click", function (e) {
 
     btn.classList.toggle("is-open");
     body.classList.toggle("is-open");
-});
-// ======================================================
+});*/
+
 // VER FAVORITOS DE UN USUARIO EN PANEL ADMIN
-// ======================================================
+
 
 document.addEventListener("click", function (e) {
 

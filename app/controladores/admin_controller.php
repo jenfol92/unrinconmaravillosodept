@@ -624,7 +624,7 @@ class AdminController
             throw new Exception('La imagen debe ser JPG, PNG o WEBP.');
         }
 
-        $carpeta = __DIR__ . '/../../static/images/recursos_gratuitos/';
+        $carpeta = __DIR__ . '/../../static/images/img/';
 
         if (!is_dir($carpeta)) {
             mkdir($carpeta, 0777, true);

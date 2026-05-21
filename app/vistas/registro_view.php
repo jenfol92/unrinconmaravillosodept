@@ -39,44 +39,115 @@
                 <a href="/UNRINCONDEPT/public/login.php">Entrar</a>
                 <a href="/UNRINCONDEPT/public/registro.php" class="active">Registrarse</a>
             </div>
-            <form action="/UNRINCONDEPT/public/registro.php" method="POST">
+            <?php if (!empty($erroresRegistro)): ?>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            <?php foreach ($erroresRegistro as $error): ?>
+                <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+            <form id="formRegistro" action="/UNRINCONDEPT/public/registro.php" method="POST" novalidate>
 
                 <div class="auth-two-cols">
 
                     <div class="auth-field">
                         <label>Nombre</label>
-                        <input type="text" name="nombre" placeholder="Ej. María" required>
+                        <input
+                            type="text"
+                            name="nombre"
+                            class="form-control"
+                            placeholder="Ej. María"
+                            value="<?= htmlspecialchars($nombre ?? '') ?>"
+                            required>
                     </div>
 
                     <div class="auth-field">
                         <label>Apellidos</label>
-                        <input type="text" name="apellidos" placeholder="Ej. García" required>
+                        <input
+                            type="text"
+                            name="apellidos"
+                            class="form-control"
+                            placeholder="Ej. García"
+                            value="<?= htmlspecialchars($apellidos ?? '') ?>"
+                            required>
                     </div>
 
                 </div>
 
                 <div class="auth-field">
                     <label>Correo Electrónico</label>
-                    <input type="email" name="email" placeholder="hola@ejemplo.com" required>
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        placeholder="hola@ejemplo.com"
+                        value="<?= htmlspecialchars($email ?? '') ?>"
+                        required>
+                </div>
+
+                <div class="auth-two-cols">
+
+                    <div class="auth-field">
+                        <label>Localidad</label>
+                        <input
+                            type="text"
+                            name="localidad"
+                            class="form-control"
+                            placeholder="Ej. Elche"
+                            value="<?= htmlspecialchars($localidad ?? '') ?>"
+                            required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Código Postal</label>
+                        <input
+                            type="text"
+                            name="cp"
+                            class="form-control"
+                            placeholder="Ej. 03201"
+                            maxlength="5"
+                            inputmode="numeric"
+                            value="<?= htmlspecialchars($cp ?? '') ?>"
+                            required>
+                    </div>
+
                 </div>
 
                 <div class="auth-field">
                     <label>Contraseña</label>
-                    <input type="password" name="password" placeholder="••••••••" required>
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="••••••••"
+                        minlength="4"
+                        required>
                 </div>
 
                 <div class="auth-field">
                     <label>Repetir Contraseña</label>
-                    <input type="password" name="password_confirm" placeholder="••••••••" required>
+                    <input
+                        type="password"
+                        name="password_confirm"
+                        class="form-control"
+                        placeholder="••••••••"
+                        minlength="4"
+                        required>
                 </div>
 
                 <div class="auth-check">
-                    <input type="checkbox" id="terms" required>
+                    <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">
-                        Acepto las <a href="#">políticas de privacidad</a> y los términos de uso.
+                        Acepto la
+                        <a href="/UNRINCONDEPT/public/politica-privacidad.php" target="_blank">política de privacidad</a>,
+                        la
+                        <a href="/UNRINCONDEPT/public/politica-cookies.php" target="_blank">política de cookies</a>
+                        y los
+                        <a href="/UNRINCONDEPT/public/terminos-compra.php" target="_blank">términos de compra</a>.
                     </label>
                 </div>
-
                 <button type="submit" class="auth-main-btn auth-register-btn">
                     ¡Crear mi cuenta!
                 </button>

@@ -390,79 +390,169 @@
 
                         <!-- SECCIÓN DATOS DE CUENTA -->
 
-                        <section
-                            id="section-cuenta"
-                            class="panel-section">
+                       <!-- SECCIÓN DATOS DE CUENTA -->
+<section id="section-cuenta" class="panel-section">
 
-                            <h2>
-                                Datos de Cuenta
-                            </h2>
+    <h2>
+        Datos de Cuenta
+    </h2>
 
-                            <p>
-                                Consulta y modifica tus datos personales.
-                            </p>
+    <p>
+        Consulta tus datos personales asociados a la cuenta.
+    </p>
 
-                            <form class="panel-form">
+    <form class="panel-form">
 
-                                <div class="row g-3">
+        <div class="row g-3">
 
-                                    <!-- Nombre -->
-                                    <div class="col-12 col-md-6">
+            <!-- Nombre -->
+            <div class="col-12 col-md-6">
 
-                                        <label class="form-label">
-                                            Nombre
-                                        </label>
+                <label class="form-label">
+                    Nombre
+                </label>
 
-                                        <div class="input-group">
+                <div class="input-group">
 
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                value="<?= htmlspecialchars($usuario['nombre'] ?? '') ?>"
-                                                disabled>
+                    <span class="input-group-text">
+                        <i class="bi bi-person"></i>
+                    </span>
 
-                                            <button
-                                                class="btn btn-outline-secondary"
-                                                type="button"
-                                                title="Editar nombre">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<?= htmlspecialchars($usuario['nombre'] ?? '') ?>"
+                        disabled>
 
-                                        </div>
+                </div>
 
-                                    </div>
+            </div>
 
-                                    <!-- Email -->
-                                    <div class="col-12 col-md-6">
+            <!-- Apellidos -->
+            <div class="col-12 col-md-6">
 
-                                        <label class="form-label">
-                                            Email
-                                        </label>
+                <label class="form-label">
+                    Apellidos
+                </label>
 
-                                        <div class="input-group">
+                <div class="input-group">
 
-                                            <input
-                                                type="email"
-                                                class="form-control"
-                                                value="<?= htmlspecialchars($usuario['email'] ?? '') ?>"
-                                                disabled>
+                    <span class="input-group-text">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </span>
 
-                                            <button
-                                                class="btn btn-outline-secondary"
-                                                type="button"
-                                                title="Editar email">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<?= htmlspecialchars($usuario['apellidos'] ?? '') ?>"
+                        disabled>
 
-                                        </div>
+                </div>
 
-                                    </div>
+            </div>
 
-                                </div>
+            <!-- Email -->
+            <div class="col-12 col-md-6">
 
-                            </form>
+                <label class="form-label">
+                    Email
+                </label>
 
-                        </section>
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+
+                    <input
+                        type="email"
+                        class="form-control"
+                        value="<?= htmlspecialchars($usuario['email'] ?? '') ?>"
+                        disabled>
+
+                </div>
+
+            </div>
+
+            <!-- Localidad -->
+            <div class="col-12 col-md-6">
+
+                <label class="form-label">
+                    Localidad
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        <i class="bi bi-geo-alt"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<?= htmlspecialchars($usuario['localidad'] ?? 'No indicada') ?>"
+                        disabled>
+
+                </div>
+
+            </div>
+
+            <!-- Código Postal -->
+            <div class="col-12 col-md-6">
+
+                <label class="form-label">
+                    Código Postal
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        <i class="bi bi-mailbox"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<?= htmlspecialchars($usuario['cp'] ?? 'No indicado') ?>"
+                        disabled>
+
+                </div>
+
+            </div>
+
+            <!-- Fecha de registro -->
+            <div class="col-12 col-md-6">
+
+                <label class="form-label">
+                    Fecha de registro
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        <i class="bi bi-calendar-check"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<?= !empty($usuario['fecha_registro']) ? date('d/m/Y', strtotime($usuario['fecha_registro'])) : 'No disponible' ?>"
+                        disabled>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="alert alert-info mt-4 mb-0">
+            <i class="bi bi-info-circle"></i>
+            Estos datos se recogen durante el registro para identificar la cuenta y conocer la procedencia de los usuarios.
+        </div>
+
+    </form>
+
+</section>
 
 
 

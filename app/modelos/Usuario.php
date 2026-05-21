@@ -1,196 +1,302 @@
 <?php
-require_once __DIR__ . '/../../config/conexion.php';
-//Esta clase permite crear un nuevo usuario con contraseña encriptada e identificarse como usuario registrado por email.
-class Usuario {
 
+require_once __DIR__ . '/../../config/conexion.php';
+
+/**
+ * Clase Usuario
+ * ---------------------------------------------------------
+ * Modelo encargado de gestionar los datos de los usuarios.
+ *
+ * Funciones principales:
+ * - Crear usuarios con contraseña cifrada.
+ * - Obtener usuarios por email.
+ * - Obtener usuarios por ID.
+ * - Listar usuarios clientes para el panel de administración.
+ * - Cambiar estado activo/bloqueado.
+ * - Obtener compras, descargas y reseñas de un usuario.
+ */
+class Usuario
+{
     private $conexion;
 
-    public function __construct() {
+    /**
+     * Constructor de la clase.
+     *
+     * Obtiene la conexión a la base de datos usando la función conectarBD().
+     */
+    public function __construct()
+    {
         $this->conexion = conectarBD();
     }
 
-// Crear un nuevo usuario con contraseña encriptada para proteger de inyeccion SQL
-    public function crear($nombre, $email,$password,$apellidos) {
-
+    /**
+     * Crea un nuevo usuario cliente.
+     *
+     * Seguridad:
+     * - Se utiliza password_hash() para guardar la contraseña cifrada.
+     * - Se utilizan consultas preparadas para evitar inyección SQL.
+     *
+     * Por defecto se asigna rol_id = 3, que corresponde al usuario cliente.
+     *
+     * @param string $nombre Nombre del usuario.
+     * @param string $email Email del usuario.
+     * @param string $password Contraseña en texto plano recibida del formulario.
+     * @param string $apellidos Apellidos del usuario.
+     * @param string $localidad Localidad del usuario.
+     * @param string $cp Código postal del usuario.
+     * @return bool Devuelve true si se crea correctamente, false si falla.
+     */
+    public function crear($nombre, $email, $password, $apellidos, $localidad, $cp)
+    {
+        // Ciframos la contraseña antes de guardarla en la base de datos.
         $hash = password_hash($password, PASSWORD_BCRYPT);
 
-        $sql = "INSERT INTO usuarios (nombre, email, password_hash, rol_id,apellidos)
-                VALUES (?, ?, ?, 3,?)";
+        /*
+            Insertamos el usuario en la tabla usuarios.
+            El rol 3 se asigna directamente porque el registro público
+            crea usuarios de tipo cliente.
+        */
+        $sql = "INSERT INTO usuarios 
+                    (nombre, email, password_hash, rol_id, apellidos, localidad, cp)
+                VALUES 
+                    (?, ?, ?, 3, ?, ?, ?)";
 
         $stmt = $this->conexion->prepare($sql);
-        return $stmt->execute([$nombre, $email,$hash,$apellidos]);
+
+        return $stmt->execute([
+            $nombre,
+            $email,
+            $hash,
+            $apellidos,
+            $localidad,
+            $cp
+        ]);
     }
 
-    public function obtenerPorEmail($email) {
+    /**
+     * Obtiene un usuario por su email.
+     *
+     * Se usa principalmente para:
+     * - Login.
+     * - Comprobar si un email ya está registrado.
+     *
+     * @param string $email Email del usuario.
+     * @return array|false Datos del usuario o false si no existe.
+     */
+    public function obtenerPorEmail($email)
+    {
+        $sql = "SELECT * 
+                FROM usuarios 
+                WHERE email = ?";
 
-        $sql = "SELECT * FROM usuarios WHERE email = ?";
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$email]);
 
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    //Obtener usuario por ID (para perfil)
-    public function obtenerPorId($id) {
 
-        $sql = "SELECT * FROM usuarios WHERE id = ?";
+    /**
+     * Obtiene un usuario por su ID.
+     *
+     * Se usa en el perfil del usuario para cargar sus datos personales.
+     *
+     * @param int $id ID del usuario.
+     * @return array|false Datos del usuario o false si no existe.
+     */
+    public function obtenerPorId($id)
+    {
+        $sql = "SELECT * 
+                FROM usuarios 
+                WHERE id = ?";
+
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$id]);
 
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-// Obtener todos los usuarios clientes (rol_id = 3)
-public function obtenerUsuariosClientes()
-{
-    $sql = "SELECT 
-                u.id,
-                u.nombre,
-                u.apellidos,
-                u.email,
-                u.fecha_registro,
-                u.activo,
-                u.puede_resenar,
-                COUNT(d.id) AS total_recursos_adquiridos,
-                COALESCE(SUM(d.numero_descargas), 0) AS total_descargas
-            FROM usuarios u
-            LEFT JOIN descargas d 
-                ON d.usuario_id = u.id
-            WHERE u.rol_id = 3
-            GROUP BY 
-                u.id,
-                u.nombre,
-                u.apellidos,
-                u.email,
-                u.fecha_registro,
-                u.activo,
-                u.puede_resenar
-            ORDER BY u.fecha_registro DESC";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute();
+    /**
+     * Obtiene todos los usuarios clientes.
+     *
+     * Se usa en el panel de administración.
+     *
+     * Devuelve:
+     * - Datos básicos del usuario.
+     * - Localidad y código postal.
+     * - Fecha de registro.
+     * - Estado activo/bloqueado.
+     * - Permiso para reseñar.
+     * - Total de recursos adquiridos.
+     * - Total de descargas realizadas.
+     *
+     * @return array Listado de usuarios clientes.
+     */
+    public function obtenerUsuariosClientes()
+    {
+        $sql = "SELECT 
+                    u.id,
+                    u.nombre,
+                    u.apellidos,
+                    u.localidad,
+                    u.cp,
+                    u.email,
+                    u.fecha_registro,
+                    u.activo,
+                    u.puede_resenar,
+                    COUNT(d.id) AS total_recursos_adquiridos,
+                    COALESCE(SUM(d.numero_descargas), 0) AS total_descargas
+                FROM usuarios u
+                LEFT JOIN descargas d 
+                    ON d.usuario_id = u.id
+                WHERE u.rol_id = 3
+                GROUP BY 
+                    u.id,
+                    u.nombre,
+                    u.apellidos,
+                    u.localidad,
+                    u.cp,
+                    u.email,
+                    u.fecha_registro,
+                    u.activo,
+                    u.puede_resenar
+                ORDER BY u.fecha_registro DESC";
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-// Obtener clientes con total de descargas/compras
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute();
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-// Bloquear / desbloquear usuario
-public function cambiarEstadoUsuario($usuario_id, $activo)
-{
-    $sql = "UPDATE usuarios 
-            SET activo = ?
-            WHERE id = ?";
+    /**
+     * Activa o bloquea un usuario.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @param int $activo 1 para activo, 0 para bloqueado.
+     * @return bool Resultado de la operación.
+     */
+    public function cambiarEstadoUsuario($usuario_id, $activo)
+    {
+        $sql = "UPDATE usuarios 
+                SET activo = ?
+                WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    return $stmt->execute([$activo, $usuario_id]);
-}
+        $stmt = $this->conexion->prepare($sql);
+        return $stmt->execute([$activo, $usuario_id]);
+    }
 
+    /**
+     * Obtiene las descargas/compras de un usuario para el panel admin.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array Listado de recursos adquiridos.
+     */
+    public function obtenerDescargasUsuario($usuario_id)
+    {
+        $sql = "SELECT 
+                    d.id AS descarga_id,
+                    d.usuario_id,
+                    d.producto_id,
+                    d.archivo_path,
+                    d.fecha_compra,
+                    d.fecha_expiracion,
+                    d.max_descargas,
+                    d.numero_descargas,
+                    d.token_descarga,
 
-// Obtener descargas/compras de un usuario para admin.
-public function obtenerDescargasUsuario($usuario_id)
-{
-    /*
-        Esta función se usa en el panel admin para ver qué recursos
-        tiene adquiridos un usuario concreto.
-    */
+                    p.id AS producto_id_real,
+                    p.titulo,
+                    p.imagen,
+                    p.precio,
+                    p.archivo_s3_key
 
-    $sql = "SELECT 
-                d.id AS descarga_id,
-                d.usuario_id,
-                d.producto_id,
-                d.archivo_path,
-                d.fecha_compra,
-                d.fecha_expiracion,
-                d.max_descargas,
-                d.numero_descargas,
-                d.token_descarga,
+                FROM descargas d
 
-                p.id AS producto_id_real,
-                p.titulo,
-                p.imagen,
-                p.precio,
-                p.archivo_s3_key
+                INNER JOIN productos p 
+                    ON p.id = d.producto_id
 
-            FROM descargas d
+                WHERE d.usuario_id = ?
 
-            INNER JOIN productos p 
-                ON p.id = d.producto_id
+                ORDER BY d.fecha_compra DESC";
 
-            WHERE d.usuario_id = ?
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-            ORDER BY d.fecha_compra DESC";
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+    /**
+     * Obtiene las reseñas realizadas por un usuario.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array Listado de reseñas.
+     */
+    public function obtenerResenasUsuario($usuario_id)
+    {
+        $sql = "SELECT 
+                    r.id,
+                    r.producto_id,
+                    r.comentario,
+                    r.puntuacion,
+                    r.estado,
+                    r.fecha,
+                    p.titulo AS producto_titulo
+                FROM reseñas r
+                INNER JOIN productos p 
+                    ON p.id = r.producto_id
+                WHERE r.usuario_id = ?
+                ORDER BY r.fecha DESC";
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-// Obtener reseñas de un usuario
-public function obtenerResenasUsuario($usuario_id)
-{
-    $sql = "SELECT 
-                r.id,
-                r.producto_id,
-                r.comentario,
-                r.puntuacion,
-                r.estado,
-                r.fecha,
-                p.titulo AS producto_titulo
-            FROM reseñas r
-            INNER JOIN productos p ON p.id = r.producto_id
-            WHERE r.usuario_id = ?
-            ORDER BY r.fecha DESC";
+    /**
+     * Obtiene los recursos adquiridos por un usuario para su perfil.
+     *
+     * Se usa en perfil_view.php.
+     *
+     * Devuelve información necesaria para:
+     * - Mostrar recursos comprados.
+     * - Generar botón de descarga.
+     * - Controlar número máximo de descargas.
+     * - Comprobar fecha de expiración.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array Recursos adquiridos.
+     */
+    public function obtenerRecursosAdquiridosUsuario($usuario_id)
+    {
+        $sql = "SELECT 
+                    d.id AS descarga_id,
+                    d.usuario_id,
+                    d.producto_id,
+                    d.archivo_path,
+                    d.fecha_compra,
+                    d.fecha_expiracion,
+                    d.max_descargas,
+                    d.numero_descargas,
+                    d.token_descarga,
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
+                    p.id AS id,
+                    p.titulo,
+                    p.imagen,
+                    p.precio,
+                    p.archivo_s3_key
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-// Función para consultar los recursos adquiridos por el usuario en su perfil.
-public function obtenerRecursosAdquiridosUsuario($usuario_id)
-{
-    /*
-        Esta función se usa en perfil_view.php.
+                FROM descargas d
 
-        Devuelve los recursos que el usuario puede descargar.
-        La descarga se controla desde la tabla descargas.
+                INNER JOIN productos p 
+                    ON p.id = d.producto_id
 
-        Importante:
-        - token_descarga sirve para generar el botón Descargar.
-        - numero_descargas y max_descargas sirven para mostrar el límite.
-        - fecha_expiracion sirve para saber si el recurso ha caducado.
-    */
+                WHERE d.usuario_id = ?
 
-    $sql = "SELECT 
-                d.id AS descarga_id,
-                d.usuario_id,
-                d.producto_id,
-                d.archivo_path,
-                d.fecha_compra,
-                d.fecha_expiracion,
-                d.max_descargas,
-                d.numero_descargas,
-                d.token_descarga,
+                ORDER BY d.fecha_compra DESC";
 
-                p.id AS id,
-                p.titulo,
-                p.imagen,
-                p.precio,
-                p.archivo_s3_key
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id]);
 
-            FROM descargas d
-
-            INNER JOIN productos p 
-                ON p.id = d.producto_id
-
-            WHERE d.usuario_id = ?
-
-            ORDER BY d.fecha_compra DESC";
-
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([$usuario_id]);
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -41,11 +41,17 @@
                 <a href="/UNRINCONDEPT/public/registro.php">Registrarse</a>
             </div>
 
-            <form action="/UNRINCONDEPT/public/login.php" method="POST">
+            <form id="formLogin" action="/UNRINCONDEPT/public/login.php" method="POST" novalidate>
 
                 <div class="auth-field">
                     <label>Correo electrónico</label>
-                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($email ?? '') ?>"placeholder="ejemplo@correo.com" required>
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        value="<?= htmlspecialchars($email ?? '') ?>"
+                        placeholder="ejemplo@correo.com"
+                        required>
                 </div>
 
                 <div class="auth-field">
@@ -54,7 +60,12 @@
                         <a href="#">¿Olvidaste tu contraseña?</a>
                     </div>
 
-                    <input type="password" name="password" placeholder="••••••••" required>
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="••••••••"
+                        required>
                     <?php if (!empty($errorLogin)): ?>
                         <div class="text-danger small mt-2">
                             <?= htmlspecialchars($errorLogin) ?>

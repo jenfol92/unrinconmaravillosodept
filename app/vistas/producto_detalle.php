@@ -128,7 +128,7 @@
                     </div>
 
                     <a
-                        href="https://instagram.com/"
+                        href="https://www.instagram.com/unrinconmaravillosodept"
                         target="_blank"
                         class="text-decoration-none fw-bold">
                         Ver perfil

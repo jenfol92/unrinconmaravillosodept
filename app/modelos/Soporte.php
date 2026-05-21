@@ -104,7 +104,8 @@ public function obtenerTicketsAdmin()
                 t.fecha,
                 u.nombre AS usuario_nombre,
                 u.apellidos AS usuario_apellidos,
-                u.email AS usuario_email
+                u.email AS usuario_email,
+                u.localidad
             FROM soporte_tickets t
             INNER JOIN usuarios u ON u.id = t.usuario_id
             ORDER BY t.fecha DESC";
@@ -132,8 +133,9 @@ public function obtenerSugerencias()
                 s.fecha,
                 s.leida,
                 u.nombre,
-                u.apellidos,
-                u.email
+                u.email,
+                u.localidad,
+                u.cp
             FROM sugerencias s
             LEFT JOIN usuarios u ON u.id = s.usuario_id
             ORDER BY s.fecha DESC";
