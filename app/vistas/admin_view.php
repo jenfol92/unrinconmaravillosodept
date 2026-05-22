@@ -1,7 +1,71 @@
-<?php require_once __DIR__ . '/../../templates/header.php'; ?>
+<?php
+
+/**
+ * Vista: admin_view.php
+ * ---------------------------------------------------------
+ * Vista principal del panel de administración de la aplicación.
+ *
+ * Esta vista muestra todas las secciones internas del panel admin:
+ *
+ * - Dashboard general.
+ * - Filtro de ventas por periodo.
+ * - Estadísticas principales.
+ * - Recursos más vendidos.
+ * - Formulario para crear o editar productos de tienda.
+ * - Formulario para crear o editar recursos gratuitos.
+ * - Listado de productos administrable por AJAX.
+ * - Listado de contenido gratuito.
+ * - Gestión de usuarios registrados.
+ * - Tickets de soporte.
+ * - Mensajes de contacto web.
+ * - Sugerencias enviadas por usuarios.
+ * - Modales de categorías, soporte, usuarios y reseñas.
+ *
+ * Variables recibidas desde AdminController:
+ *
+ * - $stats: estadísticas generales del dashboard.
+ * - $productos: recursos más vendidos según periodo.
+ * - $rangoVentas: periodo aplicado a las ventas.
+ * - $categorias: categorías de productos de pago.
+ * - $niveles: niveles educativos.
+ * - $usuarios: usuarios clientes registrados.
+ * - $tickets: tickets de soporte.
+ * - $sugerencias: sugerencias enviadas por usuarios.
+ * - $mensajesContacto: mensajes recibidos desde contacto web.
+ * - $categoriasGratuitas: categorías de recursos gratuitos.
+ * - $recursosGratuitosAdmin: recursos gratuitos para administración.
+ * - $rangoMetricasGratuitas: periodo aplicado a clicks/descargas gratuitas.
+ *
+ * Archivos relacionados:
+ *
+ * - AdminController.php: carga los datos de esta vista.
+ * - admin.js: gestiona navegación interna, AJAX, filtros, modales y acciones.
+ * - style.scss / style.css: define el diseño visual del panel.
+ *
+ * Seguridad:
+ *
+ * - El acceso al panel se controla previamente desde el controlador.
+ * - Los datos impresos en HTML se muestran con htmlspecialchars()
+ *   para reducir riesgos de XSS.
+ * - Las acciones sensibles se procesan desde endpoints PHP específicos.
+ */
+require_once __DIR__ . '/../../templates/header.php'; ?>
+<!-- 
+     PANEL DE ADMINISTRACIÓN
+     Contenedor principal de toda la vista admin.
+     Incluye menú lateral, navegación móvil, secciones internas
+     y modales utilizados por JavaScript.
+ -->
 
 <main class="admin-page">
-    <!-- HEADER MÓVIL DEL PANEL ADMIN -->
+
+    <!--   HEADER MÓVIL DEL PANEL ADMIN
+     Permite abrir/cerrar el menú lateral en pantallas pequeñas.
+     El comportamiento se controla desde admin.js mediante los IDs:
+     - btnAdminMobileMenu
+     - adminMobileSidebar
+     - adminMobileOverlay 
+     -->
     <header class="admin-mobile-topbar">
 
         <button type="button"
@@ -32,7 +96,12 @@
 
     <div class="admin-layout">
 
-        <!-- SIDEBAR -->
+        <!-- 
+        SIDEBAR / MENÚ LATERAL
+     Menú de navegación interno del panel.
+     Cada botón tiene data-section para indicar qué sección debe mostrarse.
+     admin.js usa ese atributo para activar/ocultar secciones.
+     -->
         <aside class="admin-sidebar" id="adminMobileSidebar">
 
             <nav class="admin-menu">
@@ -94,10 +163,22 @@
         </aside>
 
 
-        <!-- CONTENIDO -->
+        <!-- 
+     CONTENIDO PRINCIPAL DEL PANEL
+     Dentro de este bloque se encuentran todas las secciones
+     administrables. Solo una sección se muestra como activa
+     cada vez mediante la clase "active".
+ -->
         <section class="admin-content">
 
-            <!-- DASHBOARD -->
+            <!-- 
+                  SECCIÓN: DASHBOARD
+      Muestra el resumen principal del panel:
+     - Filtro de periodo de ventas.
+     - Tarjetas estadísticas.
+     - Recursos más vendidos.
+     - Acceso rápido a subida de recursos.
+     -->
             <section id="admin-section-dashboard" class="admin-section active">
 
                 <div class="admin-header">
@@ -122,6 +203,13 @@
                     </div>
 
                 </div>
+
+                <!-- 
+     FILTRO DE PERIODO DE VENTAS
+     Envía datos por GET a admin.php.
+     El controlador calcula el rango real de fechas y devuelve
+     $rangoVentas para mantener seleccionados los valores.
+    -->
                 <form method="GET" action="/UNRINCONDEPT/public/admin.php" class="row g-2 align-items-end mb-4">
 
                     <div class="col-12 col-md-3">
@@ -189,7 +277,13 @@
                     </div>
                 </form>
 
-                <!-- TARJETAS ESTADÍSTICAS -->
+                <!-- TARJETAS ESTADÍSTICAS
+      Muestran datos principales obtenidos desde el modelo Admin:
+     - Ventas del periodo.
+     - Usuarios registrados.
+     - Descargas totales.
+     - Recursos activos.
+      -->
                 <div class="row g-4 mb-4">
                     <!--Tarjeta de ventas-->
                     <div class="col-12 col-md-6 col-xl-3">
@@ -239,7 +333,11 @@
 
                 <div class="row g-4">
 
-                    <!-- TABLA PRODUCTOS MAS VENDIDOS -->
+                    <!-- 
+                TABLA: RECURSOS MÁS VENDIDOS
+     Muestra los productos con más ventas dentro del periodo seleccionado.
+     Si no existen ventas, se muestra un mensaje informativo.
+     -->
                     <div class="col-12 col-xl-8">
 
                         <div class="admin-card">
@@ -322,7 +420,14 @@
                     </div>
 
 
-                    <!-- SUBIDA RÁPIDA -->
+                    <!--     
+    SECCIÓN: SUBIR / EDITAR RECURSO
+     Contiene dos formularios separados:
+     1. Recurso de tienda de pago.
+     2. Recurso gratuito.
+     
+     Ambos formularios son gestionados por admin.js y endpoints PHP.
+      -->
                     <div class="col-12 col-xl-4">
 
                         <div class="admin-upload-box admin-open-section" data-section="subir">
@@ -376,9 +481,23 @@
 
                 <div class="row g-4 align-items-start">
 
-                    <!-- ===================================================== -->
-                    <!-- COLUMNA IZQUIERDA: RECURSO DE TIENDA -->
-                    <!-- ===================================================== -->
+                    <!-- FORMULARIO: RECURSO DE TIENDA
+     Permite crear o editar productos de pago.
+     
+     Campos principales:
+     - Título.
+     - Precio.
+     - Descripción.
+     - Contenido.
+     - Categoría.
+     - Nivel educativo.
+     - Estado.
+     - Imagen.
+     - Vídeo opcional.
+     
+     El formulario envía datos a:
+     /public/admin_guardar_producto.php
+     -->
                     <div class="col-12 col-xl-6" id="colFormularioProducto">
 
                         <div class="admin-card h-100">
@@ -588,7 +707,14 @@
 
                             <div id="respuestaGuardarProducto" class="mt-3"></div>
 
-                            <!-- Asociar PDF/ZIP al producto de tienda -->
+                            <!--  
+                            BLOQUE: ASOCIAR ARCHIVO PDF/ZIP
+     Este bloque aparece después de guardar un producto.
+     Permite subir el archivo descargable que recibirá el usuario
+     tras la compra.
+     
+     El archivo se gestiona mediante Cloudflare R2.
+     -->
                             <div id="bloqueAsociarArchivo"
                                 class="alert alert-success mt-4"
                                 style="display: none;">
@@ -643,9 +769,19 @@
                     </div>
 
 
-                    <!-- ===================================================== -->
-                    <!-- COLUMNA DERECHA: RECURSO GRATUITO -->
-                    <!-- ===================================================== -->
+                    <!-- 
+     FORMULARIO: RECURSO GRATUITO
+     Permite crear o editar recursos gratuitos.
+     
+     Campos principales:
+     - Título.
+     - Imagen.
+     - Archivo para Google Drive.
+     - Categoría gratuita.
+     - Estado.
+     
+     El formulario es procesado mediante JavaScript/AJAX.
+      -->
                     <div class="col-12 col-xl-6" id="colFormularioGratuito">
 
                         <div class="admin-card h-100">
@@ -792,7 +928,16 @@
 
             </section>
 
-            <!-- PRODUCTOS -->
+            <!--  
+     SECCIÓN: PRODUCTOS
+     Muestra el listado de productos de tienda.
+     
+     Esta sección se carga y actualiza principalmente mediante AJAX
+     desde admin.js, usando:
+     - adminProductosTbody
+     - adminProductosCardsMovil
+     - adminProductosPaginacion
+      -->
             <section id="admin-section-productos" class="admin-section">
 
                 <div class="admin-header">
@@ -810,7 +955,15 @@
                     </button>
                 </div>
 
-                <!-- Filtros productos -->
+                <!--      
+    FILTROS DE PRODUCTOS
+     Permiten filtrar productos por:
+     - Búsqueda.
+     - Categoría.
+     - Estado.
+     - Periodo de datos.
+     
+     El periodo afecta a compras, descargas usadas y clics. -->
                 <div class="admin-filtros-panel mb-4">
 
                     <!-- Botón móvil -->
@@ -965,7 +1118,16 @@
                 </div>
 
             </section>
-            <!--CONTENIDO GRATUITO-->
+            <!--     
+            SECCIÓN: CONTENIDO GRATUITO
+     Gestiona recursos gratuitos enlazados a Drive.
+     
+     Permite:
+     - Filtrar por búsqueda, categoría, estado y periodo.
+     - Ver clicks y descargas.
+     - Editar recursos gratuitos.
+     - Eliminar recursos gratuitos.
+     -->
             <section id="admin-section-gratuitos" class="admin-section">
 
                 <div class="admin-card">
@@ -1370,7 +1532,17 @@
 
             </section>
 
-            <!-- USUARIOS -->
+            <!--  SECCIÓN: USUARIOS
+     Muestra usuarios clientes registrados.
+     
+     Funcionalidades disponibles:
+     - Ver recursos adquiridos.
+     - Ver favoritos.
+     - Ver reseñas.
+     - Bloquear o desbloquear usuarios.
+     
+     Las acciones se gestionan mediante botones con clases específicas
+     que escucha admin.js. -->
 
             <section id="admin-section-usuarios" class="admin-section">
 
@@ -1722,395 +1894,421 @@
             </section>
 
 
-         <!-- SOPORTE -->
-<section id="admin-section-soporte" class="admin-section">
+            <!--   SECCIÓN: SOPORTE
+     Muestra tickets enviados por usuarios registrados.
+     
+     Cada ticket se presenta como tarjeta y permite abrir un modal
+     para consultar la conversación y responder.
+     
+     Botón principal:
+     - btn-responder-ticket -->
+            <section id="admin-section-soporte" class="admin-section">
 
-    <div class="admin-header">
-        <div>
-            <h1>Soporte</h1>
-            <p>Consulta y responde mensajes enviados por los usuarios.</p>
-        </div>
-    </div>
+                <div class="admin-header">
+                    <div>
+                        <h1>Soporte</h1>
+                        <p>Consulta y responde mensajes enviados por los usuarios.</p>
+                    </div>
+                </div>
 
-    <div class="tickets-admin-wrapper">
+                <div class="tickets-admin-wrapper">
 
-        <?php if (empty($tickets)): ?>
+                    <?php if (empty($tickets)): ?>
 
-            <div class="tickets-admin-empty">
-                <i class="bi bi-chat-dots"></i>
-                <h3>No hay tickets de soporte</h3>
-                <p>Cuando un usuario envíe una consulta, aparecerá aquí.</p>
-            </div>
+                        <div class="tickets-admin-empty">
+                            <i class="bi bi-chat-dots"></i>
+                            <h3>No hay tickets de soporte</h3>
+                            <p>Cuando un usuario envíe una consulta, aparecerá aquí.</p>
+                        </div>
 
-        <?php else: ?>
+                    <?php else: ?>
 
-            <div class="tickets-admin-list">
+                        <div class="tickets-admin-list">
 
-                <?php foreach ($tickets as $ticket): ?>
+                            <?php foreach ($tickets as $ticket): ?>
 
-                    <?php
-                    /*
+                                <?php
+                                /*
                         Construimos el nombre completo del usuario.
                         Si por algún motivo no existen nombre o apellidos,
                         mostramos "Usuario".
                     */
-                    $nombreCompleto = trim(
-                        ($ticket['usuario_nombre'] ?? '') . ' ' . ($ticket['usuario_apellidos'] ?? '')
-                    );
+                                $nombreCompleto = trim(
+                                    ($ticket['usuario_nombre'] ?? '') . ' ' . ($ticket['usuario_apellidos'] ?? '')
+                                );
 
-                    if ($nombreCompleto === '') {
-                        $nombreCompleto = 'Usuario';
-                    }
+                                if ($nombreCompleto === '') {
+                                    $nombreCompleto = 'Usuario';
+                                }
 
-                    /*
+                                /*
                         Creamos una inicial para el avatar visual.
                     */
-                    $inicial = mb_strtoupper(mb_substr($nombreCompleto, 0, 1));
+                                $inicial = mb_strtoupper(mb_substr($nombreCompleto, 0, 1));
 
-                    /*
+                                /*
                         Normalizamos el estado del ticket para asignar
                         una clase visual distinta.
                     */
-                    $estado = strtolower(trim($ticket['estado'] ?? 'abierto'));
+                                $estado = strtolower(trim($ticket['estado'] ?? 'abierto'));
 
-                    $estadoClass = 'estado-pendiente';
+                                $estadoClass = 'estado-pendiente';
 
-                    if ($estado === 'respondido') {
-                        $estadoClass = 'estado-respondido';
-                    } elseif ($estado === 'cerrado') {
-                        $estadoClass = 'estado-cerrado';
-                    }
+                                if ($estado === 'respondido') {
+                                    $estadoClass = 'estado-respondido';
+                                } elseif ($estado === 'cerrado') {
+                                    $estadoClass = 'estado-cerrado';
+                                }
 
-                    /*
+                                /*
                         Formateamos la fecha del ticket.
                     */
-                    $fechaFormateada = !empty($ticket['fecha'])
-                        ? date('d/m/Y H:i', strtotime($ticket['fecha']))
-                        : 'Fecha no disponible';
-                    ?>
+                                $fechaFormateada = !empty($ticket['fecha'])
+                                    ? date('d/m/Y H:i', strtotime($ticket['fecha']))
+                                    : 'Fecha no disponible';
+                                ?>
 
-                    <article class="ticket-admin-card">
+                                <article class="ticket-admin-card">
 
-                        <div class="ticket-admin-main">
+                                    <div class="ticket-admin-main">
 
-                            <!-- Avatar -->
-                            <div class="ticket-admin-avatar">
-                                <?= htmlspecialchars($inicial) ?>
-                            </div>
+                                        <!-- Avatar -->
+                                        <div class="ticket-admin-avatar">
+                                            <?= htmlspecialchars($inicial) ?>
+                                        </div>
 
-                            <!-- Contenido principal -->
-                            <div class="ticket-admin-content">
+                                        <!-- Contenido principal -->
+                                        <div class="ticket-admin-content">
 
-                                <div class="ticket-admin-top">
+                                            <div class="ticket-admin-top">
 
-                                    <h3 class="ticket-admin-title">
-                                        <?= htmlspecialchars($ticket['asunto'] ?? 'Sin asunto') ?>
-                                    </h3>
+                                                <h3 class="ticket-admin-title">
+                                                    <?= htmlspecialchars($ticket['asunto'] ?? 'Sin asunto') ?>
+                                                </h3>
 
-                                    <span class="ticket-admin-badge <?= $estadoClass ?>">
-                                        <?= htmlspecialchars(ucfirst($estado)) ?>
-                                    </span>
+                                                <span class="ticket-admin-badge <?= $estadoClass ?>">
+                                                    <?= htmlspecialchars(ucfirst($estado)) ?>
+                                                </span>
 
-                                </div>
+                                            </div>
 
-                                <div class="ticket-admin-meta">
+                                            <div class="ticket-admin-meta">
 
-                                    <span>
-                                        <i class="bi bi-person"></i>
-                                        <?= htmlspecialchars($nombreCompleto) ?>
-                                    </span>
+                                                <span>
+                                                    <i class="bi bi-person"></i>
+                                                    <?= htmlspecialchars($nombreCompleto) ?>
+                                                </span>
 
-                                    <span>
-                                        <i class="bi bi-envelope"></i>
-                                        <?= htmlspecialchars($ticket['usuario_email'] ?? 'Email no disponible') ?>
-                                    </span>
+                                                <span>
+                                                    <i class="bi bi-envelope"></i>
+                                                    <?= htmlspecialchars($ticket['usuario_email'] ?? 'Email no disponible') ?>
+                                                </span>
 
-                                    <span>
-                                        <i class="bi bi-calendar3"></i>
-                                        <?= htmlspecialchars($fechaFormateada) ?>
-                                    </span>
+                                                <span>
+                                                    <i class="bi bi-calendar3"></i>
+                                                    <?= htmlspecialchars($fechaFormateada) ?>
+                                                </span>
 
-                                </div>
+                                            </div>
 
-                                <?php if (!empty($ticket['usuario_localidad']) || !empty($ticket['usuario_cp'])): ?>
+                                            <?php if (!empty($ticket['usuario_localidad']) || !empty($ticket['usuario_cp'])): ?>
 
-                                    <div class="ticket-admin-extra">
-                                        <i class="bi bi-geo-alt"></i>
+                                                <div class="ticket-admin-extra">
+                                                    <i class="bi bi-geo-alt"></i>
 
-                                        <?= htmlspecialchars($ticket['usuario_localidad'] ?? 'Localidad no indicada') ?>
+                                                    <?= htmlspecialchars($ticket['usuario_localidad'] ?? 'Localidad no indicada') ?>
 
-                                        <?php if (!empty($ticket['usuario_cp'])): ?>
-                                            · CP <?= htmlspecialchars($ticket['usuario_cp']) ?>
-                                        <?php endif; ?>
+                                                    <?php if (!empty($ticket['usuario_cp'])): ?>
+                                                        · CP <?= htmlspecialchars($ticket['usuario_cp']) ?>
+                                                    <?php endif; ?>
+                                                </div>
+
+                                            <?php endif; ?>
+
+                                        </div>
+
+                                        <!-- Acción -->
+                                        <div class="ticket-admin-actions">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-primary btn-sm btn-responder-ticket"
+                                                data-ticket-id="<?= (int)$ticket['id'] ?>"
+                                                data-asunto="<?= htmlspecialchars($ticket['asunto'] ?? 'Consulta', ENT_QUOTES) ?>">
+                                                <i class="bi bi-reply-fill"></i>
+                                                Responder
+                                            </button>
+
+                                        </div>
+
                                     </div>
 
-                                <?php endif; ?>
+                                </article>
 
-                            </div>
-
-                            <!-- Acción -->
-                            <div class="ticket-admin-actions">
-
-                                <button
-                                    type="button"
-                                    class="btn btn-primary btn-sm btn-responder-ticket"
-                                    data-ticket-id="<?= (int)$ticket['id'] ?>"
-                                    data-asunto="<?= htmlspecialchars($ticket['asunto'] ?? 'Consulta', ENT_QUOTES) ?>">
-                                    <i class="bi bi-reply-fill"></i>
-                                    Responder
-                                </button>
-
-                            </div>
+                            <?php endforeach; ?>
 
                         </div>
 
-                    </article>
+                    <?php endif; ?>
 
-                <?php endforeach; ?>
+                </div>
 
-            </div>
+            </section>
+            <!--     SECCIÓN: CONTACTO WEB
+     Muestra mensajes enviados desde la página pública de contacto.
+     
+     Puede incluir:
+     - Nombre del remitente.
+     - Email.
+     - Asunto.
+     - Mensaje.
+     - Producto relacionado.
+     - Estado leído/no leído.
+     
+     La respuesta se realiza mediante enlace mailto. -->
+            <section id="admin-section-contacto" class="admin-section">
 
-        <?php endif; ?>
+                <div class="admin-header">
+                    <div>
+                        <h1>Contacto web</h1>
+                        <p>Mensajes enviados desde la página de contacto por usuarios invitados o no registrados.</p>
+                    </div>
+                </div>
 
-    </div>
+                <div class="contacto-admin-wrapper">
 
-</section>
-            <!-- CONTACTO WEB -->
-<section id="admin-section-contacto" class="admin-section">
+                    <?php if (empty($mensajesContacto)): ?>
 
-    <div class="admin-header">
-        <div>
-            <h1>Contacto web</h1>
-            <p>Mensajes enviados desde la página de contacto por usuarios invitados o no registrados.</p>
-        </div>
-    </div>
+                        <div class="contacto-admin-empty">
+                            <i class="bi bi-envelope-heart"></i>
+                            <h3>No hay mensajes de contacto todavía</h3>
+                            <p>Cuando alguien escriba desde el formulario de contacto, aparecerá aquí.</p>
+                        </div>
 
-    <div class="contacto-admin-wrapper">
+                    <?php else: ?>
 
-        <?php if (empty($mensajesContacto)): ?>
+                        <div class="contacto-admin-list">
 
-            <div class="contacto-admin-empty">
-                <i class="bi bi-envelope-heart"></i>
-                <h3>No hay mensajes de contacto todavía</h3>
-                <p>Cuando alguien escriba desde el formulario de contacto, aparecerá aquí.</p>
-            </div>
+                            <?php foreach ($mensajesContacto as $mensaje): ?>
 
-        <?php else: ?>
-
-            <div class="contacto-admin-list">
-
-                <?php foreach ($mensajesContacto as $mensaje): ?>
-
-                    <?php
-                    /*
+                                <?php
+                                /*
                         Preparamos datos visuales para la tarjeta.
                         Si no hay nombre, mostramos "Invitado".
                     */
-                    $nombreContacto = trim($mensaje['nombre'] ?? '');
+                                $nombreContacto = trim($mensaje['nombre'] ?? '');
 
-                    if ($nombreContacto === '') {
-                        $nombreContacto = 'Invitado';
-                    }
+                                if ($nombreContacto === '') {
+                                    $nombreContacto = 'Invitado';
+                                }
 
-                    /*
+                                /*
                         Inicial para el avatar.
                     */
-                    $inicialContacto = mb_strtoupper(mb_substr($nombreContacto, 0, 1));
+                                $inicialContacto = mb_strtoupper(mb_substr($nombreContacto, 0, 1));
 
-                    /*
+                                /*
                         Fecha formateada.
                     */
-                    $fechaContacto = !empty($mensaje['fecha'])
-                        ? date('d/m/Y H:i', strtotime($mensaje['fecha']))
-                        : 'Fecha no disponible';
+                                $fechaContacto = !empty($mensaje['fecha'])
+                                    ? date('d/m/Y H:i', strtotime($mensaje['fecha']))
+                                    : 'Fecha no disponible';
 
-                    /*
+                                /*
                         Asunto seguro para el enlace mailto.
                     */
-                    $asuntoRespuesta = 'Respuesta: ' . ($mensaje['asunto'] ?? 'Consulta web');
-                    ?>
+                                $asuntoRespuesta = 'Respuesta: ' . ($mensaje['asunto'] ?? 'Consulta web');
+                                ?>
 
-                    <article class="contacto-admin-card">
+                                <article class="contacto-admin-card">
 
-                        <div class="contacto-admin-main">
+                                    <div class="contacto-admin-main">
 
-                            <!-- Avatar -->
-                            <div class="contacto-admin-avatar">
-                                <?= htmlspecialchars($inicialContacto) ?>
-                            </div>
+                                        <!-- Avatar -->
+                                        <div class="contacto-admin-avatar">
+                                            <?= htmlspecialchars($inicialContacto) ?>
+                                        </div>
 
-                            <!-- Contenido del mensaje -->
-                            <div class="contacto-admin-content">
+                                        <!-- Contenido del mensaje -->
+                                        <div class="contacto-admin-content">
 
-                                <div class="contacto-admin-top">
+                                            <div class="contacto-admin-top">
 
-                                    <div>
-                                        <h3 class="contacto-admin-title">
-                                            <?= htmlspecialchars($mensaje['asunto'] ?? 'Sin asunto') ?>
-                                        </h3>
+                                                <div>
+                                                    <h3 class="contacto-admin-title">
+                                                        <?= htmlspecialchars($mensaje['asunto'] ?? 'Sin asunto') ?>
+                                                    </h3>
 
-                                        <div class="contacto-admin-meta">
+                                                    <div class="contacto-admin-meta">
 
-                                            <span>
-                                                <i class="bi bi-person"></i>
-                                                <?= htmlspecialchars($nombreContacto) ?>
-                                            </span>
+                                                        <span>
+                                                            <i class="bi bi-person"></i>
+                                                            <?= htmlspecialchars($nombreContacto) ?>
+                                                        </span>
 
-                                            <span>
-                                                <i class="bi bi-envelope"></i>
-                                                <?= htmlspecialchars($mensaje['email'] ?? 'Email no disponible') ?>
-                                            </span>
+                                                        <span>
+                                                            <i class="bi bi-envelope"></i>
+                                                            <?= htmlspecialchars($mensaje['email'] ?? 'Email no disponible') ?>
+                                                        </span>
 
-                                            <span>
-                                                <i class="bi bi-calendar3"></i>
-                                                <?= htmlspecialchars($fechaContacto) ?>
-                                            </span>
+                                                        <span>
+                                                            <i class="bi bi-calendar3"></i>
+                                                            <?= htmlspecialchars($fechaContacto) ?>
+                                                        </span>
+
+                                                    </div>
+                                                </div>
+
+                                                <?php if (isset($mensaje['leido'])): ?>
+                                                    <?php if ((int)$mensaje['leido'] === 1): ?>
+                                                        <span class="contacto-admin-status is-read">
+                                                            <i class="bi bi-check2-circle"></i>
+                                                            Leído
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="contacto-admin-status is-new">
+                                                            <i class="bi bi-stars"></i>
+                                                            Nuevo
+                                                        </span>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+
+                                            </div>
+
+                                            <?php if (!empty($mensaje['producto_titulo'])): ?>
+
+                                                <div class="contacto-admin-product">
+                                                    <i class="bi bi-box-seam"></i>
+                                                    Consulta sobre:
+                                                    <strong><?= htmlspecialchars($mensaje['producto_titulo']) ?></strong>
+                                                </div>
+
+                                            <?php endif; ?>
+
+                                            <div class="contacto-admin-message">
+                                                <?= nl2br(htmlspecialchars($mensaje['mensaje'] ?? '')) ?>
+                                            </div>
 
                                         </div>
+
+                                        <!-- Acción -->
+                                        <div class="contacto-admin-actions">
+
+                                            <a
+                                                href="mailto:<?= htmlspecialchars($mensaje['email'] ?? '') ?>?subject=<?= urlencode($asuntoRespuesta) ?>"
+                                                class="btn btn-primary btn-sm">
+                                                <i class="bi bi-reply-fill"></i>
+                                                Responder
+                                            </a>
+
+                                        </div>
+
                                     </div>
 
-                                    <?php if (isset($mensaje['leido'])): ?>
-                                        <?php if ((int)$mensaje['leido'] === 1): ?>
-                                            <span class="contacto-admin-status is-read">
-                                                <i class="bi bi-check2-circle"></i>
-                                                Leído
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="contacto-admin-status is-new">
-                                                <i class="bi bi-stars"></i>
-                                                Nuevo
-                                            </span>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
+                                </article>
 
-                                </div>
-
-                                <?php if (!empty($mensaje['producto_titulo'])): ?>
-
-                                    <div class="contacto-admin-product">
-                                        <i class="bi bi-box-seam"></i>
-                                        Consulta sobre:
-                                        <strong><?= htmlspecialchars($mensaje['producto_titulo']) ?></strong>
-                                    </div>
-
-                                <?php endif; ?>
-
-                                <div class="contacto-admin-message">
-                                    <?= nl2br(htmlspecialchars($mensaje['mensaje'] ?? '')) ?>
-                                </div>
-
-                            </div>
-
-                            <!-- Acción -->
-                            <div class="contacto-admin-actions">
-
-                                <a
-                                    href="mailto:<?= htmlspecialchars($mensaje['email'] ?? '') ?>?subject=<?= urlencode($asuntoRespuesta) ?>"
-                                    class="btn btn-primary btn-sm">
-                                    <i class="bi bi-reply-fill"></i>
-                                    Responder
-                                </a>
-
-                            </div>
+                            <?php endforeach; ?>
 
                         </div>
 
-                    </article>
+                    <?php endif; ?>
 
-                <?php endforeach; ?>
+                </div>
 
-            </div>
-
-        <?php endif; ?>
-
-    </div>
-
-</section>
+            </section>
+            <!--
+     SECCIÓN: SUGERENCIAS
+     Muestra propuestas enviadas por los usuarios.
+     
+     Sirve para recoger ideas de mejora, nuevos recursos
+     o comentarios generales sobre la plataforma.
+ -->
             <section id="admin-section-sugerencias" class="admin-section">
 
-    <div class="admin-header">
-        <div>
-            <h1>Sugerencias</h1>
-            <p>Ideas y propuestas enviadas por los usuarios para mejorar la web y los recursos.</p>
-        </div>
-    </div>
+                <div class="admin-header">
+                    <div>
+                        <h1>Sugerencias</h1>
+                        <p>Ideas y propuestas enviadas por los usuarios para mejorar la web y los recursos.</p>
+                    </div>
+                </div>
 
-    <div class="sugerencias-admin-wrapper">
+                <div class="sugerencias-admin-wrapper">
 
-        <?php if (empty($sugerencias)): ?>
+                    <?php if (empty($sugerencias)): ?>
 
-            <div class="sugerencias-admin-empty">
-                <i class="bi bi-chat-heart"></i>
-                <h3>No hay sugerencias todavía</h3>
-                <p>Cuando un usuario envíe una propuesta, aparecerá aquí.</p>
-            </div>
+                        <div class="sugerencias-admin-empty">
+                            <i class="bi bi-chat-heart"></i>
+                            <h3>No hay sugerencias todavía</h3>
+                            <p>Cuando un usuario envíe una propuesta, aparecerá aquí.</p>
+                        </div>
 
-        <?php else: ?>
+                    <?php else: ?>
 
-            <div class="sugerencias-admin-grid">
+                        <div class="sugerencias-admin-grid">
 
-                <?php foreach ($sugerencias as $s): ?>
+                            <?php foreach ($sugerencias as $s): ?>
 
-                    <?php
-                    $nombreCompleto = trim(($s['nombre'] ?? '') . ' ' . ($s['apellidos'] ?? ''));
+                                <?php
+                                $nombreCompleto = trim(($s['nombre'] ?? '') . ' ' . ($s['apellidos'] ?? ''));
 
-                    if ($nombreCompleto === '') {
-                        $nombreCompleto = 'Usuario';
-                    }
+                                if ($nombreCompleto === '') {
+                                    $nombreCompleto = 'Usuario';
+                                }
 
-                    $inicial = mb_strtoupper(mb_substr($nombreCompleto, 0, 1));
-                    ?>
+                                $inicial = mb_strtoupper(mb_substr($nombreCompleto, 0, 1));
+                                ?>
 
-                    <article class="sugerencia-admin-card">
+                                <article class="sugerencia-admin-card">
 
-                        <div class="sugerencia-admin-top">
+                                    <div class="sugerencia-admin-top">
 
-                            <div class="sugerencia-admin-avatar">
-                                <?= htmlspecialchars($inicial) ?>
-                            </div>
+                                        <div class="sugerencia-admin-avatar">
+                                            <?= htmlspecialchars($inicial) ?>
+                                        </div>
 
-                            <div>
-                                <h3>
-                                    <?= htmlspecialchars($nombreCompleto) ?>
-                                </h3>
+                                        <div>
+                                            <h3>
+                                                <?= htmlspecialchars($nombreCompleto) ?>
+                                            </h3>
 
-                                <span>
-                                    <?= !empty($s['localidad']) ? htmlspecialchars($s['localidad']) : 'Localidad no indicada' ?>
-                                </span>
-                            </div>
+                                            <span>
+                                                <?= !empty($s['localidad']) ? htmlspecialchars($s['localidad']) : 'Localidad no indicada' ?>
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="sugerencia-admin-message">
+                                        <?= nl2br(htmlspecialchars($s['mensaje'])) ?>
+                                    </div>
+
+                                    <div class="sugerencia-admin-footer">
+
+                                        <div>
+                                            <i class="bi bi-envelope"></i>
+                                            <?= htmlspecialchars($s['email'] ?? 'Email no disponible') ?>
+                                        </div>
+
+                                        <div>
+                                            <i class="bi bi-calendar-heart"></i>
+                                            <?= !empty($s['fecha']) ? date('d/m/Y H:i', strtotime($s['fecha'])) : 'Fecha no disponible' ?>
+                                        </div>
+
+                                    </div>
+
+                                </article>
+
+                            <?php endforeach; ?>
 
                         </div>
 
-                        <div class="sugerencia-admin-message">
-                            <?= nl2br(htmlspecialchars($s['mensaje'])) ?>
-                        </div>
+                    <?php endif; ?>
 
-                        <div class="sugerencia-admin-footer">
+                </div>
 
-                            <div>
-                                <i class="bi bi-envelope"></i>
-                                <?= htmlspecialchars($s['email'] ?? 'Email no disponible') ?>
-                            </div>
-
-                            <div>
-                                <i class="bi bi-calendar-heart"></i>
-                                <?= !empty($s['fecha']) ? date('d/m/Y H:i', strtotime($s['fecha'])) : 'Fecha no disponible' ?>
-                            </div>
-
-                        </div>
-
-                    </article>
-
-                <?php endforeach; ?>
-
-            </div>
-
-        <?php endif; ?>
-
-    </div>
-
-</section>
-            <!-- CONFIGURACIÓN -->
+            </section>
+            <!-- SECCIÓN: CONFIGURACIÓN
+     Sección reservada para futuros ajustes generales del panel.-->
             <section id="admin-section-configuracion" class="admin-section">
                 <h1>Configuración</h1>
                 <p>Ajustes generales del panel.</p>
@@ -2123,7 +2321,19 @@
     </div>
 
 </main>
+<!--MODALES DEL PANEL ADMIN
+     Conjunto de ventanas emergentes utilizadas por Bootstrap y admin.js.
+     
+     Incluye:
+     - Nueva categoría.
+     - Responder ticket.
+     - Detalle de usuario.
+     - Datos de usuarios.
+     - Reseñas de producto.
+     - Nueva categoría gratuita.-->
+
 <!-- Modal nueva categoría -->
+
 <div class="modal fade" id="modalNuevaCategoria" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered">
@@ -2189,7 +2399,6 @@
 
 </div>
 
-<!--MODALES-->
 
 <!-- Modal responder soporte -->
 <div class="modal fade" id="modalResponderTicket" tabindex="-1" aria-hidden="true">
@@ -2247,9 +2456,9 @@
 
 </div>
 
-<!-- ====================================== -->
-<!-- MODAL USUARIO: DESCARGAS Y RESEÑAS -->
-<!-- ====================================== -->
+<!-- 
+ MODAL USUARIO: DESCARGAS Y RESEÑAS 
+-->
 <div class="modal fade" id="modalUsuarioDetalle" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -2383,6 +2592,18 @@
         </div>
     </div>
 </div>
+<!--
+SCRIPT PRINCIPAL DEL PANEL ADMIN
+     admin.js gestiona:
+     - Navegación entre secciones.
+     - Menú móvil.
+     - Filtros.
+     - Carga AJAX de productos.
+     - Gestión de usuarios.
+     - Gestión de soporte.
+     - Gestión de recursos gratuitos.
+     - Modales y acciones dinámicas.
+     -->
 
 <script src="/UNRINCONDEPT/static/js/admin.js"></script>
 

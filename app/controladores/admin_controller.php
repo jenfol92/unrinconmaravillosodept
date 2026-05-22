@@ -1,5 +1,32 @@
 <?php
 
+/**
+ * Controlador de administración.
+ * ---------------------------------------------------------
+ * Este controlador centraliza las acciones principales del
+ * panel de administración de la aplicación:
+ *
+ * - Carga del dashboard.
+ * - Gestión de productos de pago.
+ * - Subida de archivos a Cloudflare R2.
+ * - Eliminación lógica o física de productos.
+ * - Exportación de productos a PDF.
+ * - Gestión de recursos gratuitos.
+ * - Gestión de imágenes locales.
+ * - Cálculo de rangos de fechas para métricas.
+ *
+ * El controlador trabaja con distintos modelos:
+ * - Admin
+ * - Producto
+ * - Usuario
+ * - Soporte
+ * - RecursoGratuito
+ *
+ * También utiliza servicios externos como:
+ * - R2Service para gestionar archivos en Cloudflare R2.
+ * - Dompdf para exportar listados en PDF.
+ */
+
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../modelos/Admin.php';
@@ -11,13 +38,54 @@ require_once __DIR__ . '/../modelos/recursosGratuitos.php';
 
 class AdminController
 {
+    /**
+     * Modelo de administración.
+     *
+     * Se utiliza para obtener estadísticas generales del dashboard,
+     * productos más vendidos y datos globales del panel.
+     */
     private $adminModel;
+
+    /**
+     * Modelo de productos.
+     *
+     * Se utiliza para crear, editar, eliminar, consultar productos,
+     * categorías, niveles y datos necesarios para el panel admin.
+     */
     private $productoModel;
+
+    /**
+     * Modelo de usuarios.
+     *
+     * Se utiliza para listar usuarios clientes y consultar información
+     * asociada a sus compras, descargas y actividad.
+     */
     private $usuarioModel;
+
+    /**
+     * Modelo de soporte.
+     *
+     * Se utiliza para obtener tickets, sugerencias y mensajes recibidos
+     * desde el formulario público de contacto.
+     */
     private $soporteModel;
 
+    /**
+     * Modelo de recursos gratuitos.
+     *
+     * Se utiliza para gestionar contenido gratuito, categorías gratuitas,
+     * métricas de clicks y descargas.
+     */
     private $recursoGratuitoModel;
 
+    /**
+     * Constructor del controlador.
+     * ---------------------------------------------------------
+     * Inicializa todos los modelos que necesita el panel de administración.
+     *
+     * Cada modelo se encarga de una parte concreta de la aplicación:
+     * estadísticas, productos, usuarios, soporte y recursos gratuitos.
+     */
     public function __construct()
     {
         $this->adminModel = new Admin();
@@ -27,78 +95,115 @@ class AdminController
         $this->recursoGratuitoModel = new RecursoGratuito();
     }
 
+    /**
+     * Carga el dashboard principal del panel de administración.
+     * ---------------------------------------------------------
+     * Esta función recopila toda la información necesaria para pintar
+     * la vista admin_view.php:
+     *
+     * - Estadísticas generales de ventas.
+     * - Productos más vendidos.
+     * - Tickets de soporte.
+     * - Categorías y niveles.
+     * - Usuarios registrados.
+     * - Productos para la sección admin.
+     * - Sugerencias.
+     * - Mensajes de contacto web.
+     * - Categorías y recursos gratuitos.
+     *
+     * También calcula rangos de fechas para filtrar ventas y métricas.
+     */
     public function dashboard()
     {
-        // Periodo seleccionado para ventas del dashboard
+        // Periodo seleccionado para las ventas del dashboard.
         $rangoVentas = $this->obtenerRangoVentasDashboard();
 
-        // Estadísticas generales según periodo
+        // Estadísticas generales según el periodo seleccionado.
         $stats = $this->adminModel->obtenerEstadisticas(
             $rangoVentas['inicio'],
             $rangoVentas['fin']
         );
 
-        // Productos más vendidos según periodo
+        // Productos más vendidos según el periodo seleccionado.
         $productos = $this->adminModel->obtenerProductosMasVendidos(
             $rangoVentas['inicio'],
             $rangoVentas['fin'],
             5
         );
 
-        // Tickets de soporte
+        // Tickets pendientes del modelo Admin.
         $tickets = $this->adminModel->obtenerTicketsPendientes();
 
-        // Categorías y niveles
+        // Categorías y niveles de productos.
         $categorias = $this->productoModel->obtenerCategorias();
         $niveles = $this->productoModel->obtenerNiveles();
 
-        // Usuarios registrados
+        // Usuarios clientes registrados.
         $usuarios = $this->usuarioModel->obtenerUsuariosClientes();
 
-        // Productos completos para la sección Productos del panel admin
+        // Productos completos para el listado del panel de administración.
         $resultadoProductosAdmin = $this->productoModel->obtenerProductosAdmin();
 
-        // Lista real de productos
+        // Lista real de productos.
         $productosAdmin = $resultadoProductosAdmin['productos'];
 
-        // Total de páginas, por si luego quieres paginar
+        // Total de páginas para la paginación del listado de productos.
         $totalPaginasProductosAdmin = $resultadoProductosAdmin['total_paginas'];
 
-        // Categorías y niveles para filtros y formulario
+        // Categorías y niveles para filtros y formularios.
         $categorias = $this->productoModel->obtenerCategorias();
         $niveles = $this->productoModel->obtenerNiveles();
 
-        // Soporte, sugerencias y mensajes de contacto
+        // Soporte, sugerencias y mensajes de contacto web.
         $tickets = $this->soporteModel->obtenerTicketsAdmin();
         $sugerencias = $this->soporteModel->obtenerSugerencias();
         $mensajesContacto = $this->soporteModel->obtenerMensajesContactoAdmin();
 
-        //Categorias gratuitas y contenido gratuito
+        // Categorías de recursos gratuitos.
         $categoriasGratuitas = $this->recursoGratuitoModel->obtenerCategoriasGratuitas();
 
-        // Rango seleccionado para clicks/descargas de contenido gratuito.
+        // Rango seleccionado para métricas de clicks y descargas de recursos gratuitos.
         $rangoMetricasGratuitas = $this->obtenerRangoMetricasGratuitas();
 
-        // Si inicio/fin son null, el modelo devuelve los totales históricos.
-        // Si tienen fechas, el modelo devuelve clicks/descargas solo de ese periodo.
+        /*
+         * Recursos gratuitos para el panel de administración.
+         *
+         * Si inicio y fin son null, el modelo devuelve totales históricos.
+         * Si tienen fechas, devuelve datos solo del periodo seleccionado.
+         */
         $recursosGratuitosAdmin = $this->recursoGratuitoModel->obtenerRecursosGratuitosAdmin(
             $rangoMetricasGratuitas['inicio'],
             $rangoMetricasGratuitas['fin']
         );
 
-        // Cargar vista
+        // Carga de la vista principal del panel admin.
         require_once __DIR__ . '/../vistas/admin_view.php';
     }
 
+    /**
+     * Sube o sustituye el archivo descargable de un producto en Cloudflare R2.
+     * ---------------------------------------------------------
+     * Flujo:
+     * 1. Comprueba que el usuario esté autenticado y tenga rol admin.
+     * 2. Valida que la petición sea POST.
+     * 3. Obtiene el producto.
+     * 4. Sube el archivo nuevo a Cloudflare R2.
+     * 5. Guarda la nueva key en base de datos.
+     * 6. Si existía un archivo anterior, lo elimina de R2.
+     *
+     * Esta función no devuelve JSON, sino que redirige al panel admin.
+     */
     public function subirArchivoProductoR2()
     {
         $rolUsuario = (int)($_SESSION['rol'] ?? 0);
 
+        // Solo usuarios con rol 1 o 2 pueden subir archivos.
         if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
             header('Location: /UNRINCONDEPT/public/login.php');
             exit;
         }
 
+        // La subida solo se permite por POST.
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: /UNRINCONDEPT/public/admin.php');
             exit;
@@ -115,16 +220,17 @@ class AdminController
         }
 
         try {
-            // Obtenemos el producto actual
+            // Obtenemos el producto actual.
             $productoActual = $this->productoModel->obtenerProductosID($producto_id);
 
             if (!$productoActual) {
                 die('Producto no encontrado.');
             }
 
-            // Subimos el archivo a Cloudflare R2
+            // Instanciamos el servicio de Cloudflare R2.
             $r2Service = new R2Service();
 
+            // Subimos el archivo y obtenemos la nueva key.
             $nuevaKey = $r2Service->subirArchivoProducto(
                 $producto_id,
                 $_FILES['archivo'],
@@ -132,10 +238,10 @@ class AdminController
             );
 
             if (!empty($nuevaKey)) {
-                // Guardamos la key del archivo en la tabla productos
+                // Guardamos la key del archivo nuevo en la tabla productos.
                 $this->productoModel->actualizarArchivoR2($producto_id, $nuevaKey);
 
-                // Si había un archivo anterior, lo eliminamos de R2
+                // Si había un archivo anterior, lo eliminamos de R2.
                 if (!empty($productoActual['archivo_s3_key'])) {
                     $r2Service->eliminarArchivo($productoActual['archivo_s3_key']);
                 }
@@ -143,16 +249,32 @@ class AdminController
 
             header('Location: /UNRINCONDEPT/public/admin.php?archivo=subido');
             exit;
+
         } catch (Exception $e) {
             die('Error subiendo archivo: ' . htmlspecialchars($e->getMessage()));
         }
     }
+
+    /**
+     * Crea o actualiza un producto desde el panel admin mediante AJAX.
+     * ---------------------------------------------------------
+     * Esta función devuelve siempre una respuesta JSON.
+     *
+     * Permite:
+     * - Crear un producto nuevo.
+     * - Editar un producto existente.
+     * - Subir o sustituir la imagen local del producto.
+     * - Validar título, categoría y nivel.
+     *
+     * El archivo descargable no se sube aquí, sino en subirArchivoProductoR2().
+     */
     public function guardarProducto()
     {
         header('Content-Type: application/json; charset=utf-8');
 
         $rolUsuario = (int)($_SESSION['rol'] ?? 0);
 
+        // Control de permisos.
         if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
             echo json_encode([
                 'ok' => false,
@@ -161,6 +283,7 @@ class AdminController
             exit;
         }
 
+        // Solo se permite POST.
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode([
                 'ok' => false,
@@ -174,6 +297,10 @@ class AdminController
         $productoActual = null;
         $imagen = 'default.png';
 
+        /*
+         * Si producto_id es mayor que 0, estamos editando.
+         * En ese caso buscamos el producto actual para conservar datos previos.
+         */
         if ($producto_id > 0) {
             $productoActual = $this->productoModel->obtenerProductosID($producto_id);
 
@@ -189,6 +316,10 @@ class AdminController
         }
 
         try {
+            /*
+             * Gestión de imagen local.
+             * Si se sube una imagen nueva, se guarda y se elimina la anterior.
+             */
             if (!empty($_FILES['imagen']['name'])) {
                 $nuevaImagen = $this->guardarImagenLocal($_FILES['imagen'], 'producto');
 
@@ -201,6 +332,7 @@ class AdminController
                 }
             }
 
+            // Datos principales del producto.
             $datos = [
                 'titulo' => trim($_POST['titulo'] ?? ''),
                 'precio' => (float)($_POST['precio'] ?? 0),
@@ -212,6 +344,7 @@ class AdminController
                 'imagen' => $imagen
             ];
 
+            // Validaciones mínimas en servidor.
             if ($datos['titulo'] === '') {
                 echo json_encode([
                     'ok' => false,
@@ -236,6 +369,10 @@ class AdminController
                 exit;
             }
 
+            /*
+             * Si producto_id > 0, actualizamos.
+             * Si no, creamos un producto nuevo.
+             */
             if ($producto_id > 0) {
                 $this->productoModel->actualizarProductoAdmin($producto_id, $datos);
 
@@ -257,6 +394,7 @@ class AdminController
                 'modo' => 'crear'
             ]);
             exit;
+
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -265,7 +403,20 @@ class AdminController
             exit;
         }
     }
-    //Eliminar un producto / inactivarlo.
+
+    /**
+     * Elimina un producto o lo desactiva si tiene pedidos asociados.
+     * ---------------------------------------------------------
+     * Esta función devuelve JSON y se utiliza desde el panel admin.
+     *
+     * Flujo:
+     * 1. Comprueba permisos.
+     * 2. Valida producto_id.
+     * 3. Obtiene el producto.
+     * 4. Elimina archivo de Cloudflare R2 si existe.
+     * 5. Si el producto tiene pedidos, lo desactiva.
+     * 6. Si no tiene pedidos, lo elimina físicamente.
+     */
     public function eliminarProducto()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -299,10 +450,7 @@ class AdminController
         }
 
         try {
-            /*
-            1. Obtenemos el producto actual.
-            obtenerProductosID($id) devuelve un producto único cuando recibe un solo ID.
-        */
+            // Obtenemos el producto actual.
             $producto = $this->productoModel->obtenerProductosID($producto_id);
 
             if (!$producto) {
@@ -313,18 +461,16 @@ class AdminController
                 exit;
             }
 
-            /*
-            2. Si tiene archivo en Cloudflare R2, lo eliminamos.
-        */
+            // Si tiene archivo en Cloudflare R2, lo eliminamos.
             if (!empty($producto['archivo_s3_key'])) {
                 $r2Service = new R2Service();
                 $r2Service->eliminarArchivo($producto['archivo_s3_key']);
             }
 
             /*
-            3. Si el producto tiene pedidos asociados, NO lo borramos físicamente.
-            Lo marcamos como inactivo y quitamos la referencia al archivo.
-        */
+             * Si el producto tiene pedidos asociados, no lo borramos físicamente.
+             * Se desactiva para mantener la integridad histórica de las compras.
+             */
             if ($this->productoModel->productoTienePedidos($producto_id)) {
                 $this->productoModel->desactivarProductoAdmin($producto_id);
 
@@ -336,9 +482,7 @@ class AdminController
                 exit;
             }
 
-            /*
-            4. Si no tiene pedidos, podemos eliminarlo físicamente.
-        */
+            // Si no tiene pedidos, se elimina físicamente.
             $this->productoModel->eliminarProductoFisicoAdmin($producto_id);
 
             echo json_encode([
@@ -347,6 +491,7 @@ class AdminController
                 'modo' => 'eliminado'
             ]);
             exit;
+
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -355,6 +500,24 @@ class AdminController
             exit;
         }
     }
+
+    /**
+     * Obtiene el rango de fechas usado para las ventas del dashboard.
+     * ---------------------------------------------------------
+     * Lee el parámetro GET periodo_ventas y lo convierte en fecha de inicio
+     * y fecha de fin.
+     *
+     * Periodos permitidos:
+     * - hoy
+     * - ultimos_7
+     * - ultimos_30
+     * - mes_anterior
+     * - anio_actual
+     * - personalizado
+     * - mes_actual
+     *
+     * @return array Devuelve periodo, inicio y fin en formato Y-m-d.
+     */
     private function obtenerRangoVentasDashboard()
     {
         $periodo = $_GET['periodo_ventas'] ?? 'mes_actual';
@@ -404,11 +567,10 @@ class AdminController
             case 'mes_actual':
             default:
                 /*
-                Mes actual completo:
-                - Desde día 1
-                - Hasta último día real del mes
-                PHP calcula automáticamente si son 28, 29, 30 o 31 días.
-            */
+                 * Mes actual completo:
+                 * - Desde el día 1.
+                 * - Hasta el último día real del mes.
+                 */
                 $inicio = new DateTime('first day of this month');
                 $fin = new DateTime('last day of this month');
                 $periodo = 'mes_actual';
@@ -421,6 +583,20 @@ class AdminController
             'fin' => $fin->format('Y-m-d'),
         ];
     }
+
+    /**
+     * Exporta el listado de productos a PDF.
+     * ---------------------------------------------------------
+     * Utiliza Dompdf para generar un archivo PDF con productos filtrados.
+     *
+     * Permite filtrar por:
+     * - búsqueda
+     * - categoría
+     * - estado
+     *
+     * La vista HTML del reporte se encuentra en:
+     * app/vistas/reporte_productos_pdf_view.php
+     */
     public function exportarProductosPdf()
     {
         $rolUsuario = (int)($_SESSION['rol'] ?? 0);
@@ -434,6 +610,7 @@ class AdminController
         $categoria = $_GET['categoria'] ?? '';
         $estado = $_GET['estado'] ?? '';
 
+        // Obtenemos los productos filtrados para el PDF.
         $productos = $this->productoModel->obtenerProductosAdminParaPdf(
             $busqueda,
             $categoria,
@@ -442,12 +619,14 @@ class AdminController
 
         $fecha = date('d/m/Y H:i');
 
+        /*
+         * Capturamos la vista HTML en buffer para convertirla posteriormente a PDF.
+         */
         ob_start();
-
         require __DIR__ . '/../vistas/reporte_productos_pdf_view.php';
-
         $html = ob_get_clean();
 
+        // Configuración de Dompdf.
         $options = new \Dompdf\Options();
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isRemoteEnabled', true);
@@ -457,12 +636,28 @@ class AdminController
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
 
+        // Descarga del archivo generado.
         $dompdf->stream('reporte-recursos.pdf', [
             'Attachment' => true
         ]);
 
         exit;
     }
+
+    /**
+     * Crea o actualiza un recurso gratuito mediante AJAX.
+     * ---------------------------------------------------------
+     * Esta función gestiona recursos gratuitos del panel admin.
+     *
+     * Permite:
+     * - Crear recurso gratuito.
+     * - Editar recurso gratuito.
+     * - Subir o conservar imagen.
+     * - Asociar URL de Google Drive.
+     * - Guardar formato y estado.
+     *
+     * Actualmente la subida a Google Drive queda preparada para OAuth futuro.
+     */
     public function guardarRecursoGratuitoAjax()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -486,7 +681,6 @@ class AdminController
         }
 
         $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-
         $titulo = trim($_POST['titulo'] ?? '');
 
         $categoriaId = (int)(
@@ -495,7 +689,10 @@ class AdminController
             ?? 0
         );
 
-        // De momento puede venir vacío, porque el enlace lo generará Google Drive con OAuth.
+        /*
+         * De momento puede venir vacío, porque más adelante el enlace
+         * podrá generarse automáticamente con Google Drive y OAuth.
+         */
         $urlDrive = trim(
             $_POST['url_drive']
                 ?? $_POST['drive_url']
@@ -524,6 +721,9 @@ class AdminController
             $recursoActual = null;
             $imagen = 'default.png';
 
+            /*
+             * Si id > 0, estamos editando un recurso existente.
+             */
             if ($id > 0) {
                 $recursoActual = $this->recursoGratuitoModel->obtenerRecursoGratuitoAdminPorId($id);
 
@@ -535,25 +735,22 @@ class AdminController
                     exit;
                 }
 
-                // Si editas y no subes imagen nueva, conserva la anterior.
+                // Conserva imagen anterior si no se sube una nueva.
                 $imagen = $recursoActual['imagen'] ?? 'default.png';
 
-                // Si editas y todavía no subes nuevo archivo a Drive, conserva el enlace anterior.
+                // Conserva URL Drive anterior si no se envía una nueva.
                 if ($urlDrive === '') {
                     $urlDrive = $recursoActual['url_drive'] ?? '';
                 }
             }
 
             /*
-            Imagen de portada del recurso gratuito.
-            Si tienes creada la función guardarImagenLocal(), usa esta línea.
-        */
+             * Imagen de portada del recurso gratuito.
+             */
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
-
                 $nuevaImagen = $this->guardarImagenRecursoGratuito($_FILES['imagen']);
 
                 if (!empty($nuevaImagen)) {
-
                     if ($recursoActual && !empty($recursoActual['imagen'])) {
                         $this->eliminarImagenLocal($recursoActual['imagen']);
                     }
@@ -563,25 +760,11 @@ class AdminController
             }
 
             /*
-            Archivo PDF/ZIP para Google Drive.
-
-            De momento NO obligamos a tener url_drive, porque lo vamos a generar
-            automáticamente cuando montemos OAuth.
-
-            Más adelante aquí irá algo así:
-
-            if (!empty($_FILES['archivo_drive']['name'])) {
-                $driveService = new GoogleDriveService();
-
-                $resultadoDrive = $driveService->subirArchivo(
-                    $_FILES['archivo_drive'],
-                    $titulo
-                );
-
-                $urlDrive = $resultadoDrive['url'];
-            }
-        */
-
+             * Archivo PDF/ZIP para Google Drive.
+             *
+             * De momento no obligamos a tener url_drive porque se prevé generar
+             * el enlace automáticamente cuando se implemente OAuth.
+             */
             $datos = [
                 'id' => $id,
                 'titulo' => $titulo,
@@ -602,6 +785,7 @@ class AdminController
                 'id' => $id > 0 ? $id : $resultado
             ]);
             exit;
+
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -611,6 +795,17 @@ class AdminController
         }
     }
 
+    /**
+     * Guarda la imagen de portada de un recurso gratuito en local.
+     * ---------------------------------------------------------
+     * Valida:
+     * - Que no haya error de subida.
+     * - Que la extensión sea jpg, jpeg, png o webp.
+     *
+     * @param array $archivo Archivo recibido desde $_FILES.
+     * @return string Nombre del archivo guardado.
+     * @throws Exception Si la imagen no es válida o no se puede guardar.
+     */
     private function guardarImagenRecursoGratuito($archivo)
     {
         if ($archivo['error'] !== UPLOAD_ERR_OK) {
@@ -640,6 +835,11 @@ class AdminController
         return $nombreArchivo;
     }
 
+    /**
+     * Crea una categoría de recursos gratuitos mediante AJAX.
+     * ---------------------------------------------------------
+     * Permite añadir categorías desde el panel admin sin recargar la página.
+     */
     public function crearCategoriaGratuitaAjax()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -676,6 +876,7 @@ class AdminController
                 ]
             ]);
             exit;
+
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -685,6 +886,19 @@ class AdminController
         }
     }
 
+    /**
+     * Elimina un recurso gratuito mediante AJAX.
+     * ---------------------------------------------------------
+     * Flujo:
+     * 1. Comprueba permisos.
+     * 2. Valida ID.
+     * 3. Obtiene el recurso.
+     * 4. Elimina imagen local si procede.
+     * 5. Elimina el registro de la base de datos.
+     *
+     * De momento no elimina archivo en Google Drive porque la integración OAuth
+     * se deja como mejora futura.
+     */
     public function eliminarRecursoGratuitoAjax()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -728,7 +942,7 @@ class AdminController
                 exit;
             }
 
-            // Eliminar imagen local si no es la imagen por defecto
+            // Eliminamos la imagen local si existe y no es la imagen por defecto.
             if (!empty($recurso['imagen']) && $recurso['imagen'] !== 'default.png') {
                 $rutaImagen = __DIR__ . '/../../static/images/img/' . $recurso['imagen'];
 
@@ -737,9 +951,10 @@ class AdminController
                 }
             }
 
-            // De momento no borramos de Google Drive hasta que montemos OAuth.
-            // Cuando tengamos el drive_file_id, añadiremos aquí el borrado en Drive.
-
+            /*
+             * De momento no se borra de Google Drive.
+             * Cuando se implemente OAuth y drive_file_id, se añadirá aquí.
+             */
             $this->recursoGratuitoModel->eliminarRecursoGratuitoAdmin($id);
 
             echo json_encode([
@@ -747,6 +962,7 @@ class AdminController
                 'mensaje' => 'Recurso gratuito eliminado correctamente.'
             ]);
             exit;
+
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -755,6 +971,21 @@ class AdminController
             exit;
         }
     }
+
+    /**
+     * Guarda una imagen local de producto o recurso.
+     * ---------------------------------------------------------
+     * Valida:
+     * - Que el archivo exista.
+     * - Que no haya error de subida.
+     * - Que la extensión sea permitida.
+     * - Que no supere 5 MB.
+     *
+     * @param array $archivo Archivo recibido desde $_FILES.
+     * @param string $prefijo Prefijo del nombre generado.
+     * @return string|null Nombre del archivo guardado o null si no hay archivo.
+     * @throws Exception Si la imagen no es válida.
+     */
     private function guardarImagenLocal($archivo, $prefijo = 'recurso')
     {
         if (empty($archivo['name'])) {
@@ -796,6 +1027,14 @@ class AdminController
         return $nombreArchivo;
     }
 
+    /**
+     * Elimina una imagen local si existe.
+     * ---------------------------------------------------------
+     * No elimina imágenes vacías ni la imagen por defecto.
+     *
+     * @param string $nombreImagen Nombre del archivo de imagen.
+     * @return bool True si se elimina, false en caso contrario.
+     */
     private function eliminarImagenLocal($nombreImagen)
     {
         if (empty($nombreImagen) || $nombreImagen === 'default.png') {
@@ -810,17 +1049,27 @@ class AdminController
 
         return false;
     }
-    //RANGO METRICAS PARA OBTENER LOS DATOS DE CLICKS Y DESCARGAS DE LOS RECURSOS GRATUITOS.
+
+    /**
+     * Obtiene el rango de fechas para métricas de recursos gratuitos.
+     * ---------------------------------------------------------
+     * Esta función transforma el periodo elegido en dos fechas:
+     * inicio y fin.
+     *
+     * Si el usuario elige "todos", devuelve null/null para que el modelo
+     * muestre totales históricos.
+     *
+     * Periodos permitidos:
+     * - todos
+     * - ultimos_7
+     * - ultimos_30
+     * - mes_anterior
+     * - personalizado
+     *
+     * @return array Devuelve periodo, inicio y fin.
+     */
     private function obtenerRangoMetricasGratuitas()
     {
-        /*
-        Esta función transforma el periodo elegido en dos fechas:
-        inicio y fin.
-
-        Si el usuario elige "todos", devolvemos null/null.
-        Eso indica que se deben mostrar los totales históricos.
-    */
-
         $periodo = $_GET['periodo_gratis'] ?? 'todos';
 
         $hoy = new DateTime();

@@ -1,36 +1,96 @@
 <?php
-// Vista del perfil de usuario.
-// Variables que deberían venir desde UsuarioController:
-// $usuario   → datos del usuario
-// $favoritos → productos favoritos del usuario
+/**
+ * Vista: perfil_view.php
+ * ---------------------------------------------------------
+ * Muestra el panel personal del usuario registrado.
+ *
+ * Esta vista se carga desde UsuarioController::perfil().
+ *
+ * Variables recibidas desde el controlador:
+ *
+ * - $usuario:
+ *   Datos personales del usuario autenticado.
+ *
+ * - $favoritos:
+ *   Recursos que el usuario ha marcado como favoritos.
+ *
+ * - $productosComprados:
+ *   Recursos adquiridos por el usuario y disponibles para descarga.
+ *
+ * - $ticketsSoporte:
+ *   Consultas de soporte abiertas o cerradas por el usuario.
+ *
+ * Funcionalidades principales:
+ *
+ * - Mostrar bienvenida personalizada.
+ * - Mostrar recursos comprados y enlaces de descarga.
+ * - Mostrar recursos favoritos.
+ * - Mostrar datos de cuenta.
+ * - Mostrar apartado de seguridad.
+ * - Permitir cerrar sesión.
+ * - Permitir abrir tickets de soporte.
+ * - Permitir ver y responder conversaciones de soporte.
+ * - Permitir finalizar consultas de soporte.
+ * - Permitir enviar sugerencias.
+ * - Permitir añadir o editar reseñas de recursos comprados.
+ *
+ * Archivos relacionados:
+ *
+ * - UsuarioController.php:
+ *   Comprueba sesión, rol de cliente y carga los datos necesarios.
+ *
+ * - Usuario.php:
+ *   Obtiene datos del usuario y recursos adquiridos.
+ *
+ * - Producto.php:
+ *   Obtiene favoritos y gestiona reseñas.
+ *
+ * - Soporte.php:
+ *   Obtiene tickets y mensajes de soporte.
+ *
+ * - usuario.js:
+ *   Gestiona navegación del panel, AJAX de soporte, sugerencias y reseñas.
+ *
+ * Seguridad:
+ *
+ * - Los datos dinámicos se imprimen con htmlspecialchars().
+ * - Los IDs se convierten a entero con (int).
+ * - Los tokens de descarga se envían mediante URL codificada con urlencode().
+ * - El acceso a esta vista debe estar protegido previamente desde el controlador.
+ */
 ?>
 
 <?php require_once __DIR__ . '/../../templates/header.php'; ?>
 
 <main class="perfil-page">
 
-    <!-- =============================== -->
-    <!-- CABECERA DEL PERFIL -->
-    <!-- =============================== -->
+ 
+    <!-- CABECERA DEL PERFIL 
+   -->
     <section class="perfil-hero">
 
         <div class="container">
 
             <div class="d-flex align-items-center gap-4 flex-wrap">
 
-                <!-- Datos principales -->
+                <!-- Datos principales  del usuario-->
                 <div>
                     <h1>
                         ¡Hola, <?= htmlspecialchars($usuario['nombre'] ?? 'Usuario') ?>!
                     </h1>
+<!-- Fecha de registro del usuario -->
+<p class="mb-0">
+    Miembro desde
+    <strong>
+        <?= !empty($usuario['fecha_registro'])
+            ? date('d/m/Y', strtotime($usuario['fecha_registro']))
+            : 'fecha no disponible' ?>
+    </strong>
+</p>
 
-                    <p class="mb-0">
-                        Miembro desde
-                    </p>
-
-                    <small>
-                        Bienvenido a tu panel personal
-                    </small>
+<small>
+    Bienvenido a tu panel personal
+</small>
                 </div>
 
             </div>
@@ -40,7 +100,11 @@
     </section>
 
 
-    <!-- SIDEBAR PERFIL USUARIO-->
+    <!-- SIDEBAR PERFIL USUARIO
+      
+         Estructura principal dividida en:
+         - Sidebar izquierdo con navegación.
+         - Contenido derecho con secciones dinámicas.-->
 
     <section class="user-panel">
 
@@ -48,14 +112,19 @@
 
             <div class="row g-4">
 
-                <!-- =============================== -->
-                <!-- SIDEBAR IZQUIERDO -->
-                <!-- =============================== -->
+                <!--
+                SIDEBAR IZQUIERDO 
+                 -->
                 <div class="col-12 col-lg-3">
 
                     <aside class="panel-sidebar">
 
-                        <!-- Menú del panel -->
+                        <!-- 
+                          MENÚ DEL PANEL
+                             Cada botón usa data-section para indicar a usuario.js
+                             qué sección debe mostrarse.
+                              -->
+
                         <nav class="panel-menu">
 
                             <!-- Botón Descargas -->
@@ -97,7 +166,9 @@
 
                         </nav>
 
-                        <!-- Bloque de ayuda -->
+                        <!-- BLOQUE DE AYUDA
+                             Acceso rápido a la sección de soporte para abrir
+                             o consultar incidencias.-->
                         <div class="panel-help mt-4">
 
                             <h6>
@@ -133,14 +204,20 @@
                 </div>
 
 
-                <!-- CONTENIDO DERECHO -->
+                <!--   CONTENIDO DERECHO
+                     Aquí se muestran las secciones del panel.
+                     usuario.js activa u oculta cada sección según el botón
+                     seleccionado en el sidebar.-->
 
                 <div class="col-12 col-lg-9">
 
                     <div class="panel-content">
 
 
-                        <!-- SECCIÓN MIS RECURSOS ADQUIRIDOS -->
+                        <!-- SECCIÓN MIS RECURSOS ADQUIRIDOS 
+                        
+                             Muestra los productos comprados por el usuario.
+                             Desde aquí puede descargar, ver detalle o reseñar.-->
 
                         <section
                             id="section-descargas"
@@ -162,7 +239,10 @@
 
                             <?php else: ?>
 
-                                <!-- Tabla responsive -->
+                                <!-- 
+                                   TABLA RESPONSIVE DE RECURSOS COMPRADOS
+                                     Muestra fecha de compra, recurso, precio, número
+                                     de descargas usadas y acciones disponibles.-->
                                 <div class="table-responsive panel-mobile-cards">
 
                                     <table class="table align-middle panel-table">
@@ -192,12 +272,13 @@
                                                 <?php foreach ($productosComprados as $producto): ?>
 
                                                     <tr>
+                                                           <!-- Fecha de compra del recurso -->
                                                         <td data-label="Fecha">
                                                             <?= !empty($producto['fecha_compra'])
                                                                 ? date('d/m/Y', strtotime($producto['fecha_compra']))
                                                                 : 'Sin fecha' ?>
                                                         </td>
-
+                                                        <!-- Información del recurso comprado -->
                                                         <td data-label="Recurso">
                                                             <div class="d-flex align-items-center gap-3 panel-recurso-info">
 
@@ -219,35 +300,35 @@
 
                                                             </div>
                                                         </td>
-
+                                                        <!-- Precio del recurso comprado -->
                                                         <td data-label="Precio">
                                                             <strong>
                                                                 <?= number_format((float)($producto['precio'] ?? 0), 2) ?> €
                                                             </strong>
                                                         </td>
-
+                                                         <!-- Contador de descargas usadas frente al máximo permitido -->
                                                         <td data-label="Descargas">
                                                             <?= (int)($producto['numero_descargas'] ?? 0) ?> /
                                                             <?= (int)($producto['max_descargas'] ?? 0) ?>
                                                         </td>
-
+                                                        <!-- Acciones disponibles sobre el recurso -->
                                                         <td data-label="Acciones" class="text-end">
 
                                                             <div class="panel-acciones-recursos">
-
+                                                                <!-- Descarga mediante token seguro -->
                                                                 <a href="/UNRINCONDEPT/public/descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
                                                                     class="btn btn-sm btn-success">
                                                                     <i class="bi bi-download"></i>
                                                                     Descargar
                                                                 </a>
-
+                                                                <!-- Acceso al detalle público del producto -->
                                                                 <a
                                                                     href="/UNRINCONDEPT/public/detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
                                                                     class="btn btn-sm btn-outline-primary"
                                                                     title="Ver detalle">
                                                                     <i class="bi bi-eye"></i>
                                                                 </a>
-
+                                                                 <!-- Botón para abrir modal de reseña -->
                                                                 <button
                                                                     type="button"
                                                                     class="btn btn-sm btn-outline-warning btn-abrir-resena"
@@ -280,7 +361,10 @@
 
 
 
-                        <!-- SECCIÓN FAVORITOS -->
+                        <!-- SECCIÓN FAVORITOS 
+                         
+                             Muestra los recursos guardados como favoritos por
+                             el usuario.-->
 
                         <section
                             id="section-favoritos"
@@ -387,10 +471,11 @@
                         </section>
 
 
-
-                        <!-- SECCIÓN DATOS DE CUENTA -->
-
-                       <!-- SECCIÓN DATOS DE CUENTA -->
+                       <!-- SECCIÓN DATOS DE CUENTA 
+                            
+                             Muestra información personal registrada del usuario.
+                             Los campos están deshabilitados, por lo que solo son
+                             de consulta.-->
 <section id="section-cuenta" class="panel-section">
 
     <h2>
@@ -556,7 +641,10 @@
 
 
 
-                        <!-- SECCIÓN SEGURIDAD -->
+                        <!-- SECCIÓN SEGURIDAD 
+                           
+                             Agrupa acciones relacionadas con la cuenta:
+                             cambio de contraseña, último acceso y cierre de sesión.-->
 
                         <section
                             id="section-seguridad"
@@ -623,7 +711,10 @@
                             </div>
 
                         </section>
-                        <!-- SECCIÓN SOPORTE -->
+                        <!-- SECCIÓN SOPORTE
+                         Permite al usuario crear nuevas consultas y revisar
+                             conversaciones anteriores.
+                      -->
                         <section id="section-soporte" class="panel-section">
 
                             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
@@ -633,7 +724,7 @@
                                         Consulta tus conversaciones o abre una nueva incidencia.
                                     </p>
                                 </div>
-
+                                <!-- Abre/cierra el formulario de nueva consulta -->
                                 <button
                                     type="button"
                                     class="btn btn-primary"
@@ -643,7 +734,7 @@
                                     Nueva consulta
                                 </button>
                             </div>
-
+                                <!-- Formulario plegable para crear un nuevo ticket -->
                             <div class="collapse mb-4" id="nuevoSoporteBox">
                                 <div class="panel-card-soft">
 
@@ -651,7 +742,7 @@
                                         <i class="bi bi-chat-dots"></i>
                                         Nueva consulta de soporte
                                     </h4>
-
+                                        
                                     <form id="formSoporte">
 
                                         <div class="mb-3">
@@ -679,12 +770,12 @@
                                         </button>
 
                                     </form>
-
+                                                <!-- Respuesta generada por AJAX tras enviar soporte -->
                                     <div id="soporteRespuesta" class="mt-3"></div>
 
                                 </div>
                             </div>
-
+                                                <!-- Listado de consultas existentes del usuario -->
                             <div class="panel-card-soft">
 
                                 <h4 class="mb-4">
@@ -735,7 +826,9 @@
                         </section>
 
 
-                        <!-- SECCIÓN BUZÓN DE SUGERENCIAS -->
+                        <!-- SECCIÓN BUZÓN DE SUGERENCIAS 
+                         Permite al usuario enviar ideas o propuestas.
+                             No genera conversación como soporte.-->
                         <section id="section-sugerencias" class="panel-section">
 
                             <div class="sugerencias-layout">
@@ -754,7 +847,7 @@
                                         ¿Tienes alguna idea para mejorar la web, proponer un nuevo material
                                         o sugerir una ficha? Me encantará leerte.
                                     </p>
-
+                                         <!-- Formulario AJAX de sugerencias -->
                                     <form id="formSugerencia">
 
                                         <div class="mb-3">
@@ -774,7 +867,7 @@
                                         </button>
 
                                     </form>
-
+                                        <!-- Respuesta generada por AJAX tras enviar sugerencia -->
                                     <div id="respuestaSugerencia" class="mt-3"></div>
 
                                 </div>
@@ -817,7 +910,9 @@
 </main>
 
 
-<!-- MODAL VER / RESPONDER CONVERSACIÓN DEL USUARIO -->
+<!-- MODAL VER / RESPONDER CONVERSACIÓN DEL USUARIO 
+  Permite ver el historial de mensajes de un ticket de soporte,
+     responder y finalizar la consulta.-->
 <div class="modal fade" id="modalTicketUsuario" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -894,7 +989,8 @@
 </div>
 
 
-<!-- Modal añadir reseña -->
+<!--  MODAL: AÑADIR O EDITAR RESEÑA
+     Permite al usuario valorar un recurso adquirido.-->
 
 <div class="modal fade" id="modalResena" tabindex="-1" aria-hidden="true">
 
@@ -916,7 +1012,7 @@
             </div>
 
             <div class="modal-body">
-
+         <!-- Formulario AJAX de reseña -->
                 <form id="formResena">
 
                     <input type="hidden" id="resenaProductoId" name="producto_id">
@@ -951,7 +1047,7 @@
                     </button>
 
                 </form>
-
+ <!-- Respuesta AJAX del guardado de reseña -->
                 <div id="respuestaResena" class="mt-3"></div>
 
             </div>
@@ -962,7 +1058,10 @@
 
 </div>
 
-<!--MODAL PARA VER FAVORITOS DEL USUARIO-->
+<!--MODAL PARA VER FAVORITOS DEL USUARIO
+Modal reutilizable para mostrar información adicional.
+     En esta vista aparece definido, aunque su uso principal puede
+     estar relacionado con scripts compartidos o funcionalidades admin.-->
 
 <div class="modal fade" id="modalAdminUsuarios" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -980,7 +1079,15 @@
     </div>
 </div>
 
-<!-- JS específico del panel de usuario -->
+<!-- 
+   SCRIPT ESPECÍFICO DEL PANEL DE USUARIO
+     usuario.js gestiona:
+     - navegación entre secciones;
+     - creación de soporte;
+     - lectura y respuesta de tickets;
+     - finalización de tickets;
+     - envío de sugerencias;
+     - apertura y envío de reseñas.-->
 <script src="/UNRINCONDEPT/static/js/usuario.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

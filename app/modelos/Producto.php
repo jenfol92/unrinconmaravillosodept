@@ -1,103 +1,192 @@
 <?php
-//Incluimos la funcion de conectar con la base de datos para llamarla en la clase producto.
+
+/**
+ * Modelo Producto
+ * ---------------------------------------------------------
+ * Este modelo centraliza las operaciones relacionadas con los productos
+ * y recursos de la tienda.
+ *
+ * Funcionalidades principales:
+ *
+ * - Obtener categorías y niveles.
+ * - Crear y actualizar productos desde el panel admin.
+ * - Obtener recursos destacados para la home.
+ * - Filtrar productos en la tienda pública.
+ * - Obtener productos por ID.
+ * - Obtener productos relacionados.
+ * - Gestionar reseñas.
+ * - Gestionar favoritos.
+ * - Obtener productos para el panel admin con métricas.
+ * - Registrar clics de productos.
+ * - Asociar archivos de Cloudflare R2 a productos.
+ * - Eliminar o desactivar productos.
+ * - Generar datos para exportación PDF.
+ * - Crear derechos de descarga tras un pago.
+ * - Validar descargas mediante token seguro.
+ */
+
 require_once __DIR__ . '/../../config/conexion.php';
-/*Definimos la clase producto. Contendrá la variable conexion para poder integrarla en todas sus funciones. 
-Esta clase se utilizará para interactuar con la base de datos
-*/
+
 class Producto
 {
+    /**
+     * Conexión PDO con la base de datos.
+     *
+     * @var PDO
+     */
     private $conexion;
-    //Constructor que ejecuta la conexion con la base de datos.
+
+    /**
+     * Constructor del modelo.
+     * ---------------------------------------------------------
+     * Al crear una instancia de Producto, se establece la conexión
+     * con la base de datos mediante la función conectarBD().
+     */
     public function __construct()
     {
         $this->conexion = conectarBD();
     }
-    //Funcion obtener categorias BD
+
+    /**
+     * Obtiene todas las categorías de productos.
+     * ---------------------------------------------------------
+     * Se utiliza para:
+     * - Filtros de tienda.
+     * - Formularios de creación/edición de productos.
+     * - Panel de administración.
+     *
+     * @return array Listado de categorías.
+     */
     public function obtenercategorias()
     {
         $sql = "SELECT * FROM categorias";
+
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute();
+
         return $stmt->fetchAll();
     }
-    //Funcion Obtener niveles BD
+
+    /**
+     * Obtiene todos los niveles educativos.
+     * ---------------------------------------------------------
+     * Se utiliza para filtrar productos y asignar un nivel a cada recurso.
+     *
+     * @return array Listado de niveles.
+     */
     public function obtenerNiveles()
     {
         $sql = "SELECT * FROM niveles";
+
         return $this->conexion->query($sql)->fetchAll();
     }
- //CREAR UN PRODUCTO NUEVO
-public function crearProductoAdmin($datos)
-{
-    $sql = "INSERT INTO productos
-            (titulo, precio, descripcion, contenido, categoria_id, nivel_id, estado, imagen)
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $this->conexion->prepare($sql);
+    /**
+     * Crea un nuevo producto desde el panel administrador.
+     * ---------------------------------------------------------
+     * Inserta un producto nuevo en la tabla productos.
+     *
+     * Campos esperados en $datos:
+     * - titulo
+     * - precio
+     * - descripcion
+     * - contenido
+     * - categoria_id
+     * - nivel_id
+     * - estado
+     * - imagen
+     *
+     * @param array $datos Datos del producto.
+     * @return int ID del producto creado.
+     */
+    public function crearProductoAdmin($datos)
+    {
+        $sql = "INSERT INTO productos
+                (titulo, precio, descripcion, contenido, categoria_id, nivel_id, estado, imagen)
+                VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt->execute([
-        $datos['titulo'],
-        $datos['precio'],
-        $datos['descripcion'],
-        $datos['contenido'],
-        $datos['categoria_id'],
-        $datos['nivel_id'],
-        $datos['estado'],
-        $datos['imagen'] ?? 'default.png'
-    ]);
+        $stmt = $this->conexion->prepare($sql);
 
-    return (int)$this->conexion->lastInsertId();
-}
+        $stmt->execute([
+            $datos['titulo'],
+            $datos['precio'],
+            $datos['descripcion'],
+            $datos['contenido'],
+            $datos['categoria_id'],
+            $datos['nivel_id'],
+            $datos['estado'],
+            $datos['imagen'] ?? 'default.png'
+        ]);
 
-//ACTUALIZAR UN PRODUCTO
-public function actualizarProductoAdmin($producto_id, $datos)
-{
-    $sql = "UPDATE productos
-            SET titulo = ?,
-                precio = ?,
-                descripcion = ?,
-                contenido = ?,
-                categoria_id = ?,
-                nivel_id = ?,
-                estado = ?,
-                imagen = ?
-            WHERE id = ?";
+        return (int)$this->conexion->lastInsertId();
+    }
 
-    $stmt = $this->conexion->prepare($sql);
+    /**
+     * Actualiza un producto existente desde el panel administrador.
+     * ---------------------------------------------------------
+     * Modifica los datos principales del producto.
+     *
+     * @param int $producto_id ID del producto que se va a actualizar.
+     * @param array $datos Nuevos datos del producto.
+     *
+     * @return bool True si la actualización se ejecuta correctamente.
+     */
+    public function actualizarProductoAdmin($producto_id, $datos)
+    {
+        $sql = "UPDATE productos
+                SET titulo = ?,
+                    precio = ?,
+                    descripcion = ?,
+                    contenido = ?,
+                    categoria_id = ?,
+                    nivel_id = ?,
+                    estado = ?,
+                    imagen = ?
+                WHERE id = ?";
 
-    return $stmt->execute([
-        $datos['titulo'],
-        $datos['precio'],
-        $datos['descripcion'],
-        $datos['contenido'],
-        $datos['categoria_id'],
-        $datos['nivel_id'],
-        $datos['estado'],
-        $datos['imagen'] ?? 'default.png',
-        $producto_id
-    ]);
-}
-    /*Función para obtener los siguientes datos de hasta 3 recursos según número de descargas de mayor a menor ordenador por total de descargas y donde el producto esté activo.
-El parámetro límite será 3 por defecto.
-Datos de obtención: id, titulo, descripcion, precio, imagen, categoria(nombre), nivel (nivel).
-*/
+        $stmt = $this->conexion->prepare($sql);
+
+        return $stmt->execute([
+            $datos['titulo'],
+            $datos['precio'],
+            $datos['descripcion'],
+            $datos['contenido'],
+            $datos['categoria_id'],
+            $datos['nivel_id'],
+            $datos['estado'],
+            $datos['imagen'] ?? 'default.png',
+            $producto_id
+        ]);
+    }
+
+    /**
+     * Obtiene recursos destacados para la página de inicio.
+     * ---------------------------------------------------------
+     * Devuelve productos activos, no gratuitos, ordenados por número
+     * de clics y posteriormente por ID descendente.
+     *
+     * Se utiliza para mostrar recursos destacados en la home.
+     *
+     * @param int $limite Número máximo de productos a devolver.
+     * @return array Listado de productos destacados.
+     */
     public function obtenerRecursosDestacados($limite = 3)
     {
         $sql = "SELECT 
-                p.id,
-                p.titulo,
-                p.imagen,
-                p.precio,
-                COALESCE(p.clicks, 0) AS clicks,
-                c.nombre AS categoria_nombre,
-                c.nombre AS categoria
-            FROM productos p
-            LEFT JOIN categorias c ON c.id = p.categoria_id
-            WHERE p.estado = 'activo'
-            AND (p.es_gratuito IS NULL OR p.es_gratuito = 0)
-            ORDER BY COALESCE(p.clicks, 0) DESC, p.id DESC
-            LIMIT ?";
+                    p.id,
+                    p.titulo,
+                    p.imagen,
+                    p.precio,
+                    COALESCE(p.clicks, 0) AS clicks,
+                    c.nombre AS categoria_nombre,
+                    c.nombre AS categoria
+                FROM productos p
+                LEFT JOIN categorias c ON c.id = p.categoria_id
+                WHERE p.estado = 'activo'
+                AND (p.es_gratuito IS NULL OR p.es_gratuito = 0)
+                ORDER BY COALESCE(p.clicks, 0) DESC, p.id DESC
+                LIMIT ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->bindValue(1, (int)$limite, PDO::PARAM_INT);
@@ -105,62 +194,97 @@ Datos de obtención: id, titulo, descripcion, precio, imagen, categoria(nombre),
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    /*
-function obtenerRecursosFiltrados($categoria=null){
-    $consulta="SELECT p.id,p.titulo,p.imagen,p.precio,p.descripcion,p.contenido FROM productos p where p.estado='activo'";
-    if($categoria){
-    $consulta.=" AND (categoria_id=:categoria)";
-    }
-    $stmt= $this->conexion->prepare($consulta);
-    if($categoria){
-        $stmt->bindParam(":categoria", $categoria);
-    }
 
-    $stmt->execute();
-     return $stmt->fetchAll();
-*/
-
-
-    //Obtener productos según filtro checkbox dinámico y añadiendo paginacion con limite de 3 recursos por fila y 9 por página.
+    /**
+     * Obtiene productos filtrados para la tienda pública.
+     * ---------------------------------------------------------
+     * Permite filtrar productos por:
+     * - Categorías.
+     * - Niveles.
+     * - Búsqueda por título.
+     *
+     * También aplica paginación mediante límite y offset.
+     *
+     * Devuelve:
+     * - productos encontrados.
+     * - total de páginas.
+     *
+     * @param array|null $categorias Categorías seleccionadas.
+     * @param array|null $niveles Niveles seleccionados.
+     * @param string $busqueda Texto de búsqueda.
+     * @param int $limite Número de productos por página.
+     * @param int $offset Desplazamiento para paginación.
+     *
+     * @return array Productos y total de páginas.
+     */
     public function RecursosFiltrados($categorias, $niveles, $busqueda, $limite, $offset)
     {
-        // Base de la consulta
-        $sql = "SELECT p.* , n.nombre AS nivel_nombre,c.nombre AS categoria_nombre FROM productos p inner join niveles n on p.nivel_id=n.id inner join categorias c on p.categoria_id=c.id WHERE estado='activo'";
+        /*
+            Consulta base.
+
+            Se cruzan productos con niveles y categorías para poder mostrar
+            el nombre del nivel y el nombre de la categoría en la tienda.
+        */
+        $sql = "SELECT 
+                    p.*,
+                    n.nombre AS nivel_nombre,
+                    c.nombre AS categoria_nombre
+                FROM productos p
+                INNER JOIN niveles n ON p.nivel_id = n.id
+                INNER JOIN categorias c ON p.categoria_id = c.id
+                WHERE estado = 'activo'";
+
         $params = [];
 
-        //Filtro por categorias protegido contra inyeccion sql.
+        /*
+            Filtro por categorías.
+
+            Se generan placeholders dinámicos para evitar inyección SQL.
+        */
         if (!empty($categorias)) {
-            // Creamos placeholders, un array definido con posiciones (?, ?, ?) para protegerlo de inyeccion sql.
             $placeholders = implode(',', array_fill(0, count($categorias), '?'));
             $sql .= " AND p.categoria_id IN ($placeholders)";
-            //array_merge (unimos arrays)
             $params = array_merge($params, $categorias);
         }
 
-        // Filtro por niveles (checkbox)
+        /*
+            Filtro por niveles.
+        */
         if (!empty($niveles)) {
             $placeholders = implode(',', array_fill(0, count($niveles), '?'));
             $sql .= " AND p.nivel_id IN ($placeholders)";
             $params = array_merge($params, $niveles);
         }
 
-        // Filtro por búsqueda (input texto)
+        /*
+            Filtro por búsqueda textual en el título del producto.
+        */
         if (!empty($busqueda)) {
             $sql .= " AND p.titulo LIKE ?";
             $params[] = "%$busqueda%";
         }
-        //  Paginación (máx 9 productos por página)
+
+        /*
+            Paginación.
+
+            En este proyecto se muestran normalmente 9 productos por página.
+        */
         $sql .= " LIMIT $limite OFFSET $offset";
 
-        // Ejecutar consulta
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute($params);
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        /*
+            Consulta para calcular el número total de productos encontrados
+            con los mismos filtros.
+        */
+        $sql_total = "SELECT COUNT(*) 
+                      FROM productos p 
+                      WHERE p.estado = 'activo'";
 
-        // Paginación total productos según logica de filtros.
-        $sql_total = "SELECT COUNT(*) FROM productos p WHERE p.estado='activo'";
         $params_total = [];
+
         if (!empty($categorias)) {
             $placeholders = implode(',', array_fill(0, count($categorias), '?'));
             $sql_total .= " AND p.categoria_id IN ($placeholders)";
@@ -177,11 +301,15 @@ function obtenerRecursosFiltrados($categoria=null){
             $sql_total .= " AND p.titulo LIKE ?";
             $params_total[] = "%$busqueda%";
         }
-        // Ejecutar COUNT con filtros
+
         $stmt_total = $this->conexion->prepare($sql_total);
         $stmt_total->execute($params_total);
+
         $total = $stmt_total->fetchColumn();
-        // Calcular total de páginas (ej: 23 productos / 9 = 3 páginas)
+
+        /*
+            Calculamos el total de páginas.
+        */
         $total_paginas = ceil($total / $limite);
 
         return [
@@ -189,50 +317,92 @@ function obtenerRecursosFiltrados($categoria=null){
             "total_paginas" => $total_paginas
         ];
     }
-    //Obtener datos del producto por id del producto para mostrar vista detalle y también listado en el carrito.
+
+    /**
+     * Obtiene uno o varios productos por ID.
+     * ---------------------------------------------------------
+     * Esta función se adapta a dos usos:
+     *
+     * 1. Si recibe un único ID:
+     *    - Devuelve un solo producto.
+     *
+     * 2. Si recibe un array de IDs:
+     *    - Devuelve todos los productos encontrados.
+     *
+     * Se utiliza en:
+     * - Detalle de producto.
+     * - Carrito.
+     * - Procesos de pago.
+     *
+     * @param int|array $ids ID único o array de IDs.
+     * @return array|false Producto único, listado de productos o false.
+     */
     public function obtenerProductosID($ids)
     {
-        // 1. Normalizamos la entrada: si es un solo ID, lo metemos en un array
+        /*
+            Normalizamos la entrada.
+
+            Si se recibe un único ID, lo convertimos en array para poder
+            construir una consulta IN.
+        */
         $esArray = is_array($ids);
         $listaIds = $esArray ? $ids : [$ids];
 
-        if (empty($listaIds)) return [];
+        if (empty($listaIds)) {
+            return [];
+        }
 
-        // 2. Creamos los placeholders (?,?,?) según la cantidad de IDs
+        /*
+            Creamos placeholders dinámicos según la cantidad de IDs.
+        */
         $placeholders = implode(',', array_fill(0, count($listaIds), '?'));
 
-        $sql = "SELECT p.*, c.nombre as categoria_nombre, n.nombre as nivel_nombre
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            LEFT JOIN niveles n ON p.nivel_id = n.id 
-            WHERE p.id IN ($placeholders)";
+        $sql = "SELECT 
+                    p.*,
+                    c.nombre AS categoria_nombre,
+                    n.nombre AS nivel_nombre
+                FROM productos p 
+                LEFT JOIN categorias c ON p.categoria_id = c.id 
+                LEFT JOIN niveles n ON p.nivel_id = n.id 
+                WHERE p.id IN ($placeholders)";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute($listaIds);
 
-        // 3. Retornamos según el caso
+        /*
+            Si la entrada original era array, devolvemos todos.
+            Si era un único ID, devolvemos una sola fila.
+        */
         if ($esArray) {
-            // Para el carrito: devolvemos todos los encontrados
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            // Para el detalle: devolvemos solo la primera fila (el producto único)
-            return $stmt->fetch(PDO::FETCH_ASSOC);
         }
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    //Funcion que obtiene recursos relacionados con el que se está viendo.
+
+    /**
+     * Obtiene productos relacionados.
+     * ---------------------------------------------------------
+     * Busca productos activos de la misma categoría que el producto actual,
+     * excluyendo el producto que se está visualizando.
+     *
+     * @param int $categoria_id Categoría del producto actual.
+     * @param int $producto_actual_id ID del producto actual.
+     * @param int $limite Número máximo de relacionados.
+     *
+     * @return array Productos relacionados.
+     */
     public function obtenerProductosRelacionados($categoria_id, $producto_actual_id, $limite = 4)
     {
-
         $sql = "SELECT 
-                p.*,
-                c.nombre AS categoria_nombre
-            FROM productos p
-            LEFT JOIN categorias c 
-                ON p.categoria_id = c.id
-            WHERE p.estado = 'activo'
-            AND p.categoria_id = ?
-            AND p.id != ?
-            LIMIT ?";
+                    p.*,
+                    c.nombre AS categoria_nombre
+                FROM productos p
+                LEFT JOIN categorias c ON p.categoria_id = c.id
+                WHERE p.estado = 'activo'
+                AND p.categoria_id = ?
+                AND p.id != ?
+                LIMIT ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->bindValue(1, $categoria_id, PDO::PARAM_INT);
@@ -244,43 +414,71 @@ function obtenerRecursosFiltrados($categoria=null){
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    //Funcion para obtener todas las reseñas de un producto.
+    /**
+     * Obtiene reseñas públicas de un producto.
+     * ---------------------------------------------------------
+     * Devuelve las reseñas asociadas a un producto junto con el nombre
+     * del usuario que las escribió.
+     *
+     * @param int $producto_id ID del producto.
+     * @return array Listado de reseñas.
+     */
     public function obtenerResenasPorProducto($producto_id)
     {
         $sql = "SELECT 
-                r.id,
-                r.usuario_id,
-                r.producto_id,
-                r.comentario,
-                r.puntuacion,
-                r.fecha,
-                u.nombre AS usuario_nombre
-            FROM reseñas r
-            LEFT JOIN usuarios u ON r.usuario_id = u.id
-            WHERE r.producto_id = ?
-            ORDER BY r.fecha DESC";
+                    r.id,
+                    r.usuario_id,
+                    r.producto_id,
+                    r.comentario,
+                    r.puntuacion,
+                    r.fecha,
+                    u.nombre AS usuario_nombre
+                FROM reseñas r
+                LEFT JOIN usuarios u ON r.usuario_id = u.id
+                WHERE r.producto_id = ?
+                ORDER BY r.fecha DESC";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$producto_id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    // Añade o elimina un favorito
+
+    /**
+     * Añade o elimina un producto favorito.
+     * ---------------------------------------------------------
+     * Si el favorito ya existe, lo elimina.
+     * Si no existe, lo crea.
+     *
+     * Esta función permite implementar un botón tipo "toggle".
+     *
+     * @param int $usuario_id ID del usuario.
+     * @param int $producto_id ID del producto.
+     *
+     * @return string 'guardado' o 'eliminado'.
+     */
     public function toggleFavorito($usuario_id, $producto_id)
     {
-        // Comprobamos si ya existe ese favorito
-        $sql = "SELECT id FROM favoritos 
-            WHERE usuario_id = ? AND producto_id = ?";
+        /*
+            Comprobamos si ya existe el favorito.
+        */
+        $sql = "SELECT id 
+                FROM favoritos 
+                WHERE usuario_id = ? 
+                AND producto_id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id, $producto_id]);
 
         $favorito = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Si existe, lo quitamos
+        /*
+            Si ya existe, lo eliminamos.
+        */
         if ($favorito) {
             $sql = "DELETE FROM favoritos 
-                WHERE usuario_id = ? AND producto_id = ?";
+                    WHERE usuario_id = ? 
+                    AND producto_id = ?";
 
             $stmt = $this->conexion->prepare($sql);
             $stmt->execute([$usuario_id, $producto_id]);
@@ -288,9 +486,11 @@ function obtenerRecursosFiltrados($categoria=null){
             return 'eliminado';
         }
 
-        // Si no existe, lo guardamos
+        /*
+            Si no existe, lo insertamos.
+        */
         $sql = "INSERT INTO favoritos (usuario_id, producto_id) 
-            VALUES (?, ?)";
+                VALUES (?, ?)";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id, $producto_id]);
@@ -298,13 +498,19 @@ function obtenerRecursosFiltrados($categoria=null){
         return 'guardado';
     }
 
-
-    // Devuelve solo los IDs favoritos del usuario
+    /**
+     * Obtiene solo los IDs de productos favoritos de un usuario.
+     * ---------------------------------------------------------
+     * Se utiliza normalmente para pintar corazones activos en la tienda.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array IDs de productos favoritos.
+     */
     public function obtenerFavoritosUsuario($usuario_id)
     {
         $sql = "SELECT producto_id 
-            FROM favoritos 
-            WHERE usuario_id = ?";
+                FROM favoritos 
+                WHERE usuario_id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id]);
@@ -312,265 +518,303 @@ function obtenerRecursosFiltrados($categoria=null){
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
-
-    // Devuelve todos los  productos favoritos para el panel
+    /**
+     * Obtiene los productos favoritos completos de un usuario.
+     * ---------------------------------------------------------
+     * Se utiliza en el perfil del usuario para mostrar sus favoritos
+     * con datos completos del producto.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array Productos favoritos.
+     */
     public function obtenerProductosFavoritos($usuario_id)
     {
-        // Consulta favoritos con datos del producto
         $sql = "SELECT 
-                p.id,
-                p.titulo,
-                p.precio,
-                p.imagen,
-                c.nombre AS categoria_nombre,
-                n.nombre AS nivel_nombre,
-                f.fecha
-            FROM favoritos f
-            INNER JOIN productos p ON p.id = f.producto_id
-            LEFT JOIN categorias c ON c.id = p.categoria_id
-            LEFT JOIN niveles n ON n.id = p.nivel_id
-            WHERE f.usuario_id = ?
-            ORDER BY f.fecha DESC";
+                    p.id,
+                    p.titulo,
+                    p.precio,
+                    p.imagen,
+                    c.nombre AS categoria_nombre,
+                    n.nombre AS nivel_nombre,
+                    f.fecha
+                FROM favoritos f
+                INNER JOIN productos p ON p.id = f.producto_id
+                LEFT JOIN categorias c ON c.id = p.categoria_id
+                LEFT JOIN niveles n ON n.id = p.nivel_id
+                WHERE f.usuario_id = ?
+                ORDER BY f.fecha DESC";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-   // Obtiene productos para el panel de administración con filtros
-// Obtiene productos para el panel de administración con filtros
-public function obtenerProductosAdmin(
-    $categorias = [],
-    $niveles = [],
-    $busqueda = '',
-    $estado = '',
-    $limite = 10,
-    $offset = 0,
-    $fechaInicio = null,
-    $fechaFin = null
-) {
-    /*
-        Esta función devuelve los productos para el panel admin.
 
-        Calcula:
-        - total_compras: número de filas en descargas.
-        - total_descargas: suma de numero_descargas.
-        - total_resenas: número de reseñas.
-        - total_clicks: clics históricos o clics por periodo.
+    /**
+     * Obtiene productos para el panel de administración con filtros y métricas.
+     * ---------------------------------------------------------
+     * Esta función es una de las más completas del modelo.
+     *
+     * Devuelve productos junto con:
+     * - Categoría.
+     * - Nivel.
+     * - Total de compras.
+     * - Total de descargas.
+     * - Total de reseñas.
+     * - Total de clics.
+     *
+     * Si recibe rango de fechas:
+     * - compras y descargas se filtran por fecha_compra.
+     * - clics se filtran por productos_clicks_metricas.fecha.
+     *
+     * Si no recibe fechas:
+     * - compras y descargas son históricas.
+     * - clics salen de productos.clicks.
+     *
+     * @param array $categorias Categorías filtradas.
+     * @param array $niveles Niveles filtrados.
+     * @param string $busqueda Texto de búsqueda.
+     * @param string $estado Estado del producto.
+     * @param int $limite Productos por página.
+     * @param int $offset Offset de paginación.
+     * @param string|null $fechaInicio Fecha inicial.
+     * @param string|null $fechaFin Fecha final.
+     *
+     * @return array Productos y total de páginas.
+     */
+    public function obtenerProductosAdmin(
+        $categorias = [],
+        $niveles = [],
+        $busqueda = '',
+        $estado = '',
+        $limite = 10,
+        $offset = 0,
+        $fechaInicio = null,
+        $fechaFin = null
+    ) {
+        $limite = (int)$limite;
+        $offset = (int)$offset;
 
-        Si hay $fechaInicio y $fechaFin:
-            compras/descargas se filtran por descargas.fecha_compra.
-            clics se filtran por productos_clicks_metricas.fecha.
+        $params = [];
 
-        Si NO hay fechas:
-            compras/descargas son totales desde el inicio.
-            clics salen de productos.clicks.
-    */
+        /*
+            Subconsulta de compras y descargas.
 
-    $limite = (int)$limite;
-    $offset = (int)$offset;
-
-    $params = [];
-
-    /*
-        SUBCONSULTA DE COMPRAS Y DESCARGAS
-
-        total_compras:
-            COUNT(*) sobre la tabla descargas.
-
-        total_descargas:
-            SUM(numero_descargas).
-    */
-    if ($fechaInicio && $fechaFin) {
-        $subqueryDescargas = "
-            SELECT
-                producto_id,
-                COUNT(*) AS total_compras,
-                COALESCE(SUM(numero_descargas), 0) AS total_descargas
-            FROM descargas
-            WHERE fecha_compra BETWEEN ? AND ?
-            GROUP BY producto_id
-        ";
-
-        $params[] = $fechaInicio . ' 00:00:00';
-        $params[] = $fechaFin . ' 23:59:59';
-    } else {
-        $subqueryDescargas = "
-            SELECT
-                producto_id,
-                COUNT(*) AS total_compras,
-                COALESCE(SUM(numero_descargas), 0) AS total_descargas
-            FROM descargas
-            GROUP BY producto_id
-        ";
-    }
-
-    /*
-        SUBCONSULTA DE CLICS
-
-        Si hay fechas, contamos filas de productos_clicks_metricas.
-        Si no hay fechas, usamos productos.clicks.
-    */
-    if ($fechaInicio && $fechaFin) {
-        $subqueryClicks = "
-            SELECT
-                producto_id,
-                COUNT(*) AS total_clicks
-            FROM productos_clicks_metricas
-            WHERE fecha BETWEEN ? AND ?
-            GROUP BY producto_id
-        ";
-
-        $params[] = $fechaInicio . ' 00:00:00';
-        $params[] = $fechaFin . ' 23:59:59';
-
-        $selectClicks = "COALESCE(pc.total_clicks, 0) AS total_clicks";
-        $joinClicks = "LEFT JOIN ($subqueryClicks) pc ON pc.producto_id = p.id";
-    } else {
-        $selectClicks = "COALESCE(p.clicks, 0) AS total_clicks";
-        $joinClicks = "";
-    }
-
-    /*
-        CONSULTA PRINCIPAL
-
-        OJO:
-        Uso subconsultas para evitar que las compras/descargas se dupliquen
-        si un producto tiene varias reseñas.
-    */
-    $sql = "SELECT
-                p.*,
-                n.nombre AS nivel_nombre,
-                c.nombre AS categoria_nombre,
-
-                COALESCE(d.total_compras, 0) AS total_compras,
-                COALESCE(d.total_descargas, 0) AS total_descargas,
-
-                COALESCE(r.total_resenas, 0) AS total_resenas,
-
-                $selectClicks
-
-            FROM productos p
-
-            LEFT JOIN niveles n
-                ON p.nivel_id = n.id
-
-            LEFT JOIN categorias c
-                ON p.categoria_id = c.id
-
-            LEFT JOIN ($subqueryDescargas) d
-                ON d.producto_id = p.id
-
-            LEFT JOIN (
+            Se utiliza una subconsulta para evitar duplicados cuando un producto
+            tiene varias reseñas o varias relaciones.
+        */
+        if ($fechaInicio && $fechaFin) {
+            $subqueryDescargas = "
                 SELECT
                     producto_id,
-                    COUNT(*) AS total_resenas
-                FROM `reseñas`
+                    COUNT(*) AS total_compras,
+                    COALESCE(SUM(numero_descargas), 0) AS total_descargas
+                FROM descargas
+                WHERE fecha_compra BETWEEN ? AND ?
                 GROUP BY producto_id
-            ) r
-                ON r.producto_id = p.id
+            ";
 
-            $joinClicks
-
-            WHERE 1 = 1";
-
-    if (!empty($estado)) {
-        $sql .= " AND p.estado = ?";
-        $params[] = $estado;
-    }
-
-    if (!empty($categorias)) {
-        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-        $sql .= " AND p.categoria_id IN ($placeholders)";
-
-        foreach ($categorias as $catId) {
-            $params[] = (int)$catId;
+            $params[] = $fechaInicio . ' 00:00:00';
+            $params[] = $fechaFin . ' 23:59:59';
+        } else {
+            $subqueryDescargas = "
+                SELECT
+                    producto_id,
+                    COUNT(*) AS total_compras,
+                    COALESCE(SUM(numero_descargas), 0) AS total_descargas
+                FROM descargas
+                GROUP BY producto_id
+            ";
         }
-    }
 
-    if (!empty($niveles)) {
-        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-        $sql .= " AND p.nivel_id IN ($placeholders)";
+        /*
+            Subconsulta de clics.
 
-        foreach ($niveles as $nivelId) {
-            $params[] = (int)$nivelId;
+            Si hay fechas, se cuentan las filas de productos_clicks_metricas.
+            Si no hay fechas, se utiliza el contador histórico productos.clicks.
+        */
+        if ($fechaInicio && $fechaFin) {
+            $subqueryClicks = "
+                SELECT
+                    producto_id,
+                    COUNT(*) AS total_clicks
+                FROM productos_clicks_metricas
+                WHERE fecha BETWEEN ? AND ?
+                GROUP BY producto_id
+            ";
+
+            $params[] = $fechaInicio . ' 00:00:00';
+            $params[] = $fechaFin . ' 23:59:59';
+
+            $selectClicks = "COALESCE(pc.total_clicks, 0) AS total_clicks";
+            $joinClicks = "LEFT JOIN ($subqueryClicks) pc ON pc.producto_id = p.id";
+        } else {
+            $selectClicks = "COALESCE(p.clicks, 0) AS total_clicks";
+            $joinClicks = "";
         }
-    }
 
-    if (!empty($busqueda)) {
-        $sql .= " AND p.titulo LIKE ?";
-        $params[] = '%' . $busqueda . '%';
-    }
+        /*
+            Consulta principal.
 
-    $sql .= " ORDER BY p.id DESC LIMIT ? OFFSET ?";
+            Se unen productos con niveles, categorías y métricas calculadas.
+        */
+        $sql = "SELECT
+                    p.*,
+                    n.nombre AS nivel_nombre,
+                    c.nombre AS categoria_nombre,
 
-    $stmt = $this->conexion->prepare($sql);
+                    COALESCE(d.total_compras, 0) AS total_compras,
+                    COALESCE(d.total_descargas, 0) AS total_descargas,
 
-    $pos = 1;
+                    COALESCE(r.total_resenas, 0) AS total_resenas,
 
-    foreach ($params as $param) {
-        $stmt->bindValue($pos, $param);
+                    $selectClicks
+
+                FROM productos p
+
+                LEFT JOIN niveles n
+                    ON p.nivel_id = n.id
+
+                LEFT JOIN categorias c
+                    ON p.categoria_id = c.id
+
+                LEFT JOIN ($subqueryDescargas) d
+                    ON d.producto_id = p.id
+
+                LEFT JOIN (
+                    SELECT
+                        producto_id,
+                        COUNT(*) AS total_resenas
+                    FROM `reseñas`
+                    GROUP BY producto_id
+                ) r
+                    ON r.producto_id = p.id
+
+                $joinClicks
+
+                WHERE 1 = 1";
+
+        /*
+            Filtro por estado.
+        */
+        if (!empty($estado)) {
+            $sql .= " AND p.estado = ?";
+            $params[] = $estado;
+        }
+
+        /*
+            Filtro por categorías.
+        */
+        if (!empty($categorias)) {
+            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+            $sql .= " AND p.categoria_id IN ($placeholders)";
+
+            foreach ($categorias as $catId) {
+                $params[] = (int)$catId;
+            }
+        }
+
+        /*
+            Filtro por niveles.
+        */
+        if (!empty($niveles)) {
+            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+            $sql .= " AND p.nivel_id IN ($placeholders)";
+
+            foreach ($niveles as $nivelId) {
+                $params[] = (int)$nivelId;
+            }
+        }
+
+        /*
+            Filtro por texto de búsqueda.
+        */
+        if (!empty($busqueda)) {
+            $sql .= " AND p.titulo LIKE ?";
+            $params[] = '%' . $busqueda . '%';
+        }
+
+        $sql .= " ORDER BY p.id DESC LIMIT ? OFFSET ?";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        /*
+            Enlazamos manualmente todos los parámetros.
+        */
+        $pos = 1;
+
+        foreach ($params as $param) {
+            $stmt->bindValue($pos, $param);
+            $pos++;
+        }
+
+        $stmt->bindValue($pos, $limite, PDO::PARAM_INT);
         $pos++;
-    }
 
-    $stmt->bindValue($pos, $limite, PDO::PARAM_INT);
-    $pos++;
+        $stmt->bindValue($pos, $offset, PDO::PARAM_INT);
 
-    $stmt->bindValue($pos, $offset, PDO::PARAM_INT);
+        $stmt->execute();
 
-    $stmt->execute();
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        /*
+            Consulta para calcular el total de productos filtrados.
+            La paginación cuenta productos, no métricas.
+        */
+        $sqlTotal = "SELECT COUNT(*)
+                     FROM productos p
+                     WHERE 1 = 1";
 
-    /*
-        Paginación:
-        cuenta productos, no métricas.
-    */
-    $sqlTotal = "SELECT COUNT(*)
-                 FROM productos p
-                 WHERE 1 = 1";
+        $paramsTotal = [];
 
-    $paramsTotal = [];
-
-    if (!empty($estado)) {
-        $sqlTotal .= " AND p.estado = ?";
-        $paramsTotal[] = $estado;
-    }
-
-    if (!empty($categorias)) {
-        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-        $sqlTotal .= " AND p.categoria_id IN ($placeholders)";
-
-        foreach ($categorias as $catId) {
-            $paramsTotal[] = (int)$catId;
+        if (!empty($estado)) {
+            $sqlTotal .= " AND p.estado = ?";
+            $paramsTotal[] = $estado;
         }
-    }
 
-    if (!empty($niveles)) {
-        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-        $sqlTotal .= " AND p.nivel_id IN ($placeholders)";
+        if (!empty($categorias)) {
+            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+            $sqlTotal .= " AND p.categoria_id IN ($placeholders)";
 
-        foreach ($niveles as $nivelId) {
-            $paramsTotal[] = (int)$nivelId;
+            foreach ($categorias as $catId) {
+                $paramsTotal[] = (int)$catId;
+            }
         }
+
+        if (!empty($niveles)) {
+            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+            $sqlTotal .= " AND p.nivel_id IN ($placeholders)";
+
+            foreach ($niveles as $nivelId) {
+                $paramsTotal[] = (int)$nivelId;
+            }
+        }
+
+        if (!empty($busqueda)) {
+            $sqlTotal .= " AND p.titulo LIKE ?";
+            $paramsTotal[] = '%' . $busqueda . '%';
+        }
+
+        $stmtTotal = $this->conexion->prepare($sqlTotal);
+        $stmtTotal->execute($paramsTotal);
+
+        $total = (int)$stmtTotal->fetchColumn();
+
+        return [
+            'productos' => $productos,
+            'total_paginas' => (int)ceil($total / $limite)
+        ];
     }
 
-    if (!empty($busqueda)) {
-        $sqlTotal .= " AND p.titulo LIKE ?";
-        $paramsTotal[] = '%' . $busqueda . '%';
-    }
-
-    $stmtTotal = $this->conexion->prepare($sqlTotal);
-    $stmtTotal->execute($paramsTotal);
-
-    $total = (int)$stmtTotal->fetchColumn();
-
-    return [
-        'productos' => $productos,
-        'total_paginas' => (int)ceil($total / $limite)
-    ];
-}
-    // Crear nueva categoría
+    /**
+     * Crea una nueva categoría.
+     * ---------------------------------------------------------
+     * Se utiliza desde el panel de administración para añadir
+     * categorías de productos.
+     *
+     * @param string $nombre Nombre de la categoría.
+     * @return array ID y nombre de la categoría creada.
+     */
     public function crearCategoria($nombre)
     {
         $sql = "INSERT INTO categorias (nombre) VALUES (?)";
@@ -583,75 +827,97 @@ public function obtenerProductosAdmin(
             'nombre' => $nombre
         ];
     }
-    // Incrementar contador de clics del producto
-public function incrementarClicks($id)
-{
-    /*
-        Esta función registra un clic de producto.
 
-        Hace dos cosas:
-        1. Suma +1 en productos.clicks.
-           Esto mantiene el total histórico que ya tenías.
+    /**
+     * Incrementa el contador de clics de un producto.
+     * ---------------------------------------------------------
+     * Esta función registra una visita/clic a un producto.
+     *
+     * Hace dos cosas dentro de una transacción:
+     *
+     * 1. Suma +1 en productos.clicks.
+     * 2. Inserta una fila en productos_clicks_metricas con fecha/hora.
+     *
+     * Esto permite tener:
+     * - Total histórico de clics.
+     * - Métricas filtrables por fecha.
+     *
+     * @param int $id ID del producto.
+     * @return bool True si se registra correctamente.
+     * @throws Exception Si falla la transacción.
+     */
+    public function incrementarClicks($id)
+    {
+        $usuarioId = $_SESSION['usuario_id'] ?? null;
 
-        2. Inserta una fila en productos_clicks_metricas.
-           Esto permite filtrar clics por fecha.
-    */
+        $this->conexion->beginTransaction();
 
-    $usuarioId = $_SESSION['usuario_id'] ?? null;
+        try {
+            $sql = "UPDATE productos
+                    SET clicks = COALESCE(clicks, 0) + 1
+                    WHERE id = ?";
 
-    $this->conexion->beginTransaction();
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$id]);
 
-    try {
-        // 1. Contador total histórico
-        $sql = "UPDATE productos
-                SET clicks = COALESCE(clicks, 0) + 1
-                WHERE id = ?";
+            $sql = "INSERT INTO productos_clicks_metricas
+                    (producto_id, usuario_id, fecha)
+                    VALUES (?, ?, NOW())";
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([
-            $id
-        ]);
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([
+                $id,
+                $usuarioId
+            ]);
 
-        // 2. Registro con fecha/hora
-        $sql = "INSERT INTO productos_clicks_metricas
-                (producto_id, usuario_id, fecha)
-                VALUES (?, ?, NOW())";
+            $this->conexion->commit();
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([
-            $id,
-            $usuarioId
-        ]);
+            return true;
 
-        $this->conexion->commit();
-
-        return true;
-
-    } catch (Exception $e) {
-        $this->conexion->rollBack();
-        throw $e;
+        } catch (Exception $e) {
+            $this->conexion->rollBack();
+            throw $e;
+        }
     }
-}
-    // Crear o actualizar reseña de un usuario sobre un producto comprado
+
+    /**
+     * Crea o actualiza una reseña.
+     * ---------------------------------------------------------
+     * Si el usuario ya ha escrito una reseña para ese producto,
+     * se actualiza.
+     *
+     * Si no existe, se crea una nueva.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @param int $producto_id ID del producto.
+     * @param int $puntuacion Puntuación de la reseña.
+     * @param string $comentario Comentario del usuario.
+     *
+     * @return bool True si se guarda correctamente.
+     */
     public function guardarResena($usuario_id, $producto_id, $puntuacion, $comentario)
     {
-        // Comprobamos si ya existe una reseña de ese usuario para ese producto
         $sql = "SELECT id 
-            FROM reseñas 
-            WHERE usuario_id = ? AND producto_id = ?";
+                FROM reseñas 
+                WHERE usuario_id = ? 
+                AND producto_id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id, $producto_id]);
 
         $resena = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Si ya existe, actualizamos
+        /*
+            Si ya existe reseña, se actualiza.
+        */
         if ($resena) {
             $sql = "UPDATE reseñas 
-                SET puntuacion = ?, comentario = ?, fecha = NOW()
-                WHERE usuario_id = ? AND producto_id = ?";
+                    SET puntuacion = ?, comentario = ?, fecha = NOW()
+                    WHERE usuario_id = ? 
+                    AND producto_id = ?";
 
             $stmt = $this->conexion->prepare($sql);
+
             return $stmt->execute([
                 $puntuacion,
                 $comentario,
@@ -660,12 +926,15 @@ public function incrementarClicks($id)
             ]);
         }
 
-        // Si no existe, insertamos
+        /*
+            Si no existe, se inserta.
+        */
         $sql = "INSERT INTO reseñas 
-            (usuario_id, producto_id, puntuacion, comentario)
-            VALUES (?, ?, ?, ?)";
+                (usuario_id, producto_id, puntuacion, comentario)
+                VALUES (?, ?, ?, ?)";
 
         $stmt = $this->conexion->prepare($sql);
+
         return $stmt->execute([
             $usuario_id,
             $producto_id,
@@ -673,48 +942,66 @@ public function incrementarClicks($id)
             $comentario
         ]);
     }
-    // Obtener productos comprados por un usuario para historial de descargas
+
+    /**
+     * Obtiene productos comprados por un usuario.
+     * ---------------------------------------------------------
+     * Se utiliza para mostrar el historial de compras o descargas.
+     *
+     * Solo se devuelven pedidos con estado pagado.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return array Productos comprados.
+     */
     public function obtenerProductosCompradosUsuario($usuario_id)
     {
         $sql = "SELECT 
-                p.id,
-                p.titulo,
-                p.imagen,
-                dp.cantidad,
-                dp.precio_unitario,
-                pe.fecha_pedido,
-                pe.id AS pedido_id
-            FROM pedidos pe
-            INNER JOIN detalle_pedido dp ON dp.pedido_id = pe.id
-            INNER JOIN productos p ON p.id = dp.producto_id
-            WHERE pe.usuario_id = ?
-            AND pe.estado = 'pagado'
-            ORDER BY pe.fecha_pedido DESC";
+                    p.id,
+                    p.titulo,
+                    p.imagen,
+                    dp.cantidad,
+                    dp.precio_unitario,
+                    pe.fecha_pedido,
+                    pe.id AS pedido_id
+                FROM pedidos pe
+                INNER JOIN detalle_pedido dp ON dp.pedido_id = pe.id
+                INNER JOIN productos p ON p.id = dp.producto_id
+                WHERE pe.usuario_id = ?
+                AND pe.estado = 'pagado'
+                ORDER BY pe.fecha_pedido DESC";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    // Obtener reseñas de un producto para admin
+
+    /**
+     * Obtiene reseñas de un producto para el panel administrador.
+     * ---------------------------------------------------------
+     * Devuelve reseñas con datos del usuario que las escribió.
+     *
+     * @param int $producto_id ID del producto.
+     * @return array Reseñas del producto.
+     */
     public function obtenerResenasAdminPorProducto($producto_id)
     {
         $sql = "SELECT 
-                r.id,
-                r.producto_id,
-                r.usuario_id,
-                r.comentario,
-                r.puntuacion,
-                r.fecha,
-                r.estado,
-                u.nombre,
-                u.apellidos,
-                u.email,
-                u.puede_resenar
-            FROM reseñas r
-            INNER JOIN usuarios u ON u.id = r.usuario_id
-            WHERE r.producto_id = ?
-            ORDER BY r.fecha DESC";
+                    r.id,
+                    r.producto_id,
+                    r.usuario_id,
+                    r.comentario,
+                    r.puntuacion,
+                    r.fecha,
+                    r.estado,
+                    u.nombre,
+                    u.apellidos,
+                    u.email,
+                    u.puede_resenar
+                FROM reseñas r
+                INNER JOIN usuarios u ON u.id = r.usuario_id
+                WHERE r.producto_id = ?
+                ORDER BY r.fecha DESC";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$producto_id]);
@@ -722,22 +1009,31 @@ public function incrementarClicks($id)
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
-    // Denunciar reseña y bloquear al usuario para futuras reseñas
+    /**
+     * Denuncia una reseña y bloquea al usuario para futuras reseñas.
+     * ---------------------------------------------------------
+     * Cambia la reseña a estado denunciada y actualiza al usuario
+     * para que no pueda volver a reseñar.
+     *
+     * @param int $resena_id ID de la reseña.
+     * @param int $usuario_id ID del usuario.
+     *
+     * @return bool True si se completa.
+     */
     public function denunciarResenaYBloquearUsuario($resena_id, $usuario_id)
     {
         $this->conexion->beginTransaction();
 
         $sql = "UPDATE reseñas 
-            SET estado = 'denunciada'
-            WHERE id = ?";
+                SET estado = 'denunciada'
+                WHERE id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$resena_id]);
 
         $sql = "UPDATE usuarios 
-            SET puede_resenar = 0
-            WHERE id = ?";
+                SET puede_resenar = 0
+                WHERE id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id]);
@@ -746,12 +1042,20 @@ public function incrementarClicks($id)
 
         return true;
     }
-    // Comprobar si el usuario puede publicar reseñas
+
+    /**
+     * Comprueba si un usuario puede publicar reseñas.
+     * ---------------------------------------------------------
+     * Consulta el campo puede_resenar de la tabla usuarios.
+     *
+     * @param int $usuario_id ID del usuario.
+     * @return bool True si puede reseñar.
+     */
     public function usuarioPuedeResenar($usuario_id)
     {
         $sql = "SELECT puede_resenar 
-            FROM usuarios 
-            WHERE id = ?";
+                FROM usuarios 
+                WHERE id = ?";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute([$usuario_id]);
@@ -760,7 +1064,20 @@ public function incrementarClicks($id)
 
         return $usuario && (int)$usuario['puede_resenar'] === 1;
     }
-    // Cambiar estado de una reseña
+
+    /**
+     * Cambia el estado de una reseña.
+     * ---------------------------------------------------------
+     * Estados permitidos:
+     * - visible
+     * - oculta
+     * - denunciada
+     *
+     * @param int $resena_id ID de la reseña.
+     * @param string $estado Nuevo estado.
+     *
+     * @return bool True si se actualiza, false si el estado no es válido.
+     */
     public function cambiarEstadoResena($resena_id, $estado)
     {
         $estadosPermitidos = ['visible', 'oculta', 'denunciada'];
@@ -770,205 +1087,285 @@ public function incrementarClicks($id)
         }
 
         $sql = "UPDATE reseñas 
-            SET estado = ?
-            WHERE id = ?";
+                SET estado = ?
+                WHERE id = ?";
 
         $stmt = $this->conexion->prepare($sql);
+
         return $stmt->execute([$estado, $resena_id]);
     }
-    //Actualizar producto. subir pdf a Cloudflare R2
+
+    /**
+     * Actualiza la key del archivo en Cloudflare R2.
+     * ---------------------------------------------------------
+     * Guarda en productos.archivo_s3_key la referencia del archivo
+     * subido a Cloudflare R2.
+     *
+     * @param int $producto_id ID del producto.
+     * @param string $archivo_s3_key Key del archivo en R2.
+     *
+     * @return bool True si se actualiza.
+     */
     public function actualizarArchivoR2($producto_id, $archivo_s3_key)
-{
-    $sql = "UPDATE productos 
-            SET archivo_s3_key = ?
-            WHERE id = ?";
+    {
+        $sql = "UPDATE productos 
+                SET archivo_s3_key = ?
+                WHERE id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
+        $stmt = $this->conexion->prepare($sql);
 
-    return $stmt->execute([
-        $archivo_s3_key,
-        $producto_id
-    ]);
-}
-//ELIMINAR UN ARCHIVO DE CLOUDFLARE Y DEJAR EL PRODUCTO COMO INACTIVO PARA NO ROMPER HISTORIAL DE VENTAS Y DESCARGAS.
-public function desactivarProductoAdmin($producto_id)
-{
-    $sql = "UPDATE productos 
-            SET estado = 'inactivo',
-                archivo_s3_key = NULL
-            WHERE id = ?";
-
-    $stmt = $this->conexion->prepare($sql);
-
-    return $stmt->execute([
-        $producto_id
-    ]);
-}
-
-public function eliminarProductoFisicoAdmin($producto_id)
-{
-    $sql = "DELETE FROM productos 
-            WHERE id = ?";
-
-    $stmt = $this->conexion->prepare($sql);
-
-    return $stmt->execute([
-        $producto_id
-    ]);
-}
-
-public function productoTienePedidos($producto_id)
-{
-    $sql = "SELECT COUNT(*) 
-            FROM detalle_pedido 
-            WHERE producto_id = ?";
-
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute([
-        $producto_id
-    ]);
-
-    return (int)$stmt->fetchColumn() > 0;
-}
-public function obtenerProductosAdminParaPdf($busqueda = '', $categoria = '', $estado = '')
-{
-    $sql = "SELECT 
-                p.id,
-                p.titulo,
-                p.precio,
-                p.estado,
-                p.imagen,
-                p.clicks AS total_clicks,
-                c.nombre AS categoria_nombre,
-                n.nombre AS nivel_nombre,
-                COALESCE(SUM(dp.cantidad), 0) AS unidades_vendidas,
-                COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0) AS importe_vendido
-            FROM productos p
-            LEFT JOIN categorias c ON c.id = p.categoria_id
-            LEFT JOIN niveles n ON n.id = p.nivel_id
-            LEFT JOIN detalle_pedido dp ON dp.producto_id = p.id
-            LEFT JOIN pedidos pe ON pe.id = dp.pedido_id AND pe.estado = 'pagado'
-            WHERE 1 = 1";
-
-    $params = [];
-
-    if (!empty($busqueda)) {
-        $sql .= " AND p.titulo LIKE ?";
-        $params[] = '%' . $busqueda . '%';
+        return $stmt->execute([
+            $archivo_s3_key,
+            $producto_id
+        ]);
     }
 
-    if (!empty($categoria)) {
-        $sql .= " AND p.categoria_id = ?";
-        $params[] = $categoria;
+    /**
+     * Desactiva un producto desde el panel admin.
+     * ---------------------------------------------------------
+     * Se utiliza cuando el producto tiene pedidos asociados.
+     *
+     * En vez de borrarlo físicamente, se marca como inactivo y se elimina
+     * la referencia al archivo descargable para no romper el historial
+     * de ventas y descargas.
+     *
+     * @param int $producto_id ID del producto.
+     * @return bool True si se actualiza.
+     */
+    public function desactivarProductoAdmin($producto_id)
+    {
+        $sql = "UPDATE productos 
+                SET estado = 'inactivo',
+                    archivo_s3_key = NULL
+                WHERE id = ?";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        return $stmt->execute([
+            $producto_id
+        ]);
     }
 
-    if (!empty($estado)) {
-        $sql .= " AND p.estado = ?";
-        $params[] = $estado;
+    /**
+     * Elimina físicamente un producto.
+     * ---------------------------------------------------------
+     * Solo debe usarse cuando el producto no tiene pedidos asociados.
+     *
+     * @param int $producto_id ID del producto.
+     * @return bool True si se elimina.
+     */
+    public function eliminarProductoFisicoAdmin($producto_id)
+    {
+        $sql = "DELETE FROM productos 
+                WHERE id = ?";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        return $stmt->execute([
+            $producto_id
+        ]);
     }
 
-    $sql .= " GROUP BY p.id
-              ORDER BY p.id DESC";
+    /**
+     * Comprueba si un producto tiene pedidos asociados.
+     * ---------------------------------------------------------
+     * Se utiliza antes de eliminar productos.
+     *
+     * Si tiene pedidos, no se debe borrar físicamente para no romper
+     * el historial de compras.
+     *
+     * @param int $producto_id ID del producto.
+     * @return bool True si tiene pedidos.
+     */
+    public function productoTienePedidos($producto_id)
+    {
+        $sql = "SELECT COUNT(*) 
+                FROM detalle_pedido 
+                WHERE producto_id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute($params);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([
+            $producto_id
+        ]);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-/**
- * Crea el derecho de descarga de un producto después de un pago correcto.
- *
- * Esta función NO descarga el archivo.
- * Solo crea el registro en la tabla descargas para que el usuario pueda verlo
- * después en su perfil y descargarlo mediante un token seguro.
- *
- * Se debe llamar cuando el pago ya esté confirmado.
- */
-public function crearDescargaTrasPago($usuarioId, $productoId)
-{
-    $token = bin2hex(random_bytes(32));
+        return (int)$stmt->fetchColumn() > 0;
+    }
 
-    $sql = "INSERT INTO descargas
-            (
-                usuario_id,
-                producto_id,
-                numero_descargas,
-                max_descargas,
-                fecha_compra,
-                fecha_expiracion,
-                token_descarga
-            )
-            VALUES
-            (?, ?, 0, 5, NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY), ?)";
+    /**
+     * Obtiene productos para exportar a PDF.
+     * ---------------------------------------------------------
+     * Devuelve productos con filtros opcionales:
+     * - búsqueda
+     * - categoría
+     * - estado
+     *
+     * Incluye métricas de unidades vendidas, importe vendido y clics.
+     *
+     * @param string $busqueda Texto de búsqueda.
+     * @param string $categoria Categoría filtrada.
+     * @param string $estado Estado filtrado.
+     *
+     * @return array Productos para el PDF.
+     */
+    public function obtenerProductosAdminParaPdf($busqueda = '', $categoria = '', $estado = '')
+    {
+        $sql = "SELECT 
+                    p.id,
+                    p.titulo,
+                    p.precio,
+                    p.estado,
+                    p.imagen,
+                    p.clicks AS total_clicks,
+                    c.nombre AS categoria_nombre,
+                    n.nombre AS nivel_nombre,
+                    COALESCE(SUM(dp.cantidad), 0) AS unidades_vendidas,
+                    COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0) AS importe_vendido
+                FROM productos p
+                LEFT JOIN categorias c ON c.id = p.categoria_id
+                LEFT JOIN niveles n ON n.id = p.nivel_id
+                LEFT JOIN detalle_pedido dp ON dp.producto_id = p.id
+                LEFT JOIN pedidos pe ON pe.id = dp.pedido_id AND pe.estado = 'pagado'
+                WHERE 1 = 1";
 
-    $stmt = $this->conexion->prepare($sql);
+        $params = [];
 
-    $stmt->execute([
-        $usuarioId,
-        $productoId,
-        $token
-    ]);
+        if (!empty($busqueda)) {
+            $sql .= " AND p.titulo LIKE ?";
+            $params[] = '%' . $busqueda . '%';
+        }
 
-    return $token;
-}
+        if (!empty($categoria)) {
+            $sql .= " AND p.categoria_id = ?";
+            $params[] = $categoria;
+        }
 
+        if (!empty($estado)) {
+            $sql .= " AND p.estado = ?";
+            $params[] = $estado;
+        }
 
-/**
- * Busca una descarga concreta por token y usuario.
- *
- * Sirve para comprobar que:
- * - el usuario está logueado,
- * - el token existe,
- * - el token pertenece a ese usuario,
- * - el producto tiene archivo asociado en Cloudflare R2.
- */
-public function obtenerDescargaPorToken($token, $usuarioId)
-{
-    $sql = "SELECT 
-                d.id AS descarga_id,
-                d.usuario_id,
-                d.producto_id,
-                d.numero_descargas,
-                d.max_descargas,
-                d.fecha_compra,
-                d.fecha_expiracion,
-                d.token_descarga,
-                p.titulo,
-                p.archivo_s3_key
-            FROM descargas d
-            INNER JOIN productos p 
-                ON p.id = d.producto_id
-            WHERE d.token_descarga = ?
-              AND d.usuario_id = ?
-            LIMIT 1";
+        $sql .= " GROUP BY p.id
+                  ORDER BY p.id DESC";
 
-    $stmt = $this->conexion->prepare($sql);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute($params);
 
-    $stmt->execute([
-        $token,
-        $usuarioId
-    ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+    /**
+     * Crea el derecho de descarga de un producto después de un pago correcto.
+     * ---------------------------------------------------------
+     * Esta función NO descarga el archivo.
+     *
+     * Solo crea el registro en la tabla descargas para que el usuario
+     * pueda verlo después en su perfil y descargarlo mediante un token seguro.
+     *
+     * Características:
+     * - Genera un token aleatorio seguro.
+     * - Inicializa numero_descargas en 0.
+     * - Establece max_descargas en 5.
+     * - Establece expiración en 365 días.
+     *
+     * @param int $usuarioId ID del usuario.
+     * @param int $productoId ID del producto.
+     *
+     * @return string Token de descarga generado.
+     * @throws Exception Si random_bytes falla.
+     */
+    public function crearDescargaTrasPago($usuarioId, $productoId)
+    {
+        $token = bin2hex(random_bytes(32));
 
+        $sql = "INSERT INTO descargas
+                (
+                    usuario_id,
+                    producto_id,
+                    numero_descargas,
+                    max_descargas,
+                    fecha_compra,
+                    fecha_expiracion,
+                    token_descarga
+                )
+                VALUES
+                (?, ?, 0, 5, NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY), ?)";
 
-/**
- * Incrementa el número de descargas usadas.
- *
- * Esta función se ejecuta cuando el usuario pulsa Descargar
- * y ya hemos comprobado que puede descargar ese recurso.
- */
-public function incrementarNumeroDescargas($descargaId)
-{
-    $sql = "UPDATE descargas
-            SET numero_descargas = COALESCE(numero_descargas, 0) + 1
-            WHERE id = ?";
+        $stmt = $this->conexion->prepare($sql);
 
-    $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([
+            $usuarioId,
+            $productoId,
+            $token
+        ]);
 
-    return $stmt->execute([
-        $descargaId
-    ]);
-}
+        return $token;
+    }
+
+    /**
+     * Busca una descarga concreta por token y usuario.
+     * ---------------------------------------------------------
+     * Sirve para comprobar:
+     *
+     * - Que el usuario está logueado.
+     * - Que el token existe.
+     * - Que el token pertenece a ese usuario.
+     * - Que el producto tiene archivo asociado en Cloudflare R2.
+     *
+     * @param string $token Token de descarga.
+     * @param int $usuarioId ID del usuario.
+     *
+     * @return array|false Datos de la descarga o false si no existe.
+     */
+    public function obtenerDescargaPorToken($token, $usuarioId)
+    {
+        $sql = "SELECT 
+                    d.id AS descarga_id,
+                    d.usuario_id,
+                    d.producto_id,
+                    d.numero_descargas,
+                    d.max_descargas,
+                    d.fecha_compra,
+                    d.fecha_expiracion,
+                    d.token_descarga,
+                    p.titulo,
+                    p.archivo_s3_key
+                FROM descargas d
+                INNER JOIN productos p 
+                    ON p.id = d.producto_id
+                WHERE d.token_descarga = ?
+                  AND d.usuario_id = ?
+                LIMIT 1";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        $stmt->execute([
+            $token,
+            $usuarioId
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Incrementa el número de descargas usadas.
+     * ---------------------------------------------------------
+     * Esta función se ejecuta cuando el usuario pulsa descargar
+     * y ya se ha comprobado que puede acceder a ese recurso.
+     *
+     * @param int $descargaId ID del registro de descarga.
+     *
+     * @return bool True si se actualiza correctamente.
+     */
+    public function incrementarNumeroDescargas($descargaId)
+    {
+        $sql = "UPDATE descargas
+                SET numero_descargas = COALESCE(numero_descargas, 0) + 1
+                WHERE id = ?";
+
+        $stmt = $this->conexion->prepare($sql);
+
+        return $stmt->execute([
+            $descargaId
+        ]);
+    }
 }

@@ -128,12 +128,35 @@ require_once __DIR__ . '/../../templates/header.php';
                                     tu propuesta en cuenta para próximos recursos.
                                 </p>
 
-                                <a
-                                    href="/UNRINCONDEPT/public/contacto.php"
-                                    class="btn tienda-sugerencia-btn">
-                                    Sugerir un recurso
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
+                                <?php if (!isset($_SESSION['usuario_id'])): ?>
+
+    <!--
+        Usuario NO logueado:
+        Se envía al formulario público de contacto.
+    -->
+    <a
+        href="/UNRINCONDEPT/public/contacto.php"
+        class="btn tienda-sugerencia-btn">
+        Sugerir un recurso
+        <i class="bi bi-arrow-right"></i>
+    </a>
+
+<?php else: ?>
+
+    <!--
+        Usuario logueado:
+        Se abre un modal para enviar la sugerencia sin salir de la tienda.
+    -->
+    <button
+        type="button"
+        class="btn tienda-sugerencia-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#modalSugerenciaTienda">
+        Sugerir un recurso
+        <i class="bi bi-chat-heart"></i>
+    </button>
+
+<?php endif; ?>
 
                             </div>
 
@@ -163,8 +186,89 @@ require_once __DIR__ . '/../../templates/header.php';
         </div>
 
     </section>
+    <!-- =====================================================
+     MODAL: SUGERIR RECURSO DESDE TIENDA
+     -----------------------------------------------------
+     Este modal solo se abre para usuarios logueados.
+
+     Si el usuario no está logueado, el botón del widget
+     lo envía a contacto.php.
+
+     El formulario se envía mediante AJAX a:
+     /public/ajax_sugerencia.php
+
+     El endpoint guarda la sugerencia en la tabla correspondiente
+     usando el modelo Soporte.
+===================================================== -->
+<div class="modal fade" id="modalSugerenciaTienda" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content chat-autora-modal">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Sugerir un recurso
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="chat-box-intro mb-3">
+
+                    <strong>¿Buscas algo específico?</strong>
+
+                    <p class="mb-0">
+                        Cuéntanos qué material necesitas y tendremos tu propuesta en cuenta
+                        para próximos recursos.
+                    </p>
+
+                </div>
+
+                <form id="formSugerenciaTienda">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Tu sugerencia
+                        </label>
+
+                        <textarea
+                            name="mensaje"
+                            class="form-control"
+                            rows="5"
+                            placeholder="Ej: Me gustaría un recurso sobre comprensión lectora para 2º de Primaria..."
+                            required></textarea>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Enviar sugerencia
+                    </button>
+
+                </form>
+
+                <div id="respuestaSugerenciaTienda" class="mt-3"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 </main>
+
 
 
 <script>

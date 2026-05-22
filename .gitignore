@@ -1,7 +1,9 @@
 /vendor/
-
-/config/r2.php
-/config/stripe.php
+node_modules/
 
 .env
 *.log
+
+/config/r2.php
+/config/stripe.php
+/config/mail.php

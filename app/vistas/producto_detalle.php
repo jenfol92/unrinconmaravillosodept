@@ -1,13 +1,72 @@
-<?php require_once __DIR__ . '/../../templates/header.php'; ?>
-
+<?php require_once __DIR__ . '/../../templates/header.php'; 
+/**
+ * Vista: producto_detalle.php
+ * ---------------------------------------------------------
+ * Muestra la ficha completa de un producto/recurso de la tienda.
+ *
+ * Esta vista se carga desde ProductoController::detalle().
+ *
+ * Variables recibidas desde el controlador:
+ *
+ * - $producto:
+ *   Datos principales del producto seleccionado.
+ *
+ * - $resenas:
+ *   Reseñas asociadas al producto.
+ *
+ * - $relacionados:
+ *   Productos relacionados por categoría.
+ *
+ * Funcionalidades principales:
+ *
+ * - Mostrar imagen principal del producto.
+ * - Mostrar nivel, categoría, título, precio y características.
+ * - Permitir añadir el producto al carrito.
+ * - Permitir comprar el producto directamente.
+ * - Mostrar descripción y contenido del recurso.
+ * - Mostrar reseñas de usuarios.
+ * - Mostrar productos relacionados.
+ * - Permitir contactar con la autora.
+ * - Si el usuario no está logueado, redirige a contacto público.
+ * - Si el usuario está logueado, abre un modal de consulta.
+ *
+ * Archivos relacionados:
+ *
+ * - ProductoController.php:
+ *   Carga producto, reseñas y relacionados.
+ *
+ * - Producto.php:
+ *   Obtiene producto por ID, reseñas y productos relacionados.
+ *
+ * - tienda.js:
+ *   Gestiona acciones de sesión/carrito.
+ *
+ * - detalle_producto.js:
+ *   Gestiona el formulario de contacto con la autora desde el modal.
+ *
+ * Seguridad:
+ *
+ * - Se utiliza htmlspecialchars() al imprimir datos dinámicos.
+ * - Los IDs se convierten o imprimen de forma controlada.
+ * - El contenido del producto se separa en elementos visibles.
+ */
+?>
 <div class="container py-5">
 
-    <!-- MIGAS -->
+    <!-- MIGAS 
+     Muestra una ruta visual para ubicar al usuario dentro
+         de la tienda según nivel y categoría del producto.
+-->
     <div class="mb-4 text-muted small">
         Tienda > <?= htmlspecialchars($producto['nivel_nombre']) ?> >
         <?= htmlspecialchars($producto['categoria_nombre']) ?>
     </div>
-
+ <!--
+    BLOQUE SUPERIOR DEL DETALLE
+         Divide la ficha en dos columnas:
+         - Izquierda: imagen principal y miniaturas.
+         - Derecha: información comercial del producto
+-->
     <div class="row g-4 g-lg-5 producto-detalle-top">
 
         <!-- IZQUIERDA -->
@@ -23,7 +82,9 @@
 
             </div>
 
-            <!-- MINIATURAS -->
+            <!-- MINIATURAS 
+             Muestra una miniatura de la imagen principal y un bloque
+             reservado para vídeo del producto.-->
             <div class="d-flex gap-3">
 
                 <img
@@ -44,7 +105,11 @@
         <!-- DERECHA -->
         <div class="col-lg-6 producto-info-col">
 
-            <!-- BADGES -->
+            <!-- BADGES 
+              Muestran información rápida:
+                 - Nivel educativo.
+                 - Categoría.
+                 - Formato del recurso.-->
             <div class="d-flex gap-2 flex-wrap mb-3">
                 <span class="badge bg-info text-dark rounded-pill px-3 py-2">
                     <?= htmlspecialchars($producto['nivel_nombre']) ?>
@@ -64,13 +129,19 @@
                 <?= htmlspecialchars($producto['titulo']) ?>
             </h1>
 
-            <!-- ESTRELLAS -->
+            <!-- ESTRELLAS
+              Actualmente se muestra una valoración fija.
+             Las reseñas reales se muestran más abajo.-->
             <div class="text-warning fs-5 mb-3">
                 ★★★★☆
                 <span class="text-muted fs-6">(48 valoraciones)</span>
             </div>
 
-            <!-- PRECIO BOX -->
+            <!-- 
+             CAJA DE PRECIO Y COMPRA
+                 Muestra el precio del producto y los botones principales:
+                 - Añadir al carrito.
+                 - Comprar ahora.-->
 <div class="card border-0 shadow rounded-4 p-4 mb-4 price-box">
 
     <h2 class="fw-bold text-success mb-3">
@@ -94,7 +165,8 @@
     Comprar ahora
 </button>
 
-    <!-- CHECKS -->
+    <!--  CHECKS INFORMATIVOS
+            Refuerzan las características principales del producto. -->
     <div class="small text-muted">
 
         <div class="d-flex align-items-center mb-2">
@@ -115,7 +187,8 @@
     </div>
 
 </div>
-            <!-- CREADO POR -->
+            <!-- CREADO POR. BLOQUE AUTORA
+                 Presenta a la creadora del recurso y enlaza a Instagram. -->
             <div class="autor-box">
 
                 <div class="d-flex justify-content-between align-items-center">
@@ -142,12 +215,19 @@
 
     </div>
 
-    <!-- ABAJO -->
+    <!--  BLOQUE INFERIOR DEL DETALLE
+      Divide la información extendida en:
+         - Izquierda: descripción y reseñas.
+         - Derecha: contenido del recurso y ayuda. -->
 <div class="row mt-5 g-5 align-items-start">
 
     <!-- IZQUIERDA: DESCRIPCIÓN + RESEÑAS -->
     <div class="col-lg-7">
-
+ <!-- 
+                 DESCRIPCIÓN DEL PRODUCTO
+                 Muestra la descripción larga introducida desde admin.
+                 nl2br() respeta saltos de línea.
+            -->
         <div class="descripcion-box mb-4">
             <h3 class="title_section mb-3">Sobre este recurso</h3>
 
@@ -155,7 +235,10 @@
                 <?= nl2br(htmlspecialchars($producto['descripcion'])) ?>
             </p>
         </div>
-
+ <!-- 
+                 RESEÑAS DEL PRODUCTO
+                 Muestra las opiniones de usuarios si existen.
+         -->
         <section class="resenas-section">
 
             <h3 class="section-title">
@@ -169,16 +252,16 @@
                     <?php foreach ($resenas as $r) : ?>
 
                         <div class="resena-card">
-
+<!-- Puntuación visual mediante estrellas -->
                             <div class="stars mb-2">
                                 <?= str_repeat("★", $r['puntuacion']) ?>
                                 <?= str_repeat("☆", 5 - $r['puntuacion']) ?>
                             </div>
-
+<!-- Comentario de la reseña -->
                             <p class="comentario">
                                 "<?= htmlspecialchars($r['comentario']) ?>"
                             </p>
-
+ <!-- Autor de la reseña -->
                             <div class="autor">
                                 — <?= htmlspecialchars($r['usuario_nombre'] ?? 'Usuario') ?>
                             </div>
@@ -201,7 +284,11 @@
 
     <!-- DERECHA: CONTENIDO + AYUDA -->
     <div class="col-lg-5">
-
+<!-- 
+                 CONTENIDO DEL RECURSO
+                 Divide el campo contenido en varios ítems usando puntos
+                 o saltos de línea como separadores.
+        -->
         <h3 class="title_section mb-3">
             Contenido
         </h3>
@@ -227,7 +314,11 @@
             ?>
 
         </div>
-
+  <!-- 
+                 BLOQUE DE AYUDA / CONTACTO CON AUTORA
+                 Si el usuario no está logueado, se le envía a contacto.
+                 Si está logueado, se abre un modal para enviar consulta.
+           -->
         <div class="help-box mt-4">
             <h5>¿Necesitas ayuda?</h5>
 
@@ -265,9 +356,22 @@
 
 </div>
 
-<!-- RELACIONADOS -->
-<div class="mt-5">
+<!--  PRODUCTOS RELACIONADOS
+          PRODUCTOS RELACIONADOS
+     -----------------------------------------------------
+     Esta sección muestra productos de la misma categoría
+     o productos que pueden interesar al usuario.
 
+     Funcionalidades:
+     - Cada tarjeta completa es clicable y lleva al detalle del producto.
+     - El botón del carrito añade el producto al carrito sin abrir el detalle.
+     - El botón de favoritos guarda el producto como favorito sin abrir el detalle.
+     - Se alternan clases visuales para dar fondos distintos a cada tarjeta -->
+<div class="mt-5">
+<!--
+ CABECERA DE PRODUCTOS RELACIONADOS
+         Muestra el título de la sección y un enlace a la tienda.
+-->
    <div class="relacionados-header d-flex justify-content-between align-items-center mb-4">
 
         <h3 class="title_section">
@@ -279,50 +383,143 @@
         </a>
 
     </div>
-
+<!--
+        GRID DE PRODUCTOS RELACIONADOS
+         Se muestran en columnas responsive:
+         - 1 columna en móvil.
+         - 2 columnas en pantallas pequeñas.
+         - 4 columnas en escritorio.
+-->
     <div class="row g-4">
 
         <?php foreach ($relacionados as $index => $item): ?>
 
             <?php
+              /*
+                Array de clases visuales para alternar colores de tarjetas.
+
+                Se usa el índice del foreach para ir aplicando una clase distinta
+                según la posición del producto:
+
+                Producto 1 → card-pink
+                Producto 2 → card-green
+                Producto 3 → card-yellow
+                Producto 4 → vuelve a card-pink
+
+                Esto reproduce la estética usada en el index.
+            */
                 $colores = ['card-pink', 'card-green', 'card-yellow'];
+                 /*
+                Calculamos la clase visual que corresponde a esta tarjeta.
+                El operador % permite repetir el patrón de colores.
+            */
                 $colorCard = $colores[$index % count($colores)];
             ?>
 
-            <div class="col-12 col-sm-6 col-md-3">
+          <div class="col-12 col-sm-6 col-md-3">
+<!--
+          TARJETA DE PRODUCTO RELACIONADO
+                     Toda la tarjeta es clicable.
+                     Al hacer clic en cualquier parte de la tarjeta,
+                     se redirige al detalle del producto.
+        -->
+  <article
+                    class="resource-card producto-relacionado-card <?= $colorCard ?>"
+                    onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$item['id'] ?>'"
+                    style="cursor: pointer;">
 
-                <div class="resource-card <?= $colorCard ?>">
-
+                    <!-- Categoría del producto -->
                     <span class="card-badge">
                         <?= htmlspecialchars($item['categoria_nombre']) ?>
                     </span>
 
-                    <img
-                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($item['imagen']) ?>"
-                        alt="<?= htmlspecialchars($item['titulo']) ?>">
+                    <!-- 
+                         IMAGEN DEL PRODUCTO
+                         Se muestra dentro de un contenedor propio para mantener
+                         tamaño, proporción y estética uniforme.
+                -->
+                    <div class="producto-relacionado-img-box">
+                        <img
+                            src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($item['imagen']) ?>"
+                            alt="<?= htmlspecialchars($item['titulo']) ?>">
+                    </div>
 
-                    <div class="card-body">
+                    <!-- Cuerpo de la tarjeta -->
+                    <div class="card-body producto-relacionado-body">
 
+                        <!-- Título del producto -->
                         <h3>
                             <?= htmlspecialchars($item['titulo']) ?>
                         </h3>
 
-                        <div class="card-footer-custom">
+                        <!-- 
+                             PIE DE TARJETA
+                             Contiene:
+                             - precio;
+                             - botón añadir al carrito;
+                             - botón añadir a favoritos.
+                  -->
+                        <div class="card-footer-custom producto-relacionado-footer">
 
+                            <!-- Precio del producto -->
                             <span class="price">
-                                <?= number_format($item['precio'], 2) ?> €
+                                <?= number_format((float)$item['precio'], 2) ?> €
                             </span>
 
-                            <a href="detalle.php?id=<?= $item['id'] ?>"
-                               class="btn-carrito">
-                                🛒
-                            </a>
+                            <div class="d-flex gap-2 align-items-center">
+
+                                <!-- 
+                                     BOTÓN AÑADIR AL CARRITO
+                                     event.stopPropagation() evita que se active también
+                                     el onclick de la tarjeta completa.
+
+                                     gestionarSesion() es la función de tienda.js que
+                                     añade el producto a la sesión del carrito.
+                        -->
+                                <button
+                                    type="button"
+                                    class="btn-carrito"
+                                    onclick="event.stopPropagation(); gestionarSesion(<?= (int)$item['id'] ?>, 'add_carrito')"
+                                    title="Añadir al carrito">
+                                    <i class="bi bi-cart"></i>
+                                </button>
+
+                                <!-- 
+                                     BOTÓN FAVORITOS
+                                     Si el usuario está logueado, puede guardar el producto
+                                     como favorito.
+
+                                     Si no está logueado, se le envía al login.
+                            -->
+                                <?php if (isset($_SESSION['usuario_id'])): ?>
+
+                                    <button
+                                        type="button"
+                                        class="btn-carrito btn-favorito-relacionado"
+                                        onclick="event.stopPropagation(); toggleFavorito(<?= (int)$item['id'] ?>, this)"
+                                        title="Añadir a favoritos">
+                                        <i class="bi bi-heart"></i>
+                                    </button>
+
+                                <?php else: ?>
+
+                                    <a
+                                        href="/UNRINCONDEPT/public/login.php"
+                                        class="btn-carrito btn-favorito-relacionado"
+                                        onclick="event.stopPropagation();"
+                                        title="Inicia sesión para guardar favoritos">
+                                        <i class="bi bi-heart"></i>
+                                    </a>
+
+                                <?php endif; ?>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                </article>
 
             </div>
 
@@ -331,6 +528,11 @@
     </div>
 
 </div>
+    <!-- 
+         MODAL: CHAT CON LA AUTORA
+         Disponible para usuarios logueados.
+         Permite enviar una consulta relacionada con el producto.
+  -->
 <div class="modal fade" id="modalChatProducto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content chat-autora-modal">
@@ -348,14 +550,14 @@
             </div>
 
             <div class="modal-body">
-
+ <!-- Introducción con el producto consultado -->
                 <div class="chat-box-intro mb-3">
                     <strong><?= htmlspecialchars($producto['titulo']) ?></strong>
                     <p class="mb-0">
                         Escribe tu duda sobre este material. La autora podrá responderte desde tu panel.
                     </p>
                 </div>
-
+<!-- Formulario AJAX de consulta sobre producto -->
                 <form id="formChatProducto">
 
                     <input type="hidden" name="producto_id" value="<?= htmlspecialchars($producto['id']) ?>">
@@ -379,7 +581,7 @@
                     </button>
 
                 </form>
-
+<!-- Respuesta generada por detalle_producto.js -->
                 <div id="respuestaChatProducto" class="mt-3"></div>
 
             </div>
@@ -387,6 +589,13 @@
         </div>
     </div>
 </div>
+   <!-- SCRIPTS DE LA VISTA
+         tienda.js:
+         - gestiona acciones de carrito/sesión.
+         
+         detalle_producto.js:
+         - gestiona el envío del formulario de consulta a la autora
+        -->
 <script src="/UNRINCONDEPT/static/js/tienda.js"></script>
 <script src="/UNRINCONDEPT/static/js/detalle_producto.js"></script>
 

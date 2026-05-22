@@ -419,3 +419,68 @@ function escapeHtml(text) {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
 }
+// =====================================================
+// SUGERENCIA DE RECURSO DESDE TIENDA
+// -----------------------------------------------------
+// Este bloque gestiona el formulario del modal de sugerencias.
+// Solo existirá en la vista si el usuario está logueado.
+// =====================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formSugerenciaTienda = document.getElementById("formSugerenciaTienda");
+
+    if (!formSugerenciaTienda) {
+        return;
+    }
+
+    formSugerenciaTienda.addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const respuesta = document.getElementById("respuestaSugerenciaTienda");
+        const formData = new FormData(formSugerenciaTienda);
+
+        respuesta.innerHTML =
+            '<div class="alert alert-info">' +
+            'Enviando sugerencia...' +
+            '</div>';
+
+        fetch("/UNRINCONDEPT/public/ajax_sugerencia.php", {
+            method: "POST",
+            body: formData
+        })
+            .then(function (res) {
+                return res.json();
+            })
+            .then(function (data) {
+
+                if (!data.ok) {
+                    respuesta.innerHTML =
+                        '<div class="alert alert-danger">' +
+                        escapeHtml(data.error || "No se pudo enviar la sugerencia.") +
+                        '</div>';
+
+                    return;
+                }
+
+                respuesta.innerHTML =
+                    '<div class="alert alert-success">' +
+                    escapeHtml(data.mensaje || "Tu sugerencia se ha enviado correctamente.") +
+                    '</div>';
+
+                formSugerenciaTienda.reset();
+            })
+            .catch(function (error) {
+
+                console.error("Error al enviar sugerencia:", error);
+
+                respuesta.innerHTML =
+                    '<div class="alert alert-danger">' +
+                    'Error al enviar la sugerencia.' +
+                    '</div>';
+            });
+
+    });
+
+});

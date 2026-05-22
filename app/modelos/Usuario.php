@@ -1,28 +1,47 @@
 <?php
 
-require_once __DIR__ . '/../../config/conexion.php';
-
 /**
- * Clase Usuario
+ * Modelo Usuario
  * ---------------------------------------------------------
- * Modelo encargado de gestionar los datos de los usuarios.
+ * Este modelo se encarga de gestionar todas las operaciones
+ * relacionadas con los usuarios de la aplicación.
  *
- * Funciones principales:
- * - Crear usuarios con contraseña cifrada.
+ * Funcionalidades principales:
+ *
+ * - Crear usuarios clientes.
+ * - Cifrar contraseñas con password_hash().
  * - Obtener usuarios por email.
  * - Obtener usuarios por ID.
  * - Listar usuarios clientes para el panel de administración.
- * - Cambiar estado activo/bloqueado.
- * - Obtener compras, descargas y reseñas de un usuario.
+ * - Activar o bloquear usuarios.
+ * - Consultar descargas/compras de un usuario.
+ * - Consultar reseñas realizadas por un usuario.
+ * - Obtener recursos adquiridos para mostrarlos en el perfil.
+ *
+ * Tablas principales utilizadas:
+ *
+ * - usuarios
+ * - descargas
+ * - productos
+ * - reseñas
  */
+
+require_once __DIR__ . '/../../config/conexion.php';
+
 class Usuario
 {
+    /**
+     * Conexión PDO con la base de datos.
+     *
+     * @var PDO
+     */
     private $conexion;
 
     /**
-     * Constructor de la clase.
-     *
-     * Obtiene la conexión a la base de datos usando la función conectarBD().
+     * Constructor del modelo.
+     * ---------------------------------------------------------
+     * Al crear una instancia de Usuario, se establece la conexión
+     * con la base de datos mediante la función conectarBD().
      */
     public function __construct()
     {
@@ -31,30 +50,52 @@ class Usuario
 
     /**
      * Crea un nuevo usuario cliente.
+     * ---------------------------------------------------------
+     * Esta función se utiliza durante el registro público de usuarios.
      *
-     * Seguridad:
-     * - Se utiliza password_hash() para guardar la contraseña cifrada.
-     * - Se utilizan consultas preparadas para evitar inyección SQL.
+     * Seguridad aplicada:
      *
-     * Por defecto se asigna rol_id = 3, que corresponde al usuario cliente.
+     * - La contraseña no se guarda en texto plano.
+     * - Se cifra mediante password_hash() con PASSWORD_BCRYPT.
+     * - Se utiliza una consulta preparada con PDO para evitar inyección SQL.
+     *
+     * Por defecto, el usuario creado recibe rol_id = 3, que corresponde
+     * al usuario cliente.
+     *
+     * Datos guardados:
+     *
+     * - nombre
+     * - email
+     * - password_hash
+     * - rol_id
+     * - apellidos
+     * - localidad
+     * - cp
      *
      * @param string $nombre Nombre del usuario.
      * @param string $email Email del usuario.
-     * @param string $password Contraseña en texto plano recibida del formulario.
+     * @param string $password Contraseña recibida desde el formulario.
      * @param string $apellidos Apellidos del usuario.
      * @param string $localidad Localidad del usuario.
      * @param string $cp Código postal del usuario.
-     * @return bool Devuelve true si se crea correctamente, false si falla.
+     *
+     * @return bool True si el usuario se crea correctamente, false si falla.
      */
     public function crear($nombre, $email, $password, $apellidos, $localidad, $cp)
     {
-        // Ciframos la contraseña antes de guardarla en la base de datos.
+        /*
+            Ciframos la contraseña antes de guardarla.
+
+            Esto evita almacenar contraseñas en texto plano en la base de datos.
+            PASSWORD_BCRYPT genera un hash seguro adecuado para autenticación.
+        */
         $hash = password_hash($password, PASSWORD_BCRYPT);
 
         /*
             Insertamos el usuario en la tabla usuarios.
-            El rol 3 se asigna directamente porque el registro público
-            crea usuarios de tipo cliente.
+
+            El rol 3 se asigna directamente porque este formulario crea
+            usuarios de tipo cliente.
         */
         $sql = "INSERT INTO usuarios 
                     (nombre, email, password_hash, rol_id, apellidos, localidad, cp)
@@ -75,12 +116,18 @@ class Usuario
 
     /**
      * Obtiene un usuario por su email.
+     * ---------------------------------------------------------
+     * Se utiliza principalmente en dos situaciones:
      *
-     * Se usa principalmente para:
-     * - Login.
-     * - Comprobar si un email ya está registrado.
+     * 1. Login:
+     *    - Buscar el usuario por email.
+     *    - Obtener su password_hash para comprobar la contraseña con password_verify().
+     *
+     * 2. Registro:
+     *    - Comprobar si el email ya existe antes de crear una nueva cuenta.
      *
      * @param string $email Email del usuario.
+     *
      * @return array|false Datos del usuario o false si no existe.
      */
     public function obtenerPorEmail($email)
@@ -97,10 +144,15 @@ class Usuario
 
     /**
      * Obtiene un usuario por su ID.
+     * ---------------------------------------------------------
+     * Se utiliza para cargar los datos personales del usuario
+     * en su perfil.
      *
-     * Se usa en el perfil del usuario para cargar sus datos personales.
+     * También puede utilizarse desde administración para consultar
+     * información concreta de una cuenta.
      *
      * @param int $id ID del usuario.
+     *
      * @return array|false Datos del usuario o false si no existe.
      */
     public function obtenerPorId($id)
@@ -116,23 +168,39 @@ class Usuario
     }
 
     /**
-     * Obtiene todos los usuarios clientes.
+     * Obtiene todos los usuarios clientes para el panel administrador.
+     * ---------------------------------------------------------
+     * Devuelve únicamente usuarios con rol_id = 3.
      *
-     * Se usa en el panel de administración.
+     * Además de los datos personales básicos, calcula:
      *
-     * Devuelve:
-     * - Datos básicos del usuario.
-     * - Localidad y código postal.
-     * - Fecha de registro.
-     * - Estado activo/bloqueado.
-     * - Permiso para reseñar.
      * - Total de recursos adquiridos.
      * - Total de descargas realizadas.
+     *
+     * Estos datos se obtienen cruzando usuarios con la tabla descargas.
+     *
+     * Datos devueltos:
+     *
+     * - id
+     * - nombre
+     * - apellidos
+     * - localidad
+     * - cp
+     * - email
+     * - fecha_registro
+     * - activo
+     * - puede_resenar
+     * - total_recursos_adquiridos
+     * - total_descargas
      *
      * @return array Listado de usuarios clientes.
      */
     public function obtenerUsuariosClientes()
     {
+        /*
+            LEFT JOIN permite que aparezcan usuarios aunque todavía
+            no hayan comprado ni descargado ningún recurso.
+        */
         $sql = "SELECT 
                     u.id,
                     u.nombre,
@@ -169,10 +237,18 @@ class Usuario
 
     /**
      * Activa o bloquea un usuario.
+     * ---------------------------------------------------------
+     * Permite cambiar el estado de una cuenta desde el panel admin.
+     *
+     * El campo activo puede funcionar así:
+     *
+     * - 1: usuario activo.
+     * - 0: usuario bloqueado o desactivado.
      *
      * @param int $usuario_id ID del usuario.
-     * @param int $activo 1 para activo, 0 para bloqueado.
-     * @return bool Resultado de la operación.
+     * @param int $activo Nuevo estado del usuario.
+     *
+     * @return bool True si se actualiza correctamente.
      */
     public function cambiarEstadoUsuario($usuario_id, $activo)
     {
@@ -181,14 +257,33 @@ class Usuario
                 WHERE id = ?";
 
         $stmt = $this->conexion->prepare($sql);
-        return $stmt->execute([$activo, $usuario_id]);
+
+        return $stmt->execute([
+            $activo,
+            $usuario_id
+        ]);
     }
 
     /**
-     * Obtiene las descargas/compras de un usuario para el panel admin.
+     * Obtiene las descargas o compras de un usuario.
+     * ---------------------------------------------------------
+     * Se utiliza principalmente desde el panel administrador
+     * para consultar qué recursos ha adquirido un usuario.
+     *
+     * Devuelve información de:
+     *
+     * - Registro de descarga.
+     * - Usuario.
+     * - Producto adquirido.
+     * - Fechas de compra y expiración.
+     * - Límite máximo de descargas.
+     * - Número de descargas usadas.
+     * - Token de descarga.
+     * - Archivo asociado en Cloudflare R2.
      *
      * @param int $usuario_id ID del usuario.
-     * @return array Listado de recursos adquiridos.
+     *
+     * @return array Listado de descargas/compras del usuario.
      */
     public function obtenerDescargasUsuario($usuario_id)
     {
@@ -226,9 +321,23 @@ class Usuario
 
     /**
      * Obtiene las reseñas realizadas por un usuario.
+     * ---------------------------------------------------------
+     * Se utiliza para consultar la actividad del usuario respecto
+     * a valoraciones y comentarios.
+     *
+     * Devuelve:
+     *
+     * - ID de la reseña.
+     * - Producto valorado.
+     * - Comentario.
+     * - Puntuación.
+     * - Estado de la reseña.
+     * - Fecha.
+     * - Título del producto.
      *
      * @param int $usuario_id ID del usuario.
-     * @return array Listado de reseñas.
+     *
+     * @return array Listado de reseñas del usuario.
      */
     public function obtenerResenasUsuario($usuario_id)
     {
@@ -254,17 +363,27 @@ class Usuario
 
     /**
      * Obtiene los recursos adquiridos por un usuario para su perfil.
-     *
-     * Se usa en perfil_view.php.
+     * ---------------------------------------------------------
+     * Esta función se utiliza en perfil_view.php para mostrar al cliente
+     * los recursos que puede descargar.
      *
      * Devuelve información necesaria para:
-     * - Mostrar recursos comprados.
-     * - Generar botón de descarga.
-     * - Controlar número máximo de descargas.
+     *
+     * - Mostrar productos comprados.
+     * - Generar botones de descarga.
+     * - Comprobar número máximo de descargas.
+     * - Mostrar número de descargas utilizadas.
      * - Comprobar fecha de expiración.
+     * - Descargar mediante token seguro.
+     *
+     * Diferencia respecto a obtenerDescargasUsuario():
+     *
+     * - Esta función está pensada para la vista del usuario.
+     * - obtenerDescargasUsuario() se usa más para consulta desde admin.
      *
      * @param int $usuario_id ID del usuario.
-     * @return array Recursos adquiridos.
+     *
+     * @return array Recursos adquiridos por el usuario.
      */
     public function obtenerRecursosAdquiridosUsuario($usuario_id)
     {
@@ -299,4 +418,221 @@ class Usuario
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+  /**
+ * Guarda un token de recuperación de contraseña.
+ * ---------------------------------------------------------
+ * Se guarda el hash del token, no el token real.
+ *
+ * @param int $usuario_id
+ * @param string $token_hash
+ * @return bool
+ */
+public function guardarTokenRecuperacion($usuario_id, $token_hash)
+{
+    $sql = "INSERT INTO password_resets 
+            (usuario_id, token_hash, fecha_expiracion, usado)
+            VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0)";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    return $stmt->execute([
+        $usuario_id,
+        $token_hash
+    ]);
+}
+
+/**
+ * Invalida tokens anteriores de un usuario.
+ * ---------------------------------------------------------
+ * Evita que existan varios enlaces válidos al mismo tiempo.
+ *
+ * @param int $usuario_id
+ * @return bool
+ */
+public function invalidarTokensRecuperacionUsuario($usuario_id)
+{
+    $sql = "UPDATE password_resets
+            SET usado = 1
+            WHERE usuario_id = ?
+            AND usado = 0";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    return $stmt->execute([
+        $usuario_id
+    ]);
+}
+
+/**
+ * Obtiene un token válido de recuperación.
+ * ---------------------------------------------------------
+ * Solo devuelve tokens:
+ * - no usados
+ * - no caducados
+ *
+ * @param string $token_hash
+ * @return array|false
+ */
+public function obtenerTokenRecuperacionValido($token_hash)
+{
+    $sql = "SELECT pr.*, u.email, u.nombre
+            FROM password_resets pr
+            INNER JOIN usuarios u ON u.id = pr.usuario_id
+            WHERE pr.token_hash = ?
+            AND pr.usado = 0
+            AND pr.fecha_expiracion >= NOW()
+            LIMIT 1";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        $token_hash
+    ]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Actualiza la contraseña de un usuario.
+ * ---------------------------------------------------------
+ * La contraseña se guarda cifrada con password_hash().
+ *
+ * @param int $usuario_id
+ * @param string $password
+ * @return bool
+ */
+public function actualizarPassword($usuario_id, $password)
+{
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+
+    $sql = "UPDATE usuarios
+            SET password_hash = ?
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    return $stmt->execute([
+        $hash,
+        $usuario_id
+    ]);
+}
+
+/**
+ * Marca un token de recuperación como usado.
+ * ---------------------------------------------------------
+ * Impide que el mismo enlace pueda utilizarse más de una vez.
+ *
+ * @param int $id
+ * @return bool
+ */
+public function marcarTokenRecuperacionUsado($id)
+{
+    $sql = "UPDATE password_resets
+            SET usado = 1
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    return $stmt->execute([
+        $id
+    ]);
+}
+/**
+ * Inicia sesión o registra un usuario mediante Google OAuth.
+ * ---------------------------------------------------------
+ * Casos contemplados:
+ *
+ * 1. Si ya existe un usuario con google_id:
+ *    - Devuelve ese usuario.
+ *
+ * 2. Si no existe google_id, pero sí existe el email:
+ *    - Vincula esa cuenta local con Google.
+ *    - Devuelve el usuario actualizado.
+ *
+ * 3. Si no existe ni google_id ni email:
+ *    - Crea un nuevo usuario cliente.
+ *    - Devuelve el usuario creado.
+ *
+ * @param array $datos Datos recibidos desde Google.
+ *
+ * @return array Usuario de la base de datos.
+ */
+public function autenticarConGoogle($datos)
+{
+    $googleId = $datos['google_id'];
+    $email = $datos['email'];
+    $nombre = $datos['nombre'] ?? 'Usuario';
+    $avatar = $datos['avatar'] ?? null;
+
+    /*
+        1. Buscar usuario ya vinculado con Google.
+    */
+    $sql = "SELECT *
+            FROM usuarios
+            WHERE google_id = ?
+            LIMIT 1";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$googleId]);
+
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuario) {
+        return $usuario;
+    }
+
+    /*
+        2. Buscar usuario existente por email.
+        Si existe, lo vinculamos con Google.
+    */
+    $sql = "SELECT *
+            FROM usuarios
+            WHERE email = ?
+            LIMIT 1";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$email]);
+
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuario) {
+        $sql = "UPDATE usuarios
+                SET google_id = ?,
+                    auth_provider = 'google',
+                    avatar = ?
+                WHERE id = ?";
+
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([
+            $googleId,
+            $avatar,
+            $usuario['id']
+        ]);
+
+        return $this->obtenerPorId($usuario['id']);
+    }
+
+    /*
+        3. Crear nuevo usuario cliente.
+        Se genera una contraseña aleatoria porque el acceso real
+        será mediante Google.
+    */
+    $passwordTemporal = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
+
+    $sql = "INSERT INTO usuarios
+            (nombre, apellidos, email, password, google_id, auth_provider, avatar, rol_id, fecha_registro)
+            VALUES (?, '', ?, ?, ?, 'google', ?, 3, NOW())";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        $nombre,
+        $email,
+        $passwordTemporal,
+        $googleId,
+        $avatar
+    ]);
+
+    $usuarioId = $this->conexion->lastInsertId();
+
+    return $this->obtenerPorId($usuarioId);
+}
 }

@@ -1,4 +1,4 @@
-<footer class="footer-web mt-5">
+<footer class="footer-web">
     <div class="container footer-container py-4">
 
         <div class="row align-items-start gy-4">
