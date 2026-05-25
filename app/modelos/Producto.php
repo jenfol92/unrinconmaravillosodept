@@ -1368,4 +1368,40 @@ class Producto
             $descargaId
         ]);
     }
+    /**
+ * Elimina un producto de favoritos de un usuario.
+ * ---------------------------------------------------------
+ * Esta función se usa cuando el usuario añade un producto al carrito.
+ *
+ * Objetivo:
+ * - Si el producto estaba en favoritos, se elimina.
+ * - Si no estaba en favoritos, no pasa nada.
+ *
+ *
+ * @param int $usuario_id ID del usuario logueado.
+ * @param int $producto_id ID del producto.
+ *
+ * @return bool True si se eliminó de favoritos, false si no había nada que eliminar.
+ */
+public function eliminarFavoritoUsuario($usuario_id, $producto_id)
+{
+    $sql = "DELETE FROM favoritos
+            WHERE usuario_id = ?
+            AND producto_id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    $stmt->execute([
+        (int)$usuario_id,
+        (int)$producto_id
+    ]);
+
+    /*
+        rowCount() indica cuántas filas se han eliminado.
+
+        Si devuelve más de 0, significa que realmente
+        el producto estaba en favoritos y se ha quitado.
+    */
+    return $stmt->rowCount() > 0;
+}
 }

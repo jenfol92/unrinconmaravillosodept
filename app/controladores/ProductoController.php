@@ -217,68 +217,89 @@ class ProductoController
      *
      * @return void
      */
-    public function detalle()
-    {
-        /*
-            Obtenemos el ID del producto desde la URL.
+   public function detalle()
+{
+    /*
+        Obtenemos el ID del producto desde la URL.
 
-            Ejemplo:
-            producto.php?id=5
-        */
-        $id = $_GET['id'] ?? null;
+        Ejemplo:
+        producto.php?id=5
+    */
+    $id = $_GET['id'] ?? null;
 
-        /*
-            Si no llega ningún ID, no podemos cargar el producto.
-        */
-        if (!$id) {
-            die("Producto no encontrado");
-        }
-
-        /*
-            Buscamos el producto en base de datos.
-        */
-        $producto = $this->productModel->obtenerProductosID($id);
-
-        /*
-            Si el producto no existe, detenemos la ejecución.
-        */
-        if (!$producto) {
-            die("Producto no existe");
-        }
-
-        /*
-            Registramos una visita o click al producto.
-
-            Esto permite obtener métricas de interés en el panel admin.
-        */
-        $this->productModel->incrementarClicks($id);
-
-        /*
-            Obtenemos productos relacionados.
-
-            Se buscan productos de la misma categoría, excluyendo
-            el producto actual.
-        */
-        $relacionados = $this->productModel->obtenerProductosRelacionados(
-            $producto['categoria_id'],
-            $producto['id']
-        );
-
-        /*
-            Obtenemos las reseñas asociadas al producto.
-        */
-        $resenas = $this->productModel->obtenerResenasPorProducto($id);
-
-        /*
-            Cargamos la vista de detalle.
-
-            La vista tendrá disponibles:
-            - $producto
-            - $relacionados
-            - $resenas
-        */
-        require_once __DIR__ . '/../vistas/producto_detalle.php';
+    /*
+        Si no llega ningún ID, no podemos cargar el producto.
+    */
+    if (!$id) {
+        die("Producto no encontrado");
     }
+
+    /*
+        Buscamos el producto en base de datos.
+    */
+    $producto = $this->productModel->obtenerProductosID($id);
+
+    /*
+        Si el producto no existe, detenemos la ejecución.
+    */
+    if (!$producto) {
+        die("Producto no existe");
+    }
+
+    /*
+        Registramos una visita o click al producto.
+
+        Esto permite obtener métricas de interés en el panel admin.
+    */
+    $this->productModel->incrementarClicks($id);
+
+    /*
+        Obtenemos productos relacionados.
+
+        Se buscan productos de la misma categoría, excluyendo
+        el producto actual.
+    */
+    $relacionados = $this->productModel->obtenerProductosRelacionados(
+        $producto['categoria_id'],
+        $producto['id']
+    );
+
+    /*
+        Obtenemos las reseñas asociadas al producto.
+    */
+    $resenas = $this->productModel->obtenerResenasPorProducto($id);
+
+    /*
+        Preparamos las rutas de imagen y vídeo del producto.
+
+        La vista usará esta variable para mostrar:
+        - imagen principal
+        - vídeo, si existe
+        - miniaturas
+    */
+    $mediaProducto = [
+    'ruta_imagen' => "/UNRINCONDEPT/static/images/img/" . rawurlencode($producto['imagen'] ?? 'default.png'),
+
+    'tiene_video' => !empty($producto['video_url']),
+
+    'ruta_video' => !empty($producto['video_url'])
+        ? "/UNRINCONDEPT/static/videos/" . rawurlencode($producto['video_url'])
+        : null,
+
+    'tipo_video' => 'video/mp4'
+];
+    /*
+        Cargamos la vista de detalle.
+
+        La vista tendrá disponibles:
+        - $producto
+        - $relacionados
+        - $resenas
+        - $mediaProducto
+    */
+    require_once __DIR__ . '/../vistas/producto_detalle.php';
+}
+
 
     /**
      * Carga la vista del carrito.

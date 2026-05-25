@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: perfil_view.php
  * ---------------------------------------------------------
@@ -64,7 +65,7 @@
 
 <main class="perfil-page">
 
- 
+
     <!-- CABECERA DEL PERFIL 
    -->
     <section class="perfil-hero">
@@ -78,19 +79,19 @@
                     <h1>
                         ¡Hola, <?= htmlspecialchars($usuario['nombre'] ?? 'Usuario') ?>!
                     </h1>
-<!-- Fecha de registro del usuario -->
-<p class="mb-0">
-    Miembro desde
-    <strong>
-        <?= !empty($usuario['fecha_registro'])
-            ? date('d/m/Y', strtotime($usuario['fecha_registro']))
-            : 'fecha no disponible' ?>
-    </strong>
-</p>
+                    <!-- Fecha de registro del usuario -->
+                    <p class="mb-0">
+                        Miembro desde
+                        <strong>
+                            <?= !empty($usuario['fecha_registro'])
+                                ? date('d/m/Y', strtotime($usuario['fecha_registro']))
+                                : 'fecha no disponible' ?>
+                        </strong>
+                    </p>
 
-<small>
-    Bienvenido a tu panel personal
-</small>
+                    <small>
+                        Bienvenido a tu panel personal
+                    </small>
                 </div>
 
             </div>
@@ -272,7 +273,7 @@
                                                 <?php foreach ($productosComprados as $producto): ?>
 
                                                     <tr>
-                                                           <!-- Fecha de compra del recurso -->
+                                                        <!-- Fecha de compra del recurso -->
                                                         <td data-label="Fecha">
                                                             <?= !empty($producto['fecha_compra'])
                                                                 ? date('d/m/Y', strtotime($producto['fecha_compra']))
@@ -306,7 +307,7 @@
                                                                 <?= number_format((float)($producto['precio'] ?? 0), 2) ?> €
                                                             </strong>
                                                         </td>
-                                                         <!-- Contador de descargas usadas frente al máximo permitido -->
+                                                        <!-- Contador de descargas usadas frente al máximo permitido -->
                                                         <td data-label="Descargas">
                                                             <?= (int)($producto['numero_descargas'] ?? 0) ?> /
                                                             <?= (int)($producto['max_descargas'] ?? 0) ?>
@@ -328,7 +329,7 @@
                                                                     title="Ver detalle">
                                                                     <i class="bi bi-eye"></i>
                                                                 </a>
-                                                                 <!-- Botón para abrir modal de reseña -->
+                                                                <!-- Botón para abrir modal de reseña -->
                                                                 <button
                                                                     type="button"
                                                                     class="btn btn-sm btn-outline-warning btn-abrir-resena"
@@ -405,7 +406,7 @@
 
                                             <?php foreach ($favoritos as $fav): ?>
 
-                                                <tr>
+                                                < id="favorito-row-<?= (int)$fav['id'] ?>">
 
                                                     <!-- Imagen + título -->
                                                     <td>
@@ -445,20 +446,22 @@
                                                             Ver
                                                         </a>
 
-                                                        <!-- Añadir al carrito -->
+                                                        <!-- 
+                                   Añade el producto al carrito, lo elimina de favoritos y lo quita visualmente de la tabla.
+                                                            -->
                                                         <button
                                                             type="button"
-                                                            class="btn btn-outline-success btn-sm"
-                                                            onclick="gestionarSesion(<?= $fav['id'] ?>, 'add_carrito')"
-                                                            title="Añadir al carrito">
-                                                            <i class="bi bi-cart"></i>
+                                                            class="btn btn-sm btn-success"
+                                                            onclick="gestionarSesion(<?= (int)$fav['id'] ?>, 'add_carrito')">
+                                                            <i class="bi bi-cart-plus"></i>
+
                                                         </button>
 
                                                     </td>
 
-                                                </tr>
+                                                    </tr>
 
-                                            <?php endforeach; ?>
+                                                <?php endforeach; ?>
 
                                         </tbody>
 
@@ -471,173 +474,173 @@
                         </section>
 
 
-                       <!-- SECCIÓN DATOS DE CUENTA 
+                        <!-- SECCIÓN DATOS DE CUENTA 
                             
                              Muestra información personal registrada del usuario.
                              Los campos están deshabilitados, por lo que solo son
                              de consulta.-->
-<section id="section-cuenta" class="panel-section">
+                        <section id="section-cuenta" class="panel-section">
 
-    <h2>
-        Datos de Cuenta
-    </h2>
+                            <h2>
+                                Datos de Cuenta
+                            </h2>
 
-    <p>
-        Consulta tus datos personales asociados a la cuenta.
-    </p>
+                            <p>
+                                Consulta tus datos personales asociados a la cuenta.
+                            </p>
 
-    <form class="panel-form">
+                            <form class="panel-form">
 
-        <div class="row g-3">
+                                <div class="row g-3">
 
-            <!-- Nombre -->
-            <div class="col-12 col-md-6">
+                                    <!-- Nombre -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Nombre
-                </label>
+                                        <label class="form-label">
+                                            Nombre
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-person"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person"></i>
+                                            </span>
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="<?= htmlspecialchars($usuario['nombre'] ?? '') ?>"
-                        disabled>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                value="<?= htmlspecialchars($usuario['nombre'] ?? '') ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- Apellidos -->
-            <div class="col-12 col-md-6">
+                                    <!-- Apellidos -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Apellidos
-                </label>
+                                        <label class="form-label">
+                                            Apellidos
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-person-lines-fill"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person-lines-fill"></i>
+                                            </span>
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="<?= htmlspecialchars($usuario['apellidos'] ?? '') ?>"
-                        disabled>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                value="<?= htmlspecialchars($usuario['apellidos'] ?? '') ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- Email -->
-            <div class="col-12 col-md-6">
+                                    <!-- Email -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Email
-                </label>
+                                        <label class="form-label">
+                                            Email
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-envelope"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-envelope"></i>
+                                            </span>
 
-                    <input
-                        type="email"
-                        class="form-control"
-                        value="<?= htmlspecialchars($usuario['email'] ?? '') ?>"
-                        disabled>
+                                            <input
+                                                type="email"
+                                                class="form-control"
+                                                value="<?= htmlspecialchars($usuario['email'] ?? '') ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- Localidad -->
-            <div class="col-12 col-md-6">
+                                    <!-- Localidad -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Localidad
-                </label>
+                                        <label class="form-label">
+                                            Localidad
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-geo-alt"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-geo-alt"></i>
+                                            </span>
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="<?= htmlspecialchars($usuario['localidad'] ?? 'No indicada') ?>"
-                        disabled>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                value="<?= htmlspecialchars($usuario['localidad'] ?? 'No indicada') ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- Código Postal -->
-            <div class="col-12 col-md-6">
+                                    <!-- Código Postal -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Código Postal
-                </label>
+                                        <label class="form-label">
+                                            Código Postal
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-mailbox"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-mailbox"></i>
+                                            </span>
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="<?= htmlspecialchars($usuario['cp'] ?? 'No indicado') ?>"
-                        disabled>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                value="<?= htmlspecialchars($usuario['cp'] ?? 'No indicado') ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- Fecha de registro -->
-            <div class="col-12 col-md-6">
+                                    <!-- Fecha de registro -->
+                                    <div class="col-12 col-md-6">
 
-                <label class="form-label">
-                    Fecha de registro
-                </label>
+                                        <label class="form-label">
+                                            Fecha de registro
+                                        </label>
 
-                <div class="input-group">
+                                        <div class="input-group">
 
-                    <span class="input-group-text">
-                        <i class="bi bi-calendar-check"></i>
-                    </span>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-calendar-check"></i>
+                                            </span>
 
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="<?= !empty($usuario['fecha_registro']) ? date('d/m/Y', strtotime($usuario['fecha_registro'])) : 'No disponible' ?>"
-                        disabled>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                value="<?= !empty($usuario['fecha_registro']) ? date('d/m/Y', strtotime($usuario['fecha_registro'])) : 'No disponible' ?>"
+                                                disabled>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-        </div>
+                                </div>
 
-        <div class="alert alert-info mt-4 mb-0">
-            <i class="bi bi-info-circle"></i>
-            Estos datos se recogen durante el registro para identificar la cuenta y conocer la procedencia de los usuarios.
-        </div>
+                                <div class="alert alert-info mt-4 mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Estos datos se recogen durante el registro para identificar la cuenta y conocer la procedencia de los usuarios.
+                                </div>
 
-    </form>
+                            </form>
 
-</section>
+                        </section>
 
 
 
@@ -679,16 +682,43 @@
                             <!-- Último acceso -->
                             <div class="security-card">
 
-                                <h5>
-                                    <i class="bi bi-clock-history"></i>
-                                    Último acceso
-                                </h5>
+                                <p class="mb-2">
 
-                                <p class="mb-0">
-                                    Aquí podrás mostrar la última fecha de inicio de sesión del usuario.
+                                    <strong>Último acceso:</strong><br>
+
+                                    <?php if (!empty($usuario['ultimo_acceso'])): ?>
+
+                                        <?= date('d/m/Y H:i', strtotime($usuario['ultimo_acceso'])) ?>
+
+                                    <?php else: ?>
+
+                                        No hay accesos anteriores registrados.
+
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($usuario['ultimo_ip'])): ?>
+                                        <br>
+                                        <small class="text-muted">
+                                            IP registrada: <?= htmlspecialchars($usuario['ultimo_ip']) ?>
+                                        </small>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($usuario['acceso_actual'])): ?>
+                                        <br>
+                                        <small class="text-muted">
+                                            Acceso actual: <?= date('d/m/Y H:i', strtotime($usuario['acceso_actual'])) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                   
                                 </p>
-
+    <button
+    type="button"
+    class="btn btn-outline-danger"
+    onclick="enviarAlertaSeguridad()">
+    No reconozco este acceso
+</button>
                             </div>
+
 
                             <!-- Cerrar sesión -->
                             <div class="security-card">
@@ -734,7 +764,7 @@
                                     Nueva consulta
                                 </button>
                             </div>
-                                <!-- Formulario plegable para crear un nuevo ticket -->
+                            <!-- Formulario plegable para crear un nuevo ticket -->
                             <div class="collapse mb-4" id="nuevoSoporteBox">
                                 <div class="panel-card-soft">
 
@@ -742,7 +772,7 @@
                                         <i class="bi bi-chat-dots"></i>
                                         Nueva consulta de soporte
                                     </h4>
-                                        
+
                                     <form id="formSoporte">
 
                                         <div class="mb-3">
@@ -770,12 +800,12 @@
                                         </button>
 
                                     </form>
-                                                <!-- Respuesta generada por AJAX tras enviar soporte -->
+                                    <!-- Respuesta generada por AJAX tras enviar soporte -->
                                     <div id="soporteRespuesta" class="mt-3"></div>
 
                                 </div>
                             </div>
-                                                <!-- Listado de consultas existentes del usuario -->
+                            <!-- Listado de consultas existentes del usuario -->
                             <div class="panel-card-soft">
 
                                 <h4 class="mb-4">
@@ -847,7 +877,7 @@
                                         ¿Tienes alguna idea para mejorar la web, proponer un nuevo material
                                         o sugerir una ficha? Me encantará leerte.
                                     </p>
-                                         <!-- Formulario AJAX de sugerencias -->
+                                    <!-- Formulario AJAX de sugerencias -->
                                     <form id="formSugerencia">
 
                                         <div class="mb-3">
@@ -867,7 +897,7 @@
                                         </button>
 
                                     </form>
-                                        <!-- Respuesta generada por AJAX tras enviar sugerencia -->
+                                    <!-- Respuesta generada por AJAX tras enviar sugerencia -->
                                     <div id="respuestaSugerencia" class="mt-3"></div>
 
                                 </div>
@@ -1012,7 +1042,7 @@
             </div>
 
             <div class="modal-body">
-         <!-- Formulario AJAX de reseña -->
+                <!-- Formulario AJAX de reseña -->
                 <form id="formResena">
 
                     <input type="hidden" id="resenaProductoId" name="producto_id">
@@ -1047,7 +1077,7 @@
                     </button>
 
                 </form>
- <!-- Respuesta AJAX del guardado de reseña -->
+                <!-- Respuesta AJAX del guardado de reseña -->
                 <div id="respuestaResena" class="mt-3"></div>
 
             </div>
@@ -1078,6 +1108,78 @@ Modal reutilizable para mostrar información adicional.
         </div>
     </div>
 </div>
+<!-- 
+    MODAL DE ALERTA DE SEGURIDAD
+    ---------------------------------------------------------
+    Se muestra cuando el usuario pulsa:
+    "No reconozco este acceso"
+
+    Informa de que:
+    - se registrará la IP como sospechosa
+    - se cerrarán todas las sesiones
+    - deberá cambiar la contraseña
+-->
+<div class="modal fade" id="modalAlertaSeguridad" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger">
+                    Alerta de seguridad
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="contenidoModalAlertaSeguridad">
+
+                    <p class="mb-2">
+                        Has indicado que no reconoces este acceso.
+                    </p>
+
+                    <div class="alert alert-warning mb-3">
+                        Se registrará la IP como sospechosa, se cerrarán todas las sesiones activas
+                        y será necesario cambiar la contraseña para volver a acceder.
+                    </div>
+
+                    <p class="small text-muted mb-0">
+                        Esta acción está pensada para proteger tu cuenta si crees que otra persona
+                        ha podido acceder sin autorización.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer border-0">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="btnConfirmarAlertaSeguridad"
+                    onclick="enviarAlertaSeguridad()">
+                    Registrar IP y cerrar sesiones
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <!-- 
    SCRIPT ESPECÍFICO DEL PANEL DE USUARIO
@@ -1089,5 +1191,6 @@ Modal reutilizable para mostrar información adicional.
      - envío de sugerencias;
      - apertura y envío de reseñas.-->
 <script src="/UNRINCONDEPT/static/js/usuario.js"></script>
+<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

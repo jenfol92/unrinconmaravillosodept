@@ -76,11 +76,28 @@ class AuthController
             $_SESSION['nombre_usuario'] = $usuario['nombre'];
             $_SESSION['rol'] = $usuario['rol_id'];
             $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['session_version'] = (int)($usuario['session_version'] ?? 1);
 
-            // Redirigimos al inicio tras iniciar sesión correctamente.
+            /*
+    Registramos el acceso correcto del usuario.
+
+    Esto actualiza en la tabla usuarios:
+    - ultimo_acceso
+    - acceso_actual
+    - ultimo_ip
+
+    Debe hacerse aquí, justo cuando el login ha sido correcto.
+*/
+           $resultadoAcceso = $usuarioModel->registrarAccesoUsuario($usuario['id']);
+
+if (!$resultadoAcceso) {
+    die("No se ha podido registrar el acceso");
+}
+            /*
+    Redirigimos al inicio tras iniciar sesión correctamente.
+*/
             header("Location: index.php");
             exit();
-
         } else {
             // Mensaje genérico para no dar pistas sobre si falla el email o la contraseña.
             $errorLogin = "Email o contraseña incorrectos.";
@@ -233,145 +250,143 @@ class AuthController
         exit();
     }
     /**
- * Solicitud de recuperación de contraseña.
- * ---------------------------------------------------------
- * Muestra el formulario para introducir el email y, si el email existe,
- * genera un token temporal y envía un enlace por correo.
- *
- * Por seguridad, la respuesta visible será genérica.
- */
-public function recuperarPassword()
-{
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        require_once __DIR__ . '/../vistas/recuperar_password_view.php';
-        return;
-    }
+     * Solicitud de recuperación de contraseña.
+     * ---------------------------------------------------------
+     * Muestra el formulario para introducir el email y, si el email existe,
+     * genera un token temporal y envía un enlace por correo.
+     *
+     * Por seguridad, la respuesta visible será genérica.
+     */
+    public function recuperarPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            require_once __DIR__ . '/../vistas/recuperar_password_view.php';
+            return;
+        }
 
-    $email = trim($_POST['email'] ?? '');
+        $email = trim($_POST['email'] ?? '');
 
-    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errorRecuperacion = "Introduce un correo electrónico válido.";
-        require_once __DIR__ . '/../vistas/recuperar_password_view.php';
-        return;
-    }
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errorRecuperacion = "Introduce un correo electrónico válido.";
+            require_once __DIR__ . '/../vistas/recuperar_password_view.php';
+            return;
+        }
 
-    $usuarioModel = new Usuario();
-    $usuario = $usuarioModel->obtenerPorEmail($email);
+        $usuarioModel = new Usuario();
+        $usuario = $usuarioModel->obtenerPorEmail($email);
 
-    /*
+        /*
         Mensaje genérico para no revelar si el email existe o no.
     */
-    $mensajeRecuperacion = "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.";
+        $mensajeRecuperacion = "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.";
 
-    if ($usuario) {
-        try {
-            /*
+        if ($usuario) {
+            try {
+                /*
                 Creamos token real y guardamos solo su hash.
             */
-            $token = bin2hex(random_bytes(32));
-            $tokenHash = hash('sha256', $token);
+                $token = bin2hex(random_bytes(32));
+                $tokenHash = hash('sha256', $token);
 
-            /*
+                /*
                 Invalidamos tokens anteriores del usuario.
             */
-            $usuarioModel->invalidarTokensRecuperacionUsuario($usuario['id']);
+                $usuarioModel->invalidarTokensRecuperacionUsuario($usuario['id']);
 
-            /*
+                /*
                 Guardamos el nuevo token con caducidad de 1 hora.
             */
-            $usuarioModel->guardarTokenRecuperacion($usuario['id'], $tokenHash);
+                $usuarioModel->guardarTokenRecuperacion($usuario['id'], $tokenHash);
 
-            /*
+                /*
                 Enlace que recibirá el usuario.
             */
-            $enlace = APP_BASE_URL . '/restablecer-password.php?token=' . urlencode($token);
+                $enlace = APP_BASE_URL . '/restablecer-password.php?token=' . urlencode($token);
 
-            /*
+                /*
                 Envío real mediante SMTP.
             */
-            $mailService = new MailService();
-            $mailService->enviarRecuperacionPassword(
-                $usuario['email'],
-                $usuario['nombre'] ?? 'usuario',
-                $enlace
-            );
-
-        } catch (Exception $e) {
-            /*
+                $mailService = new MailService();
+                $mailService->enviarRecuperacionPassword(
+                    $usuario['email'],
+                    $usuario['nombre'] ?? 'usuario',
+                    $enlace
+                );
+            } catch (Exception $e) {
+                /*
                 En local mostramos el error para poder depurar.
                 En producción no conviene mostrar detalles técnicos.
             */
-            if (defined('APP_ENV') && APP_ENV === 'local') {
-                $errorRecuperacion = "Error enviando el email: " . $e->getMessage();
-                require_once __DIR__ . '/../vistas/recuperar_password_view.php';
-                return;
+                if (defined('APP_ENV') && APP_ENV === 'local') {
+                    $errorRecuperacion = "Error enviando el email: " . $e->getMessage();
+                    require_once __DIR__ . '/../vistas/recuperar_password_view.php';
+                    return;
+                }
             }
         }
+
+        require_once __DIR__ . '/../vistas/recuperar_password_view.php';
     }
 
-    require_once __DIR__ . '/../vistas/recuperar_password_view.php';
-}
+    /**
+     * Restablecimiento de contraseña.
+     * ---------------------------------------------------------
+     * Valida el token recibido por URL o POST y permite crear una nueva
+     * contraseña si el token es válido, no está usado y no ha caducado.
+     */
+    public function restablecerPassword()
+    {
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
 
-/**
- * Restablecimiento de contraseña.
- * ---------------------------------------------------------
- * Valida el token recibido por URL o POST y permite crear una nueva
- * contraseña si el token es válido, no está usado y no ha caducado.
- */
-public function restablecerPassword()
-{
-    $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if ($token === '') {
+            $errorReset = "El enlace de recuperación no es válido.";
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
 
-    if ($token === '') {
-        $errorReset = "El enlace de recuperación no es válido.";
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
+        $tokenHash = hash('sha256', $token);
+
+        $usuarioModel = new Usuario();
+        $tokenData = $usuarioModel->obtenerTokenRecuperacionValido($tokenHash);
+
+        if (!$tokenData) {
+            $errorReset = "El enlace ha caducado, ya ha sido utilizado o no es válido.";
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
+
+        $password = $_POST['password'] ?? '';
+        $passwordConfirm = $_POST['password_confirm'] ?? '';
+
+        if (strlen($password) < 4) {
+            $errorReset = "La contraseña debe tener al menos 4 caracteres.";
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
+
+        if ($password !== $passwordConfirm) {
+            $errorReset = "Las contraseñas no coinciden.";
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
+
+        try {
+            $usuarioModel->actualizarPassword($tokenData['usuario_id'], $password);
+            $usuarioModel->marcarTokenRecuperacionUsado($tokenData['id']);
+
+            $mensajeReset = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
+
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        } catch (Exception $e) {
+            $errorReset = "No se pudo actualizar la contraseña.";
+            require_once __DIR__ . '/../vistas/restablecer_password_view.php';
+            return;
+        }
     }
-
-    $tokenHash = hash('sha256', $token);
-
-    $usuarioModel = new Usuario();
-    $tokenData = $usuarioModel->obtenerTokenRecuperacionValido($tokenHash);
-
-    if (!$tokenData) {
-        $errorReset = "El enlace ha caducado, ya ha sido utilizado o no es válido.";
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-    }
-
-    $password = $_POST['password'] ?? '';
-    $passwordConfirm = $_POST['password_confirm'] ?? '';
-
-    if (strlen($password) < 4) {
-        $errorReset = "La contraseña debe tener al menos 4 caracteres.";
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-    }
-
-    if ($password !== $passwordConfirm) {
-        $errorReset = "Las contraseñas no coinciden.";
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-    }
-
-    try {
-        $usuarioModel->actualizarPassword($tokenData['usuario_id'], $password);
-        $usuarioModel->marcarTokenRecuperacionUsado($tokenData['id']);
-
-        $mensajeReset = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
-
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-
-    } catch (Exception $e) {
-        $errorReset = "No se pudo actualizar la contraseña.";
-        require_once __DIR__ . '/../vistas/restablecer_password_view.php';
-        return;
-    }
-}
 }

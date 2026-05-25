@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Cargamos los productos al entrar en la tienda
     cargarProductos();
-
+    cargarProductosRecientesTienda();
     // Detectar cambios en los filtros de categoría y nivel
     document.querySelectorAll(".filtro-categoria, .filtro-nivel").forEach(el => {
         el.addEventListener("change", () => cargarProductos());
@@ -315,8 +315,39 @@ function gestionarSesion(id, accion) {
                 if (cartCount) {
                     cartCount.innerText = data.contador_carrito;
                 }
+
             } else {
                 alert(data.message || "No se pudo añadir el producto al carrito.");
+            }
+            /*
+    Si PHP nos indica que el producto se ha eliminado de favoritos,
+    actualizamos la vista.
+*/
+            if (data.favorito_eliminado === true) {
+
+                /*
+                    Buscamos el botón de favorito del producto en la tienda.
+                    Tu botón debe tener:
+                    class="btn-favorito"
+                    data-id="ID_DEL_PRODUCTO"
+                */
+                const botonFavorito = document.querySelector(
+                    `.btn-favorito[data-id="${id}"]`
+                );
+
+                if (botonFavorito) {
+                    botonFavorito.classList.remove("activo");
+                }
+
+                /*
+                    Si estamos en la sección favoritos del perfil y existe una fila
+                    con este producto, la eliminamos visualmente.
+                */
+                const filaFavorito = document.getElementById("favorito-row-" + id);
+
+                if (filaFavorito) {
+                    filaFavorito.remove();
+                }
             }
         })
 
@@ -484,3 +515,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+/**
+ * Carga los últimos productos vistos y los muestra
+ * debajo de los filtros laterales de la tienda.
+ */
+function cargarProductosRecientesTienda() {
+
+    const widget = document.getElementById("tiendaRecientesWidget");
+    const lista = document.getElementById("tiendaRecientesLista");
+
+    if (!widget || !lista) return;
+
+    fetch("/UNRINCONDEPT/public/ajax_ultimos_productos_visitados.php")
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.ok || !data.productos || data.productos.length === 0) {
+                widget.classList.add("d-none");
+                return;
+            }
+
+            let html = "";
+
+            data.productos.forEach(p => {
+
+                const titulo = escapeHtml(p.titulo || "Recurso");
+                const precio = parseFloat(p.precio || 0).toFixed(2);
+
+                /*
+                    Imagen del producto.
+
+                    En tu base de datos guardamos solo el nombre del archivo,
+                    por ejemplo:
+                    calculoseg.webp
+
+                    Por eso no hace falta una función aparte.
+                    Si no viene imagen, usamos default.png.
+                */
+                const nombreImagen = p.imagen && String(p.imagen).trim() !== ""
+                    ? String(p.imagen).trim()
+                    : "default.png";
+
+                const imagenUrl = `/UNRINCONDEPT/static/images/img/${encodeURIComponent(nombreImagen)}`;
+
+                html += `
+                    <a href="/UNRINCONDEPT/public/detalle.php?id=${encodeURIComponent(p.id)}"
+                       class="tienda-reciente-item">
+
+                        <img src="${imagenUrl}"
+                             alt="${titulo}"
+                             loading="lazy"
+                             onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+
+                        <div>
+                            <strong>${titulo}</strong>
+                            <span>${precio} €</span>
+                        </div>
+
+                    </a>
+                `;
+            });
+
+            lista.innerHTML = html;
+            widget.classList.remove("d-none");
+        })
+        .catch(error => {
+            console.error("Error cargando productos recientes:", error);
+            widget.classList.add("d-none");
+        });
+}

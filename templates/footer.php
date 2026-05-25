@@ -72,7 +72,7 @@
 </footer>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="/UNRINCONDEPT/static/bootstrap-5.3.8-dist/js/bootstrap.bundle.js"></script>
-<script src="UNRINCONDEPT/static/js/validaciones.js"></script>
+<script src="/UNRINCONDEPT/static/js/validaciones.js"></script>
 <script src="/UNRINCONDEPT/static/js/efectos-jquery.js"></script>
 <script src="/UNRINCONDEPT/static/js/fecha.js"></script>
 

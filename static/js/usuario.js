@@ -356,3 +356,63 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+/**
+ * Muestra la alerta de seguridad y envía la acción al servidor.
+ * ---------------------------------------------------------
+ * Al confirmar:
+ * - se registra la IP como sospechosa
+ * - se cierran las sesiones
+ * - se redirige al cambio/recuperación de contraseña
+ */
+window.enviarAlertaSeguridad = function () {
+
+    const confirmar = confirm(
+        "Se registrará la IP como sospechosa, se cerrarán todas las sesiones activas y tendrás que cambiar tu contraseña. ¿Quieres continuar?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    fetch("/UNRINCONDEPT/public/ajax_alerta_seguridad.php", {
+        method: "POST"
+    })
+        /*
+            Leemos como texto para poder ver errores PHP si los hubiera.
+        */
+        .then(res => res.text())
+
+        .then(text => {
+
+            console.log("Respuesta ajax_alerta_seguridad.php:", text);
+
+            let data;
+
+            try {
+                data = JSON.parse(text);
+            } catch (error) {
+                console.error("La respuesta no es JSON:", text);
+                alert("El servidor no ha devuelto una respuesta válida. Revisa la consola.");
+                return;
+            }
+
+            if (!data.ok) {
+                alert(data.mensaje || "No se pudo procesar la alerta de seguridad.");
+                return;
+            }
+
+            alert(data.mensaje);
+
+            /*
+                Mandamos al usuario al flujo para cambiar contraseña.
+            */
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+
+        .catch(error => {
+            console.error("Error alerta seguridad:", error);
+            alert("Error al enviar la alerta de seguridad.");
+        });
+};

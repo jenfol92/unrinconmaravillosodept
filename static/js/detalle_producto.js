@@ -57,3 +57,70 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+window.mostrarVideoProducto = function () {
+    const imagen = document.getElementById('productoImagenPrincipal');
+    const video = document.getElementById('productoVideoPrincipal');
+    const thumbImagen = document.getElementById('thumbImagenProducto');
+    const thumbVideo = document.getElementById('thumbVideoProducto');
+
+    if (!imagen || !video) {
+        console.warn('No se ha encontrado la imagen o el vídeo principal.');
+        return;
+    }
+
+    const caja = video.closest('.producto-img-box');
+
+    imagen.classList.add('d-none');
+    video.classList.remove('d-none');
+
+    if (caja) {
+        caja.classList.add('modo-video');
+    }
+
+    if (thumbImagen) {
+        thumbImagen.classList.remove('active');
+    }
+
+    if (thumbVideo) {
+        thumbVideo.classList.add('active');
+    }
+
+    video.play().catch(() => {
+        console.log('El navegador ha bloqueado la reproducción automática.');
+    });
+};
+
+window.mostrarImagenProducto = function () {
+    const imagen = document.getElementById('productoImagenPrincipal');
+    const video = document.getElementById('productoVideoPrincipal');
+    const thumbImagen = document.getElementById('thumbImagenProducto');
+    const thumbVideo = document.getElementById('thumbVideoProducto');
+
+    if (!imagen) {
+        console.warn('No se ha encontrado la imagen principal.');
+        return;
+    }
+
+    if (video) {
+        const caja = video.closest('.producto-img-box');
+
+        video.pause();
+        video.currentTime = 0;
+        video.classList.add('d-none');
+
+        if (caja) {
+            caja.classList.remove('modo-video');
+        }
+    }
+
+    imagen.classList.remove('d-none');
+
+    if (thumbVideo) {
+        thumbVideo.classList.remove('active');
+    }
+
+    if (thumbImagen) {
+        thumbImagen.classList.add('active');
+    }
+};

@@ -156,6 +156,7 @@ a {
 // PRODUCTO DETALLE - MOBILE FIRST
 
 
+
 // Estructura general
 .producto-detalle-top {
     row-gap: 2rem;
@@ -4829,93 +4830,6 @@ a {
         &:focus {
             box-shadow: 0 0 0 .25rem rgba($textturq, .18);
         }
-    }
-}
-
-// FILTRO LATERAL
-
-.tienda-filter-card {
-    background: rgba($textturq, .07);
-    border: 1px solid rgba($textturq, .18);
-    border-radius: 26px;
-    padding: 1.4rem;
-    box-shadow: 0 14px 35px rgba(15, 23, 42, .05);
-
-    @media (min-width: 992px) {
-        position: sticky;
-        top: 100px;
-    }
-
-    h5 {
-        font-family: $font-titles;
-        font-size: 1.6rem;
-        color: #1f2937;
-        margin-bottom: 1.2rem;
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-
-        i {
-            color: $textturq;
-            font-size: 1.1rem;
-        }
-    }
-
-    .form-label {
-        font-weight: 800;
-        color: #374151;
-        font-size: .9rem;
-    }
-
-    .form-control {
-        border: none;
-        border-radius: 16px;
-        padding: .85rem 1rem;
-        font-family: $font-body;
-        box-shadow: 0 8px 18px rgba(15, 23, 42, .05);
-
-        &:focus {
-            box-shadow: 0 0 0 .22rem rgba($textturq, .18);
-        }
-    }
-}
-
-.filter-group {
-    h6 {
-        font-family: $font-body;
-        font-weight: 900;
-        color: $textturq;
-        margin-bottom: .8rem;
-    }
-}
-
-.filter-check {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    background: #fff;
-    border: 1px solid #edf2f7;
-    border-radius: 14px;
-    padding: .65rem .75rem;
-    margin-bottom: .55rem;
-    cursor: pointer;
-    transition: .2s ease;
-
-    input {
-        accent-color: $textturq;
-    }
-
-    span {
-        font-family: $font-body;
-        font-weight: 700;
-        color: #4b5563;
-        font-size: .9rem;
-    }
-
-    &:hover {
-        border-color: rgba($textturq, .45);
-        background: #f8fffe;
-        transform: translateX(2px);
     }
 }
 
@@ -13305,19 +13219,44 @@ $contact-admin-shadow: rgba(0, 0, 0, 0.06);
     }
 }
 
-// FILTRO LATERAL
+// ======================================================
+// TIENDA - COLUMNA LATERAL: FILTROS + ÚLTIMOS VISTOS
+// ======================================================
+//
+// Esta columna lateral agrupa:
+// - el filtro de búsqueda;
+// - las categorías;
+// - los niveles;
+// - el widget de últimos productos vistos.
+//
+// El sticky se aplica al contenedor padre .tienda-sidebar-sticky
+// para que el filtro y el widget permanezcan juntos al hacer scroll.
+// ======================================================
 
-.tienda-filter-card {
-    background: rgba($textturq, .07);
-    border: 1px solid rgba($textturq, .18);
-    border-radius: 26px;
-    padding: 1.4rem;
-    box-shadow: 0 14px 35px rgba(15, 23, 42, .05);
+.tienda-sidebar-sticky {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 
     @media (min-width: 992px) {
         position: sticky;
         top: 100px;
+        z-index: 5;
     }
+}
+
+
+// ======================================================
+// FILTRO LATERAL
+// ======================================================
+
+.tienda-filter-card {
+   background: rgba(86, 179, 173, 0.16);
+    border: 1px solid rgba($textturq, .18);
+    border-radius: 26px;
+    padding: 1.4rem;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, .05);
+    overflow: hidden;
 
     h5 {
         font-family: $font-titles;
@@ -13366,11 +13305,14 @@ $contact-admin-shadow: rgba(0, 0, 0, 0.06);
     display: flex;
     align-items: center;
     gap: .6rem;
+
     background: #fff;
     border: 1px solid #edf2f7;
     border-radius: 14px;
+
     padding: .65rem .75rem;
     margin-bottom: .55rem;
+
     cursor: pointer;
     transition: .2s ease;
 
@@ -13389,6 +13331,193 @@ $contact-admin-shadow: rgba(0, 0, 0, 0.06);
         border-color: rgba($textturq, .45);
         background: #f8fffe;
         transform: translateX(2px);
+    }
+}
+
+
+// ======================================================
+// TIENDA - WIDGET LATERAL "ÚLTIMOS VISTOS"
+// ======================================================
+//
+// Este widget muestra los últimos productos visitados.
+// La cookie solo guarda IDs; el AJAX recupera los datos
+// reales desde la base de datos.
+// ======================================================
+
+.tienda-recientes-widget {
+    background: #fff;
+    border: 1px solid rgba($textturq, .18);
+    border-radius: 24px;
+
+    padding: 1rem;
+
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+
+    overflow: hidden;
+
+    h5 {
+        font-family: $font-titles;
+        font-size: 1.25rem;
+        color: #1f2937;
+
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+
+        margin-bottom: .85rem;
+
+        i {
+            color: $textturq;
+            font-size: 1rem;
+        }
+    }
+}
+
+#tiendaRecientesLista {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+}
+
+.tienda-reciente-item {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: .75rem;
+    align-items: center;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: .65rem;
+
+    background: #fff;
+    border: 1px solid #edf2f7;
+    border-radius: 18px;
+
+    text-decoration: none;
+    color: #1f2937;
+
+    overflow: hidden;
+
+    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+
+    &:hover {
+        background: rgba($textturq, .08);
+        transform: translateX(2px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, .05);
+    }
+
+    > img {
+        width: 72px;
+        min-width: 72px;
+        max-width: 72px;
+
+        height: 72px;
+        min-height: 72px;
+        max-height: 72px;
+
+        display: block;
+
+        border-radius: 16px;
+
+        object-fit: cover;
+        object-position: top center;
+
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+
+        overflow: hidden;
+    }
+
+    div {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    strong {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+
+        font-size: .84rem;
+        font-weight: 900;
+        line-height: 1.25;
+        color: #1f2937;
+    }
+
+    span {
+        display: block;
+        margin-top: .25rem;
+
+        font-size: .8rem;
+        font-weight: 900;
+        color: $textturq;
+    }
+}
+
+
+// ======================================================
+// RESPONSIVE DE LA COLUMNA LATERAL
+// ======================================================
+//
+// En tablet y móvil no usamos sticky.
+// El lateral pasa a comportarse como bloque normal.
+// ======================================================
+
+@media (max-width: 991px) {
+    .tienda-sidebar-sticky {
+        position: static;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    #tiendaRecientesLista {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .tienda-filter-card,
+    .tienda-recientes-widget {
+        border-radius: 22px;
+        padding: .9rem;
+    }
+
+    .tienda-recientes-widget {
+        h5 {
+            font-size: 1.15rem;
+        }
+    }
+
+    #tiendaRecientesLista {
+        grid-template-columns: 1fr;
+    }
+
+    .tienda-reciente-item {
+        grid-template-columns: 60px minmax(0, 1fr);
+        padding: .6rem;
+
+        > img {
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
+
+            height: 60px;
+            min-height: 60px;
+            max-height: 60px;
+        }
+
+        strong {
+            font-size: .82rem;
+        }
+
+        span {
+            font-size: .78rem;
+        }
     }
 }
 

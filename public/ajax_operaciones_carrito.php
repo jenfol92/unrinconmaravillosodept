@@ -35,7 +35,27 @@ switch ($accion) {
     case 'add_carrito':
         $_SESSION['carrito'][$id] = ($_SESSION['carrito'][$id] ?? 0) + 1;
         $mensaje = 'Producto añadido al carrito';
-        break;
+        /*
+    Eliminamos el producto de favoritos si el usuario está logueado.
+    ---------------------------------------------------------
+    Si el producto estaba marcado como favorito, se quita.
+    Si no estaba en favoritos, no pasa nada.
+*/
+$favoritoEliminado = false;
+
+if (!empty($_SESSION['usuario_id'])) {
+
+    require_once __DIR__ . '/../app/modelos/Producto.php';
+
+    $productoModel = new Producto();
+
+    $favoritoEliminado = $productoModel->eliminarFavoritoUsuario(
+        (int)$_SESSION['usuario_id'],
+        (int)$id
+    );
+    break;
+}
+        
 
     case 'restar_carrito':
         if (isset($_SESSION['carrito'][$id])) {
@@ -59,6 +79,8 @@ switch ($accion) {
             'message' => 'Acción no válida',
             'contador_carrito' => array_sum($_SESSION['carrito']),
             'usuario_logueado' => isset($_SESSION['usuario_id'])
+            
+            
         ]);
         exit;
 }
@@ -68,6 +90,8 @@ echo json_encode([
     'status' => 'success',
     'message' => $mensaje,
     'contador_carrito' => array_sum($_SESSION['carrito']),
-    'usuario_logueado' => isset($_SESSION['usuario_id'])
+    'usuario_logueado' => isset($_SESSION['usuario_id']),
+    'favorito_eliminado' => $favoritoEliminado,
+'producto_id' => (int)$id
 ]);
 exit;

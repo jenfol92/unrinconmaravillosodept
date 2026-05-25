@@ -27,15 +27,15 @@ require_once __DIR__ . '/../../templates/header.php';
                 del aprendizaje una experiencia más bonita, práctica y divertida.
             </p>
 
-            <!-- Buscador visual del hero -->
+            <!-- Buscador visual del hero  utiliza tienda.js-->
             <div class="tienda-search mx-auto">
                 <i class="bi bi-search"></i>
 
                 <input
                     type="text"
-                    id="busquedaHero"
+                    id="busqueda"
                     class="form-control"
-                    placeholder="Busca por tema: sumas, sílabas, lectoescritura...">
+                    placeholder="Buscar por recurso...">
             </div>
 
         </div>
@@ -52,62 +52,75 @@ require_once __DIR__ . '/../../templates/header.php';
 
                 <!-- FILTROS LATERALES -->
                 <div class="col-12 col-lg-3">
+                    <div class="tienda-sidebar-sticky">
 
-                    <aside class="tienda-filter-card">
+                        <aside class="tienda-filter-card">
 
-                        <h5>
-                            <i class="bi bi-funnel"></i>
-                            Filtrar por
-                        </h5>
+                            <h5>
+                                <i class="bi bi-funnel"></i>
+                                Filtrar por
+                            </h5>
 
-                        <!-- BUSCADOR REAL QUE USA tienda.js -->
-                        <div class="mb-4">
-                            <label class="form-label">Buscar recurso</label>
-                            <input
-                                type="text"
-                                id="busqueda"
-                                class="form-control"
-                                placeholder="Buscar recurso...">
+                           
+                 
+
+                            <!-- CATEGORÍAS -->
+                            <div class="filter-group">
+
+                                <h6>Categorías</h6>
+
+                                <?php foreach ($categorias as $cat) { ?>
+                                    <label class="filter-check">
+                                        <input
+                                            type="checkbox"
+                                            class="filtro-categoria"
+                                            value="<?= $cat['id'] ?>">
+                                        <span><?= htmlspecialchars($cat['nombre']) ?></span>
+                                    </label>
+                                <?php } ?>
+
+                            </div>
+
+                            <!-- NIVELES -->
+                            <div class="filter-group mt-4">
+
+                                <h6>Nivel educativo</h6>
+
+                                <?php foreach ($niveles as $nivel) { ?>
+                                    <label class="filter-check">
+                                        <input
+                                            type="checkbox"
+                                            class="filtro-nivel"
+                                            value="<?= $nivel['id'] ?>">
+                                        <span><?= htmlspecialchars($nivel['nombre']) ?></span>
+                                    </label>
+                                <?php } ?>
+
+                            </div>
+
+                        </aside>
+
+                        <!-- =====================================================
+     TIENDA - ÚLTIMOS PRODUCTOS VISTOS
+     -----------------------------------------------------
+     Se rellena mediante AJAX leyendo la cookie
+     productos_recientes.
+====================================================== -->
+
+                        <div class="tienda-recientes-widget d-none" id="tiendaRecientesWidget">
+
+                            <h5>
+                                <i class="bi bi-clock-history"></i>
+                                Últimos vistos
+                            </h5>
+
+                            <div id="tiendaRecientesLista">
+                                <!-- Se rellena desde tienda.js -->
+                            </div>
+
                         </div>
-
-                        <!-- CATEGORÍAS -->
-                        <div class="filter-group">
-
-                            <h6>Categorías</h6>
-
-                            <?php foreach ($categorias as $cat) { ?>
-                                <label class="filter-check">
-                                    <input
-                                        type="checkbox"
-                                        class="filtro-categoria"
-                                        value="<?= $cat['id'] ?>">
-                                    <span><?= htmlspecialchars($cat['nombre']) ?></span>
-                                </label>
-                            <?php } ?>
-
-                        </div>
-
-                        <!-- NIVELES -->
-                        <div class="filter-group mt-4">
-
-                            <h6>Nivel educativo</h6>
-
-                            <?php foreach ($niveles as $nivel) { ?>
-                                <label class="filter-check">
-                                    <input
-                                        type="checkbox"
-                                        class="filtro-nivel"
-                                        value="<?= $nivel['id'] ?>">
-                                    <span><?= htmlspecialchars($nivel['nombre']) ?></span>
-                                </label>
-                            <?php } ?>
-
-                        </div>
-
-                    </aside>
-
+                    </div>
                 </div>
-
 
                 <!-- ZONA DERECHA -->
                 <div class="col-12 col-lg-9">
@@ -130,33 +143,33 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                 <?php if (!isset($_SESSION['usuario_id'])): ?>
 
-    <!--
+                                    <!--
         Usuario NO logueado:
         Se envía al formulario público de contacto.
     -->
-    <a
-        href="/UNRINCONDEPT/public/contacto.php"
-        class="btn tienda-sugerencia-btn">
-        Sugerir un recurso
-        <i class="bi bi-arrow-right"></i>
-    </a>
+                                    <a
+                                        href="/UNRINCONDEPT/public/contacto.php"
+                                        class="btn tienda-sugerencia-btn">
+                                        Sugerir un recurso
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
 
-<?php else: ?>
+                                <?php else: ?>
 
-    <!--
+                                    <!--
         Usuario logueado:
         Se abre un modal para enviar la sugerencia sin salir de la tienda.
     -->
-    <button
-        type="button"
-        class="btn tienda-sugerencia-btn"
-        data-bs-toggle="modal"
-        data-bs-target="#modalSugerenciaTienda">
-        Sugerir un recurso
-        <i class="bi bi-chat-heart"></i>
-    </button>
+                                    <button
+                                        type="button"
+                                        class="btn tienda-sugerencia-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalSugerenciaTienda">
+                                        Sugerir un recurso
+                                        <i class="bi bi-chat-heart"></i>
+                                    </button>
 
-<?php endif; ?>
+                                <?php endif; ?>
 
                             </div>
 
@@ -165,7 +178,7 @@ require_once __DIR__ . '/../../templates/header.php';
                                     src="/UNRINCONDEPT/static/images/logo/logo.jpeg"
                                     alt="Sugerir un recurso">
                             </div>
-                         
+
                         </div>
 
                     </section>
@@ -200,72 +213,72 @@ require_once __DIR__ . '/../../templates/header.php';
      El endpoint guarda la sugerencia en la tabla correspondiente
      usando el modelo Soporte.
 ===================================================== -->
-<div class="modal fade" id="modalSugerenciaTienda" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalSugerenciaTienda" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered">
 
-        <div class="modal-content chat-autora-modal">
+            <div class="modal-content chat-autora-modal">
 
-            <div class="modal-header">
+                <div class="modal-header">
 
-                <h5 class="modal-title">
-                    Sugerir un recurso
-                </h5>
+                    <h5 class="modal-title">
+                        Sugerir un recurso
+                    </h5>
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar">
-                </button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <div class="chat-box-intro mb-3">
-
-                    <strong>¿Buscas algo específico?</strong>
-
-                    <p class="mb-0">
-                        Cuéntanos qué material necesitas y tendremos tu propuesta en cuenta
-                        para próximos recursos.
-                    </p>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                    </button>
 
                 </div>
 
-                <form id="formSugerenciaTienda">
+                <div class="modal-body">
 
-                    <div class="mb-3">
+                    <div class="chat-box-intro mb-3">
 
-                        <label class="form-label">
-                            Tu sugerencia
-                        </label>
+                        <strong>¿Buscas algo específico?</strong>
 
-                        <textarea
-                            name="mensaje"
-                            class="form-control"
-                            rows="5"
-                            placeholder="Ej: Me gustaría un recurso sobre comprensión lectora para 2º de Primaria..."
-                            required></textarea>
+                        <p class="mb-0">
+                            Cuéntanos qué material necesitas y tendremos tu propuesta en cuenta
+                            para próximos recursos.
+                        </p>
 
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        Enviar sugerencia
-                    </button>
+                    <form id="formSugerenciaTienda">
 
-                </form>
+                        <div class="mb-3">
 
-                <div id="respuestaSugerenciaTienda" class="mt-3"></div>
+                            <label class="form-label">
+                                Tu sugerencia
+                            </label>
+
+                            <textarea
+                                name="mensaje"
+                                class="form-control"
+                                rows="5"
+                                placeholder="Ej: Me gustaría un recurso sobre comprensión lectora para 2º de Primaria..."
+                                required></textarea>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Enviar sugerencia
+                        </button>
+
+                    </form>
+
+                    <div id="respuestaSugerenciaTienda" class="mt-3"></div>
+
+                </div>
 
             </div>
 
         </div>
 
     </div>
-
-</div>
 
 </main>
 

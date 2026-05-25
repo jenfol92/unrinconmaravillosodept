@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: index_view.php
  * ---------------------------------------------------------
@@ -177,10 +178,10 @@ require_once __DIR__ . '/../../templates/header.php';
                     <!-- Indicadores del carrusel -->
                     <div class="carousel-indicators">
                         <?php foreach ($destacados as $index => $recurso): ?>
-                            <button 
-                                type="button" 
-                                data-bs-target="#homeDestacadosCarousel" 
-                                data-bs-slide-to="<?= $index ?>" 
+                            <button
+                                type="button"
+                                data-bs-target="#homeDestacadosCarousel"
+                                data-bs-slide-to="<?= $index ?>"
                                 class="<?= $index === 0 ? 'active' : '' ?>"
                                 aria-current="<?= $index === 0 ? 'true' : 'false' ?>">
                             </button>
@@ -242,17 +243,15 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                             <!--
                                                 Botón para añadir al carrito.
-                                                event.stopPropagation() evita que al pulsar el botón
-                                                se active también el onclick de la tarjeta.
                                             -->
                                             <button
                                                 type="button"
-                                                class="home-card-cart"
+                                                class="home-card-cart btn-agregar-carrito"
+                                                data-id="<?= (int)$recurso['id'] ?>"
                                                 title="Añadir al carrito"
                                                 onclick="event.stopPropagation(); gestionarSesion(<?= (int)$recurso['id'] ?>, 'add_carrito')">
                                                 <i class="bi bi-bag"></i>
                                             </button>
-
                                         </div>
 
                                     </div>
@@ -617,5 +616,6 @@ require_once __DIR__ . '/../../templates/header.php';
     </section>
 
 </main>
+<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

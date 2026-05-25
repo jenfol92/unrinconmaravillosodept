@@ -619,7 +619,7 @@ public function autenticarConGoogle($datos)
     $passwordTemporal = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
 
     $sql = "INSERT INTO usuarios
-            (nombre, apellidos, email, password, google_id, auth_provider, avatar, rol_id, fecha_registro)
+            (nombre, apellidos, email, password_hash, google_id, auth_provider, avatar, rol_id, fecha_registro)
             VALUES (?, '', ?, ?, ?, 'google', ?, 3, NOW())";
 
     $stmt = $this->conexion->prepare($sql);
@@ -634,5 +634,49 @@ public function autenticarConGoogle($datos)
     $usuarioId = $this->conexion->lastInsertId();
 
     return $this->obtenerPorId($usuarioId);
+}
+/**
+ * Registra el acceso correcto de un usuario.
+ * ---------------------------------------------------------
+ * Se ejecuta justo después de un login correcto.
+ *
+ * Funcionamiento:
+ * - El acceso actual pasa a ultimo_acceso.
+ * - La IP actual pasa a ultimo_ip.
+ * - Se guarda la nueva fecha de acceso.
+ * - Se guarda la nueva IP de acceso.
+ *
+ * @param int $usuario_id ID del usuario.
+ * @return bool
+ */
+public function registrarAccesoUsuario($usuario_id)
+{
+    /*
+        IP del usuario.
+
+        En local con XAMPP puede ser:
+        - 127.0.0.1
+        - ::1
+
+        En producción será la IP que llegue al servidor.
+    */
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+
+    /*
+        Movemos el acceso actual al anterior y guardamos el nuevo.
+    */
+    $sql = "UPDATE usuarios
+            SET ultimo_acceso = acceso_actual,
+                ultimo_ip = acceso_actual_ip,
+                acceso_actual = NOW(),
+                acceso_actual_ip = ?
+            WHERE id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    return $stmt->execute([
+        $ip,
+        (int)$usuario_id
+    ]);
 }
 }

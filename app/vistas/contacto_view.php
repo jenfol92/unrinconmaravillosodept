@@ -265,7 +265,7 @@
                                 <div>
                                     <strong>Correo Electrónico</strong>
                                     <p>
-                                        hola@unrinconmaravilloso.com<br>
+                                        unrinconmaravillosodept@gmail.com<br>
                                         <small>Te responderemos lo antes posible.</small>
                                     </p>
                                 </div>

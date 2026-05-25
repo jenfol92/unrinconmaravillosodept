@@ -92,6 +92,8 @@ try {
     $_SESSION['usuario_id'] = $usuario['id'];
     $_SESSION['usuario_nombre'] = $usuario['nombre'] ?? 'Usuario';
     $_SESSION['rol'] = $usuario['rol_id'] ?? 3;
+    
+    $usuarioModel->registrarAccesoUsuario($usuario['id']);
 
     header('Location: /UNRINCONDEPT/public/perfil.php');
     exit;
