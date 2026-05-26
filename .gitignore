@@ -7,3 +7,4 @@ node_modules/
 /config/r2.php
 /config/stripe.php
 /config/mail.php
+/config/oauth.php

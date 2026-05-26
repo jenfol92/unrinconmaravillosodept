@@ -282,12 +282,18 @@
                                                         <!-- Información del recurso comprado -->
                                                         <td data-label="Recurso">
                                                             <div class="d-flex align-items-center gap-3 panel-recurso-info">
+                                                                <?php if (!empty($producto['imagen'])): ?>
+                                                                    <img
+                                                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                                                        alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
+                                                                        class="panel-product-img">
+                                                                <?php else: ?>
 
-                                                                <img
-                                                                    src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen'] ?? 'default.png') ?>"
-                                                                    alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
-                                                                    class="panel-product-img"
-                                                                    onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+                                                                    <div class="panel-product-img panel-product-img-empty">
+                                                                        <i class="bi bi-file-earmark-text"></i>
+                                                                    </div>
+
+                                                                <?php endif; ?>
 
                                                                 <div>
                                                                     <strong>
@@ -661,24 +667,7 @@
                                 Gestiona la seguridad de tu cuenta.
                             </p>
 
-                            <!-- Cambiar contraseña -->
-                            <div class="security-card">
-
-                                <h5>
-                                    <i class="bi bi-key"></i>
-                                    Cambiar contraseña
-                                </h5>
-
-                                <p>
-                                    Puedes actualizar tu contraseña para mantener tu cuenta protegida.
-                                </p>
-
-                                <button class="btn btn-primary">
-                                    Cambiar contraseña
-                                </button>
-
-                            </div>
-
+                        
                             <!-- Último acceso -->
                             <div class="security-card">
 
@@ -709,14 +698,14 @@
                                             Acceso actual: <?= date('d/m/Y H:i', strtotime($usuario['acceso_actual'])) ?>
                                         </small>
                                     <?php endif; ?>
-                                   
+
                                 </p>
-    <button
-    type="button"
-    class="btn btn-outline-danger"
-    onclick="enviarAlertaSeguridad()">
-    No reconozco este acceso
-</button>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger"
+                                    onclick="enviarAlertaSeguridad()">
+                                    No reconozco este acceso
+                                </button>
                             </div>
 
 

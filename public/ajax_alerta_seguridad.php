@@ -170,7 +170,7 @@ try {
     echo json_encode([
         'ok' => true,
         'mensaje' => 'Se ha registrado la IP como sospechosa y se han cerrado las sesiones activas.',
-        'redirect' => '/UNRINCONDEPT/public/recuperar_password.php?seguridad=1'
+        'redirect' => '/UNRINCONDEPT/public/recuperar-password.php?seguridad=1'
     ]);
     exit;
 

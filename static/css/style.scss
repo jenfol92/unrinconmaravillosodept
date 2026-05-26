@@ -17771,3 +17771,20 @@ $footer-sombra-card: rgba(39, 121, 151, .06);
         }
     }
 }
+// =====================================================
+// IMAGEN VACÍA EN PANEL DE USUARIO
+// -----------------------------------------------------
+// Se usa cuando un recurso/producto no tiene imagen.
+// Así evitamos cargar default.png y eliminamos errores 404.
+// =====================================================
+
+.panel-product-img-empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba($textturq, .10);
+    color: $textturq;
+
+    font-size: 1.4rem;
+}
