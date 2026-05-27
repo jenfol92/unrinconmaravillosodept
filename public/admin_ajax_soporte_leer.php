@@ -1,35 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * AJAX: obtener mensajes de un ticket de soporte
+ * ---------------------------------------------------------
+ * Punto de entrada público para cargar los mensajes de un ticket
+ * desde el panel de administración.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/admin_ajax_soporte_leer.php
+ * → SoporteController::leerTicketAdminAjax()
+ * → Soporte::obtenerMensajesTicket()
+ *
+ * Entrada esperada por GET:
+ * - ticket_id
+ *
+ * Respuesta:
+ * - JSON con ok y mensajes, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], [1, 2])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
+/**
+ * Instanciamos el controlador de soporte.
+ */
+$controller = new SoporteController();
 
-$ticket_id = $_GET['ticket_id'] ?? null;
-
-if (!$ticket_id) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Ticket no válido'
-    ]);
-    exit;
-}
-
-$model = new Soporte();
-
-$mensajes = $model->obtenerMensajesTicket($ticket_id);
-
-echo json_encode([
-    'ok' => true,
-    'mensajes' => $mensajes
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->leerTicketAdminAjax();

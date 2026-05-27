@@ -34,6 +34,7 @@ require_once __DIR__ . '/../modelos/Producto.php';
 require_once __DIR__ . '/../modelos/Usuario.php';
 require_once __DIR__ . '/../modelos/Soporte.php';
 require_once __DIR__ . '/../servicios/R2Service.php';
+require_once __DIR__ . '/../servicios/GoogleDriveService.php';
 require_once __DIR__ . '/../modelos/recursosGratuitos.php';
 
 class AdminController
@@ -184,7 +185,7 @@ class AdminController
      * Sube o sustituye el archivo descargable de un producto en Cloudflare R2.
      * ---------------------------------------------------------
      * Flujo:
-     * 1. Comprueba que el usuario esté autenticado y tenga rol admin.
+     * 1. Comprueba que el usuario esté autenticado y tenga rol admin/gestor.
      * 2. Valida que la petición sea POST.
      * 3. Obtiene el producto.
      * 4. Sube el archivo nuevo a Cloudflare R2.
@@ -192,45 +193,60 @@ class AdminController
      * 6. Si existía un archivo anterior, lo elimina de R2.
      *
      * Esta función no devuelve JSON, sino que redirige al panel admin.
+     *
+     * @return void
      */
     public function subirArchivoProductoR2()
     {
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
-
-        // Solo usuarios con rol 1 o 2 pueden subir archivos.
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
-            header('Location: /UNRINCONDEPT/public/login.php');
+        /**
+         * Control de permisos.
+         * ---------------------------------------------------------
+         * Usamos la función global de session.php.
+         */
+        if (!usuarioEsAdminOGestor()) {
+            header('Location: ' . BASE_URL . 'public/login.php');
             exit;
         }
 
-        // La subida solo se permite por POST.
+        /**
+         * La subida solo se permite por POST.
+         */
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /UNRINCONDEPT/public/admin.php');
+            header('Location: ' . BASE_URL . 'public/admin.php');
             exit;
         }
 
-        $producto_id = isset($_POST['producto_id']) ? (int)$_POST['producto_id'] : 0;
+        $producto_id = isset($_POST['producto_id']) ? (int) $_POST['producto_id'] : 0;
 
         if ($producto_id <= 0) {
-            die('Producto no válido.');
+            header('Location: ' . BASE_URL . 'public/admin.php?archivo=producto_no_valido');
+            exit;
         }
 
         if (!isset($_FILES['archivo']) || empty($_FILES['archivo']['name'])) {
-            die('No se ha seleccionado ningún archivo.');
+            header('Location: ' . BASE_URL . 'public/admin.php?archivo=sin_archivo');
+            exit;
         }
 
         try {
-            // Obtenemos el producto actual.
+            /**
+             * Obtenemos el producto actual.
+             */
             $productoActual = $this->productoModel->obtenerProductosID($producto_id);
 
             if (!$productoActual) {
-                die('Producto no encontrado.');
+                header('Location: ' . BASE_URL . 'public/admin.php?archivo=producto_no_encontrado');
+                exit;
             }
 
-            // Instanciamos el servicio de Cloudflare R2.
+            /**
+             * Instanciamos el servicio de Cloudflare R2.
+             */
             $r2Service = new R2Service();
 
-            // Subimos el archivo y obtenemos la nueva key.
+            /**
+             * Subimos el archivo y obtenemos la nueva key.
+             */
             $nuevaKey = $r2Service->subirArchivoProducto(
                 $producto_id,
                 $_FILES['archivo'],
@@ -238,20 +254,24 @@ class AdminController
             );
 
             if (!empty($nuevaKey)) {
-                // Guardamos la key del archivo nuevo en la tabla productos.
+                /**
+                 * Guardamos la key del archivo nuevo en la tabla productos.
+                 */
                 $this->productoModel->actualizarArchivoR2($producto_id, $nuevaKey);
 
-                // Si había un archivo anterior, lo eliminamos de R2.
+                /**
+                 * Si había un archivo anterior, lo eliminamos de R2.
+                 */
                 if (!empty($productoActual['archivo_s3_key'])) {
                     $r2Service->eliminarArchivo($productoActual['archivo_s3_key']);
                 }
             }
 
-            header('Location: /UNRINCONDEPT/public/admin.php?archivo=subido');
+            header('Location: ' . BASE_URL . 'public/admin.php?archivo=subido');
             exit;
-
         } catch (Exception $e) {
-            die('Error subiendo archivo: ' . htmlspecialchars($e->getMessage()));
+            header('Location: ' . BASE_URL . 'public/admin.php?archivo=error');
+            exit;
         }
     }
 
@@ -272,14 +292,18 @@ class AdminController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
 
-        // Control de permisos.
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
+
+        /**
+         * Control de permisos.
+         * ---------------------------------------------------------
+         * Usamos la función global de session.php.
+         */
+        if (!usuarioEsAdminOGestor()) {
             echo json_encode([
                 'ok' => false,
                 'mensaje' => 'No tienes permisos para guardar productos.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -394,7 +418,6 @@ class AdminController
                 'modo' => 'crear'
             ]);
             exit;
-
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -405,102 +428,144 @@ class AdminController
     }
 
     /**
-     * Elimina un producto o lo desactiva si tiene pedidos asociados.
+ * Elimina un producto o lo desactiva si tiene pedidos asociados.
+ * ---------------------------------------------------------
+ * Esta función devuelve JSON y se utiliza desde el panel admin.
+ *
+ * Flujo:
+ * 1. Comprueba permisos.
+ * 2. Valida producto_id.
+ * 3. Lee si el admin quiere eliminar también el archivo de Cloudflare.
+ * 4. Obtiene el producto.
+ * 5. Elimina archivo de Cloudflare R2 solo si el admin lo ha confirmado.
+ * 6. Si el producto tiene pedidos, lo desactiva.
+ * 7. Si no tiene pedidos, lo elimina físicamente.
+ */
+public function eliminarProducto()
+{
+    header('Content-Type: application/json; charset=utf-8');
+
+    /**
+     * Control de permisos.
      * ---------------------------------------------------------
-     * Esta función devuelve JSON y se utiliza desde el panel admin.
-     *
-     * Flujo:
-     * 1. Comprueba permisos.
-     * 2. Valida producto_id.
-     * 3. Obtiene el producto.
-     * 4. Elimina archivo de Cloudflare R2 si existe.
-     * 5. Si el producto tiene pedidos, lo desactiva.
-     * 6. Si no tiene pedidos, lo elimina físicamente.
+     * Usamos la función global de session.php.
      */
-    public function eliminarProducto()
-    {
-        header('Content-Type: application/json; charset=utf-8');
+    if (!usuarioEsAdminOGestor()) {
+        echo json_encode([
+            'ok' => false,
+            'mensaje' => 'No tienes permisos para eliminar productos.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode([
+            'ok' => false,
+            'mensaje' => 'Método no permitido.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
+    $producto_id = isset($_POST['producto_id'])
+        ? (int) $_POST['producto_id']
+        : 0;
+
+    /**
+     * Indica si el admin ha elegido eliminar también
+     * el archivo asociado en Cloudflare R2.
+     *
+     * Este valor debe enviarlo admin.js:
+     * - eliminar_archivo = 1 -> borrar archivo
+     * - eliminar_archivo = 0 -> conservar archivo
+     */
+    $eliminarArchivo = ($_POST['eliminar_archivo'] ?? '0') === '1';
+
+    if ($producto_id <= 0) {
+        echo json_encode([
+            'ok' => false,
+            'mensaje' => 'Producto no válido.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    try {
+        /**
+         * Obtenemos el producto actual.
+         */
+        $producto = $this->productoModel->obtenerProductosID($producto_id);
+
+        if (!$producto) {
             echo json_encode([
                 'ok' => false,
-                'mensaje' => 'No tienes permisos para eliminar productos.'
-            ]);
+                'mensaje' => 'Producto no encontrado.'
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode([
-                'ok' => false,
-                'mensaje' => 'Método no permitido.'
-            ]);
-            exit;
+        /**
+         * Si el admin ha elegido eliminar el archivo y el producto
+         * tiene archivo en Cloudflare R2, lo eliminamos.
+         */
+        if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
+            $r2Service = new R2Service();
+            $r2Service->eliminarArchivo($producto['archivo_s3_key']);
         }
 
-        $producto_id = isset($_POST['producto_id']) ? (int)$_POST['producto_id'] : 0;
+        /*
+         * Si el producto tiene pedidos asociados, no lo borramos físicamente.
+         * Se desactiva para mantener la integridad histórica de las compras.
+         */
+        if ($this->productoModel->productoTienePedidos($producto_id)) {
+            $this->productoModel->desactivarProductoAdmin($producto_id);
 
-        if ($producto_id <= 0) {
-            echo json_encode([
-                'ok' => false,
-                'mensaje' => 'Producto no válido.'
-            ]);
-            exit;
-        }
-
-        try {
-            // Obtenemos el producto actual.
-            $producto = $this->productoModel->obtenerProductosID($producto_id);
-
-            if (!$producto) {
-                echo json_encode([
-                    'ok' => false,
-                    'mensaje' => 'Producto no encontrado.'
-                ]);
-                exit;
-            }
-
-            // Si tiene archivo en Cloudflare R2, lo eliminamos.
-            if (!empty($producto['archivo_s3_key'])) {
-                $r2Service = new R2Service();
-                $r2Service->eliminarArchivo($producto['archivo_s3_key']);
-            }
-
-            /*
-             * Si el producto tiene pedidos asociados, no lo borramos físicamente.
-             * Se desactiva para mantener la integridad histórica de las compras.
+            /**
+             * Si el producto se conserva en base de datos porque tiene pedidos,
+             * y además se ha eliminado el archivo de R2, limpiamos la referencia
+             * para que no apunte a un archivo que ya no existe.
              */
-            if ($this->productoModel->productoTienePedidos($producto_id)) {
-                $this->productoModel->desactivarProductoAdmin($producto_id);
-
-                echo json_encode([
-                    'ok' => true,
-                    'mensaje' => 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha eliminado su archivo de Cloudflare.',
-                    'modo' => 'desactivado'
-                ]);
-                exit;
+            if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
+                $this->productoModel->actualizarArchivoR2($producto_id, null);
             }
 
-            // Si no tiene pedidos, se elimina físicamente.
-            $this->productoModel->eliminarProductoFisicoAdmin($producto_id);
+            $mensaje = $eliminarArchivo
+                ? 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha eliminado su archivo de Cloudflare.'
+                : 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha conservado su archivo de Cloudflare.';
 
             echo json_encode([
                 'ok' => true,
-                'mensaje' => 'Recurso eliminado correctamente junto con su archivo de Cloudflare.',
-                'modo' => 'eliminado'
-            ]);
-            exit;
-
-        } catch (Exception $e) {
-            echo json_encode([
-                'ok' => false,
-                'mensaje' => 'Error eliminando producto: ' . $e->getMessage()
-            ]);
+                'mensaje' => $mensaje,
+                'modo' => 'desactivado'
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
-    }
 
+        /**
+         * Si no tiene pedidos, se elimina físicamente.
+         *
+         * Si el admin ha elegido conservar el archivo, el producto desaparecerá
+         * de la base de datos, pero el archivo seguirá existiendo en Cloudflare R2.
+         */
+        $this->productoModel->eliminarProductoFisicoAdmin($producto_id);
+
+        $mensaje = $eliminarArchivo
+            ? 'Recurso eliminado correctamente junto con su archivo de Cloudflare.'
+            : 'Recurso eliminado correctamente. El archivo de Cloudflare se ha conservado.';
+
+        echo json_encode([
+            'ok' => true,
+            'mensaje' => $mensaje,
+            'modo' => 'eliminado'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'ok' => false,
+            'mensaje' => 'Error eliminando producto: ' . $e->getMessage()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
     /**
      * Obtiene el rango de fechas usado para las ventas del dashboard.
      * ---------------------------------------------------------
@@ -599,10 +664,8 @@ class AdminController
      */
     public function exportarProductosPdf()
     {
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
-
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
-            header('Location: /UNRINCONDEPT/public/login.php');
+        if (!usuarioEsAdminOGestor()) {
+            header('Location: ' . BASE_URL . 'public/login.php');
             exit;
         }
 
@@ -662,13 +725,11 @@ class AdminController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
-
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
+        if (!usuarioEsAdminOGestor()) {
             echo json_encode([
                 'ok' => false,
                 'mensaje' => 'No tienes permisos.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -759,21 +820,61 @@ class AdminController
                 }
             }
 
-            /*
-             * Archivo PDF/ZIP para Google Drive.
-             *
-             * De momento no obligamos a tener url_drive porque se prevé generar
-             * el enlace automáticamente cuando se implemente OAuth.
-             */
-            $datos = [
-                'id' => $id,
-                'titulo' => $titulo,
-                'imagen' => $imagen,
-                'categoria_id' => $categoriaId,
-                'url_drive' => $urlDrive,
-                'formato' => $_POST['formato'] ?? 'PDF',
-                'estado' => $estado
-            ];
+        /*
+ * Archivo PDF/ZIP para Google Drive.
+ * ---------------------------------------------------------
+ * Si se sube un archivo, se envía a Google Drive mediante
+ * GoogleDriveService y se guarda automáticamente la URL devuelta.
+ */
+$googleDriveFileId = $recursoActual['google_drive_file_id'] ?? null;
+
+if (isset($_FILES['archivo_drive']) && $_FILES['archivo_drive']['error'] !== UPLOAD_ERR_NO_FILE) {
+
+    if ($_FILES['archivo_drive']['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Error al subir el archivo gratuito.');
+    }
+
+    $extensionArchivo = strtolower(pathinfo($_FILES['archivo_drive']['name'], PATHINFO_EXTENSION));
+    $extensionesPermitidas = ['pdf', 'zip'];
+
+    if (!in_array($extensionArchivo, $extensionesPermitidas, true)) {
+        throw new Exception('El archivo gratuito debe ser PDF o ZIP.');
+    }
+
+    $driveService = new GoogleDriveService();
+
+    /*
+     * Si estamos editando y ya existe archivo en Drive,
+     * lo eliminamos antes de subir el nuevo.
+     */
+    if ($id > 0 && !empty($googleDriveFileId)) {
+        $driveService->eliminarArchivo($googleDriveFileId);
+    }
+
+    $archivoDrive = $driveService->subirArchivo(
+        $_FILES['archivo_drive']['tmp_name'],
+        $_FILES['archivo_drive']['name'],
+        $_FILES['archivo_drive']['type'] ?? null
+    );
+
+    $urlDrive = $archivoDrive['webViewLink'] ?? '';
+    $googleDriveFileId = $archivoDrive['id'] ?? null;
+
+    if ($urlDrive === '') {
+        throw new Exception('Google Drive no ha devuelto URL del archivo.');
+    }
+}
+
+$datos = [
+    'id' => $id,
+    'titulo' => $titulo,
+    'imagen' => $imagen,
+    'categoria_id' => $categoriaId,
+    'url_drive' => $urlDrive,
+    'google_drive_file_id' => $googleDriveFileId,
+    'formato' => $_POST['formato'] ?? 'PDF',
+    'estado' => $estado
+];
 
             $resultado = $this->recursoGratuitoModel->guardarRecursoGratuitoAdmin($datos);
 
@@ -785,7 +886,6 @@ class AdminController
                 'id' => $id > 0 ? $id : $resultado
             ]);
             exit;
-
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -844,13 +944,11 @@ class AdminController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
-
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
+        if (!usuarioEsAdminOGestor()) {
             echo json_encode([
                 'ok' => false,
                 'mensaje' => 'No tienes permisos.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -876,7 +974,6 @@ class AdminController
                 ]
             ]);
             exit;
-
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,
@@ -903,13 +1000,11 @@ class AdminController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        $rolUsuario = (int)($_SESSION['rol'] ?? 0);
-
-        if (empty($_SESSION['usuario_id']) || !in_array($rolUsuario, [1, 2], true)) {
+        if (!usuarioEsAdminOGestor()) {
             echo json_encode([
                 'ok' => false,
                 'mensaje' => 'No tienes permisos para eliminar recursos gratuitos.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -962,7 +1057,6 @@ class AdminController
                 'mensaje' => 'Recurso gratuito eliminado correctamente.'
             ]);
             exit;
-
         } catch (Exception $e) {
             echo json_encode([
                 'ok' => false,

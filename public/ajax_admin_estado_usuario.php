@@ -1,29 +1,38 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Usuario.php';
+/**
+ * AJAX: cambiar estado de un usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para activar o bloquear un usuario
+ * desde el panel de administración.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_cambiar_estado_usuario.php
+ * → AdminUsuarioController::cambiarEstadoUsuarioAjax()
+ * → Usuario::cambiarEstadoUsuario()
+ *
+ * Entrada esperada por POST:
+ * - usuario_id
+ * - activo
+ *
+ * Valores de activo:
+ * - 1 → usuario activo.
+ * - 0 → usuario bloqueado.
+ *
+ * Respuesta:
+ * - JSON
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/admin_usuario_controller.php';
 
-if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], [1, 2])) {
-    echo json_encode(['ok' => false, 'error' => 'No autorizado']);
-    exit;
-}
+/**
+ * Instanciamos el controlador de usuarios del panel admin.
+ */
+$controller = new AdminUsuarioController();
 
-$usuario_id = $_POST['usuario_id'] ?? null;
-$activo = $_POST['activo'] ?? null;
-
-if (!$usuario_id || $activo === null) {
-    echo json_encode(['ok' => false, 'error' => 'Datos incompletos']);
-    exit;
-}
-
-$model = new Usuario();
-$model->cambiarEstadoUsuario($usuario_id, $activo);
-
-echo json_encode([
-    'ok' => true,
-    'mensaje' => ((int)$activo === 1) ? 'Usuario activado.' : 'Usuario bloqueado.'
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->cambiarEstadoUsuarioAjax();

@@ -1,33 +1,34 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Producto.php';
+/**
+ * AJAX: cambiar estado de una reseña
+ * ---------------------------------------------------------
+ * Punto de entrada público para actualizar el estado de una
+ * reseña desde el panel de administración.
+ *
+ * Este archivo NO contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_admin_estado_resena.php
+ * → ResenaController::cambiarEstadoResenaAjax()
+ * → Producto::cambiarEstadoResena()
+ *
+ * Entrada esperada por POST:
+ * - resena_id: ID de la reseña.
+ * - estado: nuevo estado de la reseña.
+ *
+ * Respuesta:
+ * - JSON con ok y mensaje, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/resena_controller.php';
 
-if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], [1, 2])) {
-    echo json_encode(['ok' => false, 'error' => 'No autorizado']);
-    exit;
-}
+/**
+ * Instanciamos el controlador de reseñas.
+ */
+$controller = new ResenaController();
 
-$resena_id = $_POST['resena_id'] ?? null;
-$estado = $_POST['estado'] ?? null;
-
-if (!$resena_id || !$estado) {
-    echo json_encode(['ok' => false, 'error' => 'Datos incompletos']);
-    exit;
-}
-
-$model = new Producto();
-
-if (!$model->cambiarEstadoResena($resena_id, $estado)) {
-    echo json_encode(['ok' => false, 'error' => 'Estado no válido']);
-    exit;
-}
-
-echo json_encode([
-    'ok' => true,
-    'mensaje' => 'Estado de reseña actualizado.'
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->cambiarEstadoResenaAjax();

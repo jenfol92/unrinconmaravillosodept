@@ -1,45 +1,43 @@
 <?php
 
-// Incluimos la sesión (usuario logueado)
-require_once __DIR__ . "/../includes/session.php";
+/**
+ * AJAX: alternar favorito de producto
+ * ---------------------------------------------------------
+ * Punto de entrada público para añadir o quitar un producto
+ * de los favoritos del usuario logueado.
+ *
+ * Este archivo NO contiene lógica de negocio ni SQL.
+ *
+ * Su única responsabilidad es:
+ * - cargar el controlador correspondiente;
+ * - instanciarlo;
+ * - ejecutar la acción AJAX.
+ *
+ * Flujo:
+ * public/ajax_toggle_favorito.php
+ * → FavoritoController::toggleFavoritoAjax()
+ * → Producto::toggleFavorito()
+ *
+ * Entrada esperada por POST:
+ * - producto_id: ID del producto que se quiere guardar o quitar
+ *   de favoritos.
+ *
+ * Respuesta:
+ * - JSON con ok y estado.
+ *
+ * Posibles estados:
+ * - guardado
+ * - eliminado
+ */
 
-// Incluimos el modelo de Producto
-require_once __DIR__ . '/../app/modelos/Producto.php';
+require_once __DIR__ . '/../app/controladores/favorito_controller.php';
 
-// Indicamos que vamos a devolver JSON
-header('Content-Type: application/json');
+/**
+ * Instanciamos el controlador de favoritos.
+ */
+$controller = new FavoritoController();
 
-// Comprobamos que el usuario está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
-
-// Recogemos el ID del producto enviado por AJAX
-$producto_id = $_POST['producto_id'] ?? null;
-
-// Validamos que exista
-if (!$producto_id) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Producto no válido'
-    ]);
-    exit;
-}
-
-// Creamos instancia del modelo
-$model = new Producto();
-
-// Alternamos favorito (añadir o quitar)
-$resultado = $model->toggleFavorito($_SESSION['usuario_id'], $producto_id);
-
-// Devolvemos respuesta al frontend
-echo json_encode([
-    'ok' => true,
-    'estado' => $resultado // 'guardado' o 'eliminado'
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->toggleFavoritoAjax();

@@ -1,24 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../app/modelos/recursosGratuitos.php';
+/**
+ * Endpoint público para acceder a un recurso gratuito.
+ * ---------------------------------------------------------
+ * Este archivo no contiene lógica de negocio.
+ * Solo carga el controlador y delega la gestión.
+ */
 
-$id = $_GET['id'] ?? null;
+require_once __DIR__ . '/../app/controladores/RecursoGratuitoController.php';
 
-if (!$id) {
-    header('Location: /UNRINCONDEPT/public/recursos_gratuitos.php');
-    exit;
-}
-
-$model = new RecursoGratuito();
-
-$recurso = $model->obtenerRecursoPorId($id);
-
-if (!$recurso) {
-    header('Location: /UNRINCONDEPT/public/recursos_gratuitos.php');
-    exit;
-}
-
-$model->incrementarClicks($id);
-
-header('Location: ' . $recurso['url_drive']);
-exit;
+$controller = new RecursoGratuitoController();
+$controller->redirigirRecursoGratuito();

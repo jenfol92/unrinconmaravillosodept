@@ -81,7 +81,7 @@
 
                                 <?php if (!empty($recurso['imagen'])): ?>
                                     <img
-                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
+                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
                                         alt="<?= htmlspecialchars($recurso['titulo']) ?>">
                                 <?php else: ?>
                                     <div class="gratis-card-placeholder">
@@ -104,7 +104,7 @@
                                 </h3>
 
                                 <a
-                                    href="/UNRINCONDEPT/public/ver_recursos_gratis.php?id=<?= (int)$recurso['id'] ?>"
+                                    href="<?= BASE_URL ?>public/ver_recursos_gratis.php?id=<?= (int)$recurso['id'] ?>"
                                     target="_blank"
                                     rel="noopener"
                                     class="btn gratis-card-btn">
@@ -131,6 +131,9 @@
 
 </main>
 
-<script src="/UNRINCONDEPT/static/js/recursos_gratuitos.js"></script>
+<script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/recursos_gratuitos.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

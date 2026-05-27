@@ -18,7 +18,7 @@
  * - Cargar sus tickets de soporte.
  * - Mostrar la vista perfil_view.php.
  */
-
+require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../modelos/Usuario.php';
 require_once __DIR__ . '/../modelos/Producto.php';
 require_once __DIR__ . '/../modelos/Soporte.php';
@@ -51,7 +51,7 @@ class UsuarioController
             una sesión activa. En ese caso, redirigimos al login.
         */
         if (!isset($_SESSION['usuario_id'])) {
-            header("Location: login.php");
+            header("Location:". BASE_URL . " login.php");
             exit();
         }
 
@@ -62,7 +62,7 @@ class UsuarioController
             Si intenta acceder otro tipo de usuario, se redirige al inicio.
         */
         if ($_SESSION['rol'] != 3) {
-            header("Location: index.php");
+            header("Location:". BASE_URL . "index.php");
             exit();
         }
 

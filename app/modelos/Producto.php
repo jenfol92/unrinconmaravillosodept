@@ -1404,4 +1404,117 @@ public function eliminarFavoritoUsuario($usuario_id, $producto_id)
     */
     return $stmt->rowCount() > 0;
 }
+/**
+ * Obtiene productos a partir de un listado de IDs.
+ * ---------------------------------------------------------
+ * Este método se usa para mostrar los productos guardados
+ * en la cookie productos_recientes.
+ *
+ * La cookie solo guarda IDs. Por eso necesitamos consultar
+ * la base de datos para obtener:
+ *
+ * - título
+ * - imagen
+ * - id
+ *
+ * Además, se respeta el orden de la cookie para que el último
+ * producto visto aparezca primero.
+ *
+ * @param array $ids Array de IDs de productos.
+ *
+ * @return array Listado de productos encontrados.
+ */
+public function obtenerProductosPorIds(array $ids): array
+{
+    /*
+        Si no llegan IDs, no hacemos consulta.
+    */
+    if (empty($ids)) {
+        return [];
+    }
+
+    /*
+        Convertimos los IDs a enteros por seguridad.
+    */
+    $ids = array_map('intval', $ids);
+
+    /*
+        Eliminamos IDs inválidos.
+    */
+    $ids = array_filter($ids, function ($id) {
+        return $id > 0;
+    });
+
+    /*
+        Quitamos duplicados.
+    */
+    $ids = array_values(array_unique($ids));
+
+    /*
+        Si después de limpiar no queda nada, devolvemos vacío.
+    */
+    if (empty($ids)) {
+        return [];
+    }
+
+    /*
+        Creamos los placeholders para la consulta preparada.
+
+        Ejemplo:
+        Si hay 3 IDs, genera:
+        ?, ?, ?
+    */
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+    /*
+        Consulta SQL.
+
+        Ajusta el nombre de la tabla o columnas si en tu base de datos
+        se llaman de otra manera.
+    */
+    $sql = "SELECT 
+                id,
+                titulo,
+                imagen
+            FROM productos
+            WHERE id IN ($placeholders)";
+
+    /*
+        Preparamos y ejecutamos la consulta.
+
+        IMPORTANTE:
+        Si en tu modelo la conexión no se llama $this->db,
+        cambia $this->db por el nombre que estés usando.
+    */
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute($ids);
+
+    /*
+        Obtenemos todos los productos encontrados.
+    */
+    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    /*
+        Creamos un índice de orden basado en la cookie.
+
+        Ejemplo:
+        Cookie: [8, 3, 15]
+
+        Queremos que el resultado salga en ese mismo orden.
+    */
+    $orden = array_flip($ids);
+
+    /*
+        Ordenamos los productos según el orden de los IDs guardados
+        en la cookie.
+    */
+    usort($productos, function ($a, $b) use ($orden) {
+        return ($orden[(int)$a['id']] ?? 9999) <=> ($orden[(int)$b['id']] ?? 9999);
+    });
+
+    /*
+        Devolvemos los productos ordenados.
+    */
+    return $productos;
+}
 }

@@ -5,7 +5,7 @@
     <section class="auth-left register-left">
 
         <div class="auth-preview-card">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Clase educativa">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Clase educativa">
         </div>
 
         <div class="auth-left-content">
@@ -20,12 +20,12 @@
 
     <section class="auth-right">
 
-        <a href="/UNRINCONDEPT/public/login.php" class="auth-back">
+        <a href="<?= BASE_URL ?>public/login.php" class="auth-back">
             ← Volver
         </a>
 
         <div class="auth-logo">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Logo">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Logo">
             <span>Un Rincón Maravilloso de PT</span>
         </div>
 
@@ -36,8 +36,8 @@
                 Empieza hoy mismo a descargar materiales increíbles.
             </p>
             <div class="auth-tabs">
-                <a href="/UNRINCONDEPT/public/login.php">Entrar</a>
-                <a href="/UNRINCONDEPT/public/registro.php" class="active">Registrarse</a>
+                <a href="<?= BASE_URL ?>public/login.php">Entrar</a>
+                <a href="<?= BASE_URL ?>public/registro.php" class="active">Registrarse</a>
             </div>
             <?php if (!empty($erroresRegistro)): ?>
     <div class="alert alert-danger">
@@ -48,7 +48,7 @@
         </ul>
     </div>
 <?php endif; ?>
-            <form id="formRegistro" action="/UNRINCONDEPT/public/registro.php" method="POST" novalidate>
+            <form id="formRegistro" action="<?= BASE_URL ?>public/registro.php" method="POST" novalidate>
 
                 <div class="auth-two-cols">
 
@@ -141,11 +141,11 @@
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">
                         Acepto la
-                        <a href="/UNRINCONDEPT/public/politica-privacidad.php" target="_blank">política de privacidad</a>,
+                        <a href="<?= BASE_URL ?>public/politica-privacidad.php" target="_blank">política de privacidad</a>,
                         la
-                        <a href="/UNRINCONDEPT/public/politica-cookies.php" target="_blank">política de cookies</a>
+                        <a href="<?= BASE_URL ?>public/politica-cookies.php" target="_blank">política de cookies</a>
                         y los
-                        <a href="/UNRINCONDEPT/public/terminos-compra.php" target="_blank">términos de compra</a>.
+                        <a href="<?= BASE_URL ?>public/terminos-compra.php" target="_blank">términos de compra</a>.
                     </label>
                 </div>
                 <button type="submit" class="auth-main-btn auth-register-btn">
@@ -156,7 +156,7 @@
 
             <p class="auth-switch">
                 ¿Ya tienes cuenta?
-                <a href="/UNRINCONDEPT/public/login.php">Inicia sesión aquí</a>
+                <a href="<?= BASE_URL ?>public/login.php">Inicia sesión aquí</a>
             </p>
 
         </div>

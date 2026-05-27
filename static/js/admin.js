@@ -53,7 +53,7 @@ document.addEventListener("click", function (e) {
 
     // Abrimos sección subir/editar
     const target = document.getElementById("admin-section-subir");
-    
+
 
     document.querySelectorAll(".admin-section").forEach(section => {
         section.classList.remove("active");
@@ -66,7 +66,7 @@ document.addEventListener("click", function (e) {
     if (target) {
         target.classList.add("active");
     }
-mostrarSoloFormularioEdicion("producto");
+    mostrarSoloFormularioEdicion("producto");
     const subirLink = document.querySelector('.admin-link[data-section="subir"]');
 
     if (subirLink) {
@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData(formNuevaCategoria);
 
-        fetch("/UNRINCONDEPT/public/admin_ajax_crear_categoria.php", {
+        fetch(BASE_URL + "public/admin_ajax_crear_categoria.php", {
             method: "POST",
             body: formData
         })
@@ -200,9 +200,9 @@ document.addEventListener("click", function (e) {
         btnGuardar.innerText = "Guardar recurso";
     }
 });
-// ===============================
+
 // SOPORTE ADMIN - RESPONDER TICKET
-// ===============================
+
 
 document.addEventListener("click", function (e) {
 
@@ -247,7 +247,7 @@ function cargarMensajesTicket(ticketId) {
         </div>
     `;
 
-    fetch(`/UNRINCONDEPT/public/admin_ajax_soporte_leer.php?ticket_id=${ticketId}`)
+    fetch(`${BASE_URL}public/admin_ajax_soporte_leer.php?ticket_id=${ticketId}`)
         .then(res => res.json())
         .then(data => {
 
@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("ticket_id", ticketId);
         formData.append("mensaje", mensaje);
 
-        fetch("/UNRINCONDEPT/public/admin_ajax_soporte_responder.php", {
+        fetch(BASE_URL + "public/admin_ajax_soporte_responder.php", {
             method: "POST",
             body: formData
         })
@@ -465,7 +465,7 @@ document.addEventListener("click", function (e) {
     formData.append("resena_id", btn.dataset.resenaId);
     formData.append("usuario_id", btn.dataset.usuarioId);
 
-    fetch("/UNRINCONDEPT/public/ajax_denunciar_reseña.php", {
+    fetch(BASE_URL + "public/ajax_denunciar_reseña.php", {
         method: "POST",
         body: formData
     })
@@ -489,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     cargarProductosAdmin(1);
 
-       const btnFiltrar = document.getElementById("btnFiltrarProductosAdmin");
+    const btnFiltrar = document.getElementById("btnFiltrarProductosAdmin");
     const buscador = document.getElementById("adminBuscarProducto");
     const filtroCategoria = document.getElementById("adminFiltroCategoria");
     const filtroEstado = document.getElementById("adminFiltroEstado");
@@ -563,7 +563,7 @@ function cargarProductosAdmin(pagina = 1) {
         </tr>
     `;
 
-    const url = `/UNRINCONDEPT/public/ajax_admin_panel_productos.php?pagina=${pagina}` +
+    const url = `${BASE_URL}public/ajax_admin_panel_productos.php?pagina=${pagina}` +
         `&busqueda=${encodeURIComponent(busqueda)}` +
         `&categoria=${encodeURIComponent(categoria)}` +
         `&estado=${encodeURIComponent(estado)}` +
@@ -669,17 +669,17 @@ function pintarProductosAdmin(productos) {
         const totalResenas = p.total_resenas ?? 0;
         const totalClicks = p.total_clicks ?? 0;
 
-        // ==========================
+
         // TABLA ESCRITORIO/TABLET
-        // ==========================
+
         htmlTabla += `
             <tr>
                 <td>
                     <div class="admin-product-info">
                         <img 
-                            src="/UNRINCONDEPT/static/images/img/${escapeHtml(imagen)}" 
+                            src="${BASE_URL}static/images/img/${escapeHtml(imagen)}" 
                             alt="${titulo}"
-                            onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';"
+                            onerror="this.onerror=null;this.src='${BASE_URL}static/images/img/default.png';"
                         >
 
                         <div>
@@ -734,28 +734,29 @@ function pintarProductosAdmin(productos) {
                         </button>
 
                         <a
-                            href="/UNRINCONDEPT/public/detalle.php?id=${p.id}"
+                            href="${BASE_URL}public/detalle.php?id=${p.id}"
                             class="btn btn-sm btn-outline-secondary"
                             target="_blank">
                             <i class="bi bi-eye"></i>
                         </a>
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-danger btn-eliminar-producto"
-                            data-producto-id="${p.id}"
-                            data-producto-titulo="${titulo}">
-                            <i class="bi bi-trash"></i>
-                        </button>
+            <button
+    type="button"
+    class="dropdown-item text-danger btn-eliminar-producto"
+    data-producto-id="${p.id}"
+    data-producto-titulo="${titulo}"
+    data-tiene-archivo="${p.archivo_s3_key ? '1' : '0'}">
+    <i class="bi bi-trash me-2"></i>
+    Eliminar
+</button>
 
                     </div>
                 </td>
             </tr>
         `;
 
-        // ==========================
+
         // TARJETA MÓVIL
-        // ==========================
+
         htmlCards += `
             <article class="admin-product-card-mobile">
 
@@ -763,9 +764,9 @@ function pintarProductosAdmin(productos) {
 
                     <div class="admin-product-card-mobile__image">
                         <img 
-                            src="/UNRINCONDEPT/static/images/img/${escapeHtml(imagen)}" 
+                            src="${BASE_URL}static/images/img/${escapeHtml(imagen)}" 
                             alt="${titulo}"
-                            onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';"
+                            onerror="this.onerror=null;this.src='${BASE_URL}static/images/img/default.png';"
                         >
                     </div>
 
@@ -819,7 +820,7 @@ function pintarProductosAdmin(productos) {
 
                             <li>
                                 <a
-                                    href="/UNRINCONDEPT/public/detalle.php?id=${p.id}"
+                                    href="${BASE_URL}public/detalle.php?id=${p.id}"
                                     class="dropdown-item"
                                     target="_blank">
                                     <i class="bi bi-eye me-2"></i>
@@ -830,14 +831,15 @@ function pintarProductosAdmin(productos) {
                             <li><hr class="dropdown-divider"></li>
 
                             <li>
-                                <button
-                                    type="button"
-                                    class="dropdown-item text-danger btn-eliminar-producto"
-                                    data-producto-id="${p.id}"
-                                    data-producto-titulo="${titulo}">
-                                    <i class="bi bi-trash me-2"></i>
-                                    Eliminar
-                                </button>
+            <button
+    type="button"
+    class="dropdown-item text-danger btn-eliminar-producto"
+    data-producto-id="${p.id}"
+    data-producto-titulo="${titulo}"
+    data-tiene-archivo="${p.archivo_s3_key ? '1' : '0'}">
+    <i class="bi bi-trash me-2"></i>
+    Eliminar
+</button>
                             </li>
 
                         </ul>
@@ -964,7 +966,7 @@ document.addEventListener("click", function (e) {
     const contenedor = document.getElementById("modalAdminUsuariosContenido");
     contenedor.innerHTML = "Cargando descargas...";
 
-    fetch(`/UNRINCONDEPT/public/admin_ajax_descargas_usuario.php?usuario_id=${usuarioId}`)
+    fetch(`${BASE_URL}public/admin_ajax_descargas_usuario.php?usuario_id=${usuarioId}`)
         .then(res => res.json())
         .then(data => {
 
@@ -1031,7 +1033,7 @@ document.addEventListener("click", function (e) {
     const contenedor = document.getElementById("modalAdminUsuariosContenido");
     contenedor.innerHTML = "Cargando reseñas...";
 
-    fetch(`/UNRINCONDEPT/public/ajax_admin_reseñas_usuario.php?usuario_id=${usuarioId}`)
+    fetch(`${BASE_URL}public/ajax_admin_reseñas_usuario.php?usuario_id=${usuarioId}`)
         .then(res => res.json())
         .then(data => {
 
@@ -1101,7 +1103,7 @@ document.addEventListener("click", function (e) {
     formData.append("resena_id", btn.dataset.resenaId);
     formData.append("estado", btn.dataset.estado);
 
-    fetch("/UNRINCONDEPT/public/ajax_admin_estado_reseña.php", {
+    fetch(BASE_URL + "public/ajax_admin_estado_reseña.php", {
         method: "POST",
         body: formData
     })
@@ -1136,7 +1138,7 @@ document.addEventListener("click", function (e) {
     formData.append("usuario_id", usuarioId);
     formData.append("activo", nuevoEstado);
 
-    fetch("/UNRINCONDEPT/public/ajax_admin_estado_usuario.php", {
+    fetch(BASE_URL + "public/ajax_admin_estado_usuario.php", {
         method: "POST",
         body: formData
     })
@@ -1165,7 +1167,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData(formProducto);
 
-        fetch("/UNRINCONDEPT/public/admin_guardar_producto.php", {
+        fetch(BASE_URL + "public/admin_guardar_producto.php", {
             method: "POST",
             body: formData
         })
@@ -1258,7 +1260,7 @@ document.addEventListener("submit", function (e) {
         `;
     }
 
-    fetch("/UNRINCONDEPT/public/admin_ajax_subir_recurso.php", {
+    fetch(BASE_URL + "public/admin_ajax_subir_recurso.php", {
         method: "POST",
         body: formData
     })
@@ -1304,7 +1306,7 @@ document.addEventListener("submit", function (e) {
         });
 });
 
-// ELIMINAR PRODUCTO Y SU ARCHIVO EN CLOUDFLARE R2
+// ELIMINAR PRODUCTO Y PREGUNTAR SI ELIMINAR SU ARCHIVO EN CLOUDFLARE R2
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-eliminar-producto");
@@ -1314,22 +1316,45 @@ document.addEventListener("click", function (e) {
     const productoId = btn.dataset.productoId;
     const titulo = btn.dataset.productoTitulo || "este recurso";
 
-    const confirmar = confirm(
-        `¿Seguro que quieres eliminar "${titulo}"?\n\n` +
-        `Si tiene archivo PDF/ZIP asociado, también se eliminará de Cloudflare.`
+    /*
+        Este dato debe venir en el botón:
+        data-tiene-archivo="1" si tiene archivo_s3_key
+        data-tiene-archivo="0" si no tiene archivo
+    */
+    const tieneArchivo = btn.dataset.tieneArchivo === "1";
+
+    const confirmarProducto = confirm(
+        `¿Seguro que quieres eliminar "${titulo}"?`
     );
 
-    if (!confirmar) return;
+    if (!confirmarProducto) return;
+
+    let eliminarArchivo = "0";
+
+    /*
+        Solo preguntamos por Cloudflare si el producto tiene archivo asociado.
+    */
+    if (tieneArchivo) {
+        const confirmarArchivo = confirm(
+            `Este recurso tiene un archivo PDF/ZIP asociado en Cloudflare R2.\n\n` +
+            `¿Quieres eliminar también ese archivo?`
+        );
+
+        eliminarArchivo = confirmarArchivo ? "1" : "0";
+    }
 
     const formData = new FormData();
     formData.append("producto_id", productoId);
+    formData.append("eliminar_archivo", eliminarArchivo);
 
-    fetch("/UNRINCONDEPT/public/admin_eliminar_producto.php", {
+    fetch(BASE_URL + "public/admin_eliminar_producto.php", {
         method: "POST",
         body: formData
     })
         .then(res => res.text())
         .then(texto => {
+
+            console.log("Respuesta eliminar producto:", texto);
 
             let data;
 
@@ -1369,7 +1394,7 @@ document.addEventListener("click", function (e) {
     const categoria = document.getElementById("adminFiltroCategoria")?.value || "";
     const estado = document.getElementById("adminFiltroEstado")?.value || "";
 
-    const url = "/UNRINCONDEPT/public/admin_exportar_reporte_pdf.php" +
+    const url = BASE_URL + "public/admin_exportar_reporte_pdf.php" +
         "?busqueda=" + encodeURIComponent(busqueda) +
         "&categoria=" + encodeURIComponent(categoria) +
         "&estado=" + encodeURIComponent(estado);
@@ -1388,7 +1413,7 @@ document.addEventListener("submit", function (e) {
     const formData = new FormData(form);
     const respuesta = document.getElementById("respuestaRecursoGratuito");
 
-    fetch("/UNRINCONDEPT/public/ajax_guardar_recurso_gratuito.php", {
+    fetch(BASE_URL + "public/ajax_guardar_recurso_gratuito.php", {
         method: "POST",
         body: formData
     })
@@ -1425,7 +1450,7 @@ document.addEventListener("click", function (e) {
     });
 
     document.getElementById("admin-section-subir").classList.add("active");
-mostrarSoloFormularioEdicion("gratuito");
+    mostrarSoloFormularioEdicion("gratuito");
     document.querySelectorAll(".admin-link").forEach(link => {
         link.classList.remove("active");
     });
@@ -1447,7 +1472,7 @@ mostrarSoloFormularioEdicion("gratuito");
     const imgGratuito = document.getElementById("imgActualGratuito");
 
     if (previewGratuito && imgGratuito) {
-        imgGratuito.src = `/UNRINCONDEPT/static/images/img/${imagen}`;
+        imgGratuito.src = `${BASE_URL}static/images/img/${imagen}`;
         previewGratuito.style.display = "block";
     }
 
@@ -1494,7 +1519,7 @@ document.addEventListener("submit", function (e) {
     const formData = new FormData(form);
     const respuesta = document.getElementById("respuestaCategoriaGratuita");
 
-    fetch("/UNRINCONDEPT/public/admin_crear_categoria_gratuita.php", {
+    fetch(BASE_URL + "public/admin_crear_categoria_gratuita.php", {
         method: "POST",
         body: formData
     })
@@ -1542,33 +1567,33 @@ document.addEventListener("click", function (e) {
     const formData = new FormData();
     formData.append("id", id);
 
-    fetch("/UNRINCONDEPT/public/admin_eliminar_recurso_gratuito.php", {
+    fetch(BASE_URL + "public/admin_eliminar_recurso_gratuito.php", {
         method: "POST",
         body: formData
     })
-    .then(res => res.text())
-    .then(texto => {
+        .then(res => res.text())
+        .then(texto => {
 
-        let data;
+            let data;
 
-        try {
-            data = JSON.parse(texto);
-        } catch (e) {
-            console.error("Respuesta no JSON al eliminar recurso gratuito:", texto);
-            alert("El servidor no ha devuelto JSON. Mira la consola para ver el error real.");
-            return;
-        }
+            try {
+                data = JSON.parse(texto);
+            } catch (e) {
+                console.error("Respuesta no JSON al eliminar recurso gratuito:", texto);
+                alert("El servidor no ha devuelto JSON. Mira la consola para ver el error real.");
+                return;
+            }
 
-        alert(data.mensaje || data.error || "Operación finalizada.");
+            alert(data.mensaje || data.error || "Operación finalizada.");
 
-        if (data.ok) {
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error("Error eliminando recurso gratuito:", error);
-        alert("Error eliminando recurso gratuito.");
-    });
+            if (data.ok) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error("Error eliminando recurso gratuito:", error);
+            alert("Error eliminando recurso gratuito.");
+        });
 });
 
 // MOSTRAR SOLO EL FORMULARIO QUE SE ESTÁ EDITANDO
@@ -1832,7 +1857,7 @@ document.addEventListener("click", function (e) {
     const desde = document.getElementById("gratisDesde")?.value || "";
     const hasta = document.getElementById("gratisHasta")?.value || "";
 
-    let url = "/UNRINCONDEPT/public/admin.php?section=gratuitos&periodo_gratis=" + encodeURIComponent(periodo);
+    let url = BASE_URL + "public/admin.php?section=gratuitos&periodo_gratis=" + encodeURIComponent(periodo);
 
     if (periodo === "personalizado") {
         url += "&gratis_desde=" + encodeURIComponent(desde);
@@ -1841,9 +1866,9 @@ document.addEventListener("click", function (e) {
 
     window.location.href = url;
 });
-// ======================================================
+
 // SIDEBAR ADMIN RESPONSIVE
-// ======================================================
+
 
 document.addEventListener("click", function (e) {
 
@@ -1941,7 +1966,7 @@ document.addEventListener("click", function (e) {
         contenedor.innerHTML = "Cargando favoritos...";
     }
 
-    fetch(`/UNRINCONDEPT/public/admin_ajax_favoritos_usuario.php?usuario_id=${encodeURIComponent(usuarioId)}`)
+    fetch(`${BASE_URL}public/admin_ajax_favoritos_usuario.php?usuario_id=${encodeURIComponent(usuarioId)}`)
         .then(res => res.text())
         .then(texto => {
 
@@ -2012,9 +2037,9 @@ document.addEventListener("click", function (e) {
                         <td data-label="Producto">
                             <div class="admin-product-info">
                                 <img
-                                    src="/UNRINCONDEPT/static/images/img/${escapeHtml(imagen)}"
+                                    src="${BASE_URL}static/images/img/${escapeHtml(imagen)}"
                                     alt="${escapeHtml(f.titulo)}"
-                                    onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+                                    onerror="this.onerror=null;this.src='${BASE_URL}static/images/img/default.png';">
                                 <div>
                                     <strong>${escapeHtml(f.titulo)}</strong>
                                     <div class="text-muted small">ID #${f.id}</div>
@@ -2039,7 +2064,7 @@ document.addEventListener("click", function (e) {
                         </td>
 
                         <td data-label="Acciones" class="text-end">
-                            <a href="/UNRINCONDEPT/public/detalle.php?id=${f.id}"
+                            <a href= "${BASE_URL}public/detalle.php?id=${f.id}"
                                target="_blank"
                                class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-eye"></i>

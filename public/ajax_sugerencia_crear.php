@@ -1,35 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * Endpoint AJAX para enviar sugerencias de usuario.
+ * ---------------------------------------------------------
+ * Este archivo se llama desde JavaScript cuando un usuario
+ * logueado envía una sugerencia desde la web.
+ *
+ * Su única responsabilidad es:
+ * - Cargar el SoporteController.
+ * - Ejecutar el método guardarSugerenciaAjax().
+ *
+ * La lógica real está dentro del controlador.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Debes iniciar sesión para enviar sugerencias.'
-    ]);
-    exit;
-}
-
-$mensaje = trim($_POST['mensaje'] ?? '');
-
-if ($mensaje === '') {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Debes escribir una sugerencia.'
-    ]);
-    exit;
-}
-
-$model = new Soporte();
-
-$model->crearSugerencia($_SESSION['usuario_id'], $mensaje);
-
-echo json_encode([
-    'ok' => true,
-    'mensaje' => 'Tu sugerencia se ha enviado correctamente.'
-]);
-
-exit;
+$controller = new SoporteController();
+$controller->guardarSugerenciaAjax();

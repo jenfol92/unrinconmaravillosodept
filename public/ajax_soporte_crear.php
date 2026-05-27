@@ -1,46 +1,34 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * AJAX: crear ticket de soporte
+ * ---------------------------------------------------------
+ * Punto de entrada público para crear una nueva consulta de soporte
+ * desde el panel del usuario.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_soporte_crear.php
+ * → SoporteController::crearTicketAjax()
+ * → Soporte::crearTicket()
+ *
+ * Entrada esperada por POST:
+ * - asunto
+ * - mensaje
+ *
+ * Respuesta:
+ * - JSON con ok, ticket_id y mensaje, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-// Comprobamos sesión
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
+/**
+ * Instanciamos el controlador de soporte.
+ */
+$controller = new SoporteController();
 
-// Recogemos datos
-$asunto = trim($_POST['asunto'] ?? '');
-$mensaje = trim($_POST['mensaje'] ?? '');
-
-// Validamos campos
-if ($asunto === '' || $mensaje === '') {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Completa asunto y mensaje'
-    ]);
-    exit;
-}
-
-// Creamos ticket
-$soporte = new Soporte();
-
-$ticket_id = $soporte->crearTicket(
-    $_SESSION['usuario_id'],
-    $asunto,
-    $mensaje
-);
-
-// Devolvemos respuesta
-echo json_encode([
-    'ok' => true,
-    'ticket_id' => $ticket_id,
-    'mensaje' => 'Tu consulta se ha enviado correctamente.'
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->crearTicketAjax();

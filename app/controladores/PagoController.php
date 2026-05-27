@@ -122,7 +122,7 @@ class PagoController
                 devolvemos al usuario al carrito.
             */
             if (empty($ids)) {
-                header('Location: /UNRINCONDEPT/public/carrito.php');
+                header('Location:' . BASE_URL .'public/carrito.php');
                 exit;
             }
 
@@ -219,7 +219,7 @@ class PagoController
                 devolvemos al usuario al carrito.
             */
             if (empty($line_items) || empty($productosPedido)) {
-                header('Location: /UNRINCONDEPT/public/carrito.php');
+                header('Location:' . BASE_URL . 'public/carrito.php');
                 exit;
             }
 

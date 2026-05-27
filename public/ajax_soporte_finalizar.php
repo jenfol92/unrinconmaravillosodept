@@ -1,24 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * AJAX: finalizar ticket de soporte
+ * ---------------------------------------------------------
+ * Punto de entrada público para finalizar una consulta de soporte
+ * desde el panel del usuario.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_soporte_finalizar.php
+ * → SoporteController::finalizarTicketAjax()
+ * → Soporte::finalizarTicket()
+ *
+ * Entrada esperada por POST:
+ * - ticket_id
+ *
+ * Respuesta:
+ * - JSON con ok y mensaje, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode(['ok' => false, 'error' => 'No autorizado']);
-    exit;
-}
+/**
+ * Instanciamos el controlador de soporte.
+ */
+$controller = new SoporteController();
 
-$ticket_id = $_POST['ticket_id'] ?? null;
-
-if (!$ticket_id) {
-    echo json_encode(['ok' => false, 'error' => 'Ticket no válido']);
-    exit;
-}
-
-$model = new Soporte();
-$model->finalizarTicket($ticket_id, $_SESSION['usuario_id']);
-
-echo json_encode(['ok' => true, 'mensaje' => 'Consulta finalizada correctamente.']);
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->finalizarTicketAjax();

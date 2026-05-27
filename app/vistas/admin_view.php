@@ -85,7 +85,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
             <i class="bi bi-chevron-down admin-mobile-menu-chevron"></i>
         </button>
 
-        <a href="/UNRINCONDEPT/public/index.php"
+        <a href="<?= BASE_URL ?>public/index.php"
             class="admin-mobile-home">
             <i class="bi bi-house"></i>
         </a>
@@ -152,11 +152,11 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
 
             </nav>
             <div>
-                <a href="/UNRINCONDEPT/public/index.php" class="admin-back">
+                <a href="<?= BASE_URL ?>public/index.php" class="admin-back">
                     <i class="bi bi-house"></i>
                     Volver a la Web
                 </a>
-                <a href="/UNRINCONDEPT/public/logout.php" class="admin-back">
+                <a href="<?= BASE_URL ?>public/logout.php" class="admin-back">
                     Cerrar sessión
                 </a>
             </div>
@@ -189,7 +189,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                     </div>
 
                     <div class="admin-actions">
-                        <a href="/UNRINCONDEPT/public/admin_exportar_reporte_pdf.php"
+                        <a href="<?= BASE_URL ?>public/admin_exportar_reporte_pdf.php"
                             class="btn btn-outline-danger"
                             id="btnExportarReporte">
                             <i class="bi bi-filetype-pdf"></i>
@@ -210,7 +210,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
      El controlador calcula el rango real de fechas y devuelve
      $rangoVentas para mantener seleccionados los valores.
     -->
-                <form method="GET" action="/UNRINCONDEPT/public/admin.php" class="row g-2 align-items-end mb-4">
+                <form method="GET" action="<?= BASE_URL ?>public/admin.php" class="row g-2 align-items-end mb-4">
 
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-bold">Periodo de ventas</label>
@@ -375,7 +375,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                                 <tr>
                                                     <td>
                                                         <div class="admin-product-info">
-                                                            <img src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($p['imagen'] ?? 'default.png') ?>"
+                                                            <img src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($p['imagen'] ?? 'default.png') ?>"
                                                                 alt="<?= htmlspecialchars($p['titulo']) ?>">
 
                                                             <div>
@@ -508,7 +508,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                             </p>
 
                             <form id="formSubirRecurso"
-                                action="/UNRINCONDEPT/public/admin_guardar_producto.php"
+                                action="<?= BASE_URL ?>public/admin_guardar_producto.php"
                                 method="POST"
                                 enctype="multipart/form-data">
 
@@ -728,7 +728,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                 </p>
 
                                 <form id="formAsociarArchivo"
-                                    action="/UNRINCONDEPT/public/admin_ajax_subir_recurso.php"
+                                    action="<?= BASE_URL ?>public/admin_ajax_subir_recurso.php"
                                     method="POST"
                                     enctype="multipart/form-data">
 
@@ -1287,7 +1287,6 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                     <th>Título</th>
                                     <th>Categoría</th>
                                     <th>Clicks</th>
-                                    <th>Descargas</th>
                                     <th>Estado</th>
                                     <th class="text-end">Acciones</th>
                                 </tr>
@@ -1321,10 +1320,10 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                             data-estado="<?= htmlspecialchars($r['estado'] ?? 'activo', ENT_QUOTES) ?>">
 
                                             <td>
-                                                <img src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($r['imagen'] ?? 'default.png') ?>"
+                                                <img src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($r['imagen'] ?? 'default.png') ?>"
                                                     alt="<?= htmlspecialchars($r['titulo'] ?? 'Recurso gratuito') ?>"
                                                     style="width:60px;height:60px;object-fit:cover;border-radius:10px;"
-                                                    onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+                                                    onerror="this.onerror=null;this.src='<?= BASE_URL ?>static/images/img/default.png';">
                                             </td>
 
                                             <td>
@@ -1343,10 +1342,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                                 <?= (int)($r['clicks'] ?? 0) ?>
                                             </td>
 
-                                            <td>
-                                                <i class="bi bi-download"></i>
-                                                <?= (int)($r['descargas'] ?? 0) ?>
-                                            </td>
+                                            
 
                                             <td>
                                                 <?php if (($r['estado'] ?? '') === 'activo'): ?>
@@ -1428,7 +1424,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                         <div class="admin-free-card-mobile__top">
 
                                             <div class="admin-free-card-mobile__image">
-                                                <img src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($r['imagen'] ?? 'default.png') ?>"
+                                                <img src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($r['imagen'] ?? 'default.png') ?>"
                                                     alt="<?= htmlspecialchars($r['titulo'] ?? 'Recurso gratuito') ?>"
                                                     onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
                                             </div>
@@ -2604,7 +2600,9 @@ SCRIPT PRINCIPAL DEL PANEL ADMIN
      - Gestión de recursos gratuitos.
      - Modales y acciones dinámicas.
      -->
-
-<script src="/UNRINCONDEPT/static/js/admin.js"></script>
+<script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/admin.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

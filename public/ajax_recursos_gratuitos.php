@@ -1,26 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../app/modelos/recursosGratuitos.php';
+/**
+ * Endpoint AJAX para filtrar recursos gratuitos.
+ * ---------------------------------------------------------
+ * Este archivo es llamado desde JavaScript cuando el usuario
+ * filtra recursos gratuitos en la parte pública de la web.
+ *
+ * Su única responsabilidad es:
+ * - Cargar RecursoGratuitoController.
+ * - Ejecutar el método filtrarRecursosGratuitosAjax().
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/RecursoGratuitoController.php';
 
-$model = new RecursoGratuito();
-
-$categorias = $_GET['categorias'] ?? '';
-$busqueda = trim($_GET['busqueda'] ?? '');
-
-$categorias = $categorias ? json_decode($categorias, true) : [];
-
-if (!is_array($categorias)) {
-    $categorias = [];
-}
-
-$recursos = $model->obtenerRecursosGratuitos($categorias, $busqueda);
-
-echo json_encode([
-    'ok' => true,
-    'recursos' => $recursos,
-    'total' => count($recursos)
-]);
-
-exit;
+$controller = new RecursoGratuitoController();
+$controller->filtrarRecursosGratuitosAjax();

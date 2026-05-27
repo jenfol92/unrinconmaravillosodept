@@ -83,7 +83,7 @@
         <!-- IMAGEN PRINCIPAL -->
         <img
             id="productoImagenPrincipal"
-            src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
             class="img-fluid rounded-4 producto-media-img"
             alt="<?= htmlspecialchars($producto['titulo']) ?>">
 
@@ -98,7 +98,7 @@
                 playsinline>
 
                 <source
-                    src="/UNRINCONDEPT/static/videos/<?= htmlspecialchars($producto['video_url']) ?>"
+                    src="<?= BASE_URL ?>static/videos/<?= htmlspecialchars($producto['video_url']) ?>"
                     type="video/mp4">
 
                 Tu navegador no soporta la reproducción de vídeo.
@@ -117,13 +117,15 @@
     <div class="d-flex gap-3">
 
         <!-- MINIATURA IMAGEN -->
+        
         <img
             id="thumbImagenProducto"
-            src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
             class="rounded-3 border producto-thumb active"
             width="90"
             style="cursor:pointer;"
             onclick="mostrarImagenProducto()">
+
 
         <!-- MINIATURA VIDEO -->
         <?php if (!empty($producto['video_url'])): ?>
@@ -377,7 +379,7 @@
                 <?php if (!isset($_SESSION['usuario_id'])): ?>
 
                     <a
-                        href="/UNRINCONDEPT/public/contacto.php?producto_id=<?= $producto['id'] ?>"
+                        href="<?= BASE_URL ?>public/contacto.php?producto_id=<?= $producto['id'] ?>"
                         class="btn btn-outline-primary">
                         <i class="bi bi-chat-dots"></i>
                         Contactar con la autora
@@ -469,7 +471,7 @@
         -->
                     <article
                         class="resource-card producto-relacionado-card <?= $colorCard ?>"
-                        onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$item['id'] ?>'"
+                        onclick="window.location.href='<?= BASE_URL ?>public/detalle.php?id=<?= (int)$item['id'] ?>'"
                         style="cursor: pointer;">
 
                         <!-- Categoría del producto -->
@@ -484,7 +486,7 @@
                 -->
                         <div class="producto-relacionado-img-box">
                             <img
-                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($item['imagen']) ?>"
+                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($item['imagen']) ?>"
                                 alt="<?= htmlspecialchars($item['titulo']) ?>">
                         </div>
 
@@ -548,7 +550,7 @@
                                     <?php else: ?>
 
                                         <a
-                                            href="/UNRINCONDEPT/public/login.php"
+                                            href="<?= BASE_URL ?>public/login.php"
                                             class="btn-carrito btn-favorito-relacionado"
                                             onclick="event.stopPropagation();"
                                             title="Inicia sesión para guardar favoritos">
@@ -637,9 +639,13 @@
          detalle_producto.js:
          - gestiona el envío del formulario de consulta a la autora
         -->
-    <script src="/UNRINCONDEPT/static/js/tienda.js"></script>
-    <script src="/UNRINCONDEPT/static/js/detalle_producto.js"></script>
-    <script src="/UNRINCONDEPT/static/js/guardar_producto_visitado_recientemente.js"></script>
+         <script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+    <script src="<?= BASE_URL ?>static/js/tienda.js"></script>
+    <script src="<?= BASE_URL ?>static/js/carrito.js"></script>
+    <script src="<?= BASE_URL ?>static/js/detalle_producto.js"></script>
+    <script src="<?= BASE_URL ?>static/js/guardar_producto_visitado_recientemente.js"></script>
 </div>
 
     <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

@@ -75,7 +75,7 @@
              Redirige al perfil del usuario, donde podrá acceder
              a los recursos adquiridos tras el pago.
       -->
-        <a href="/UNRINCONDEPT/public/perfil.php" class="btn btn-primary">
+        <a href="<?= BASE_URL ?>public/perfil.php" class="btn btn-primary">
             Ir a mis descargas
         </a>
 

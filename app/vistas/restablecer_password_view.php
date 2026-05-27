@@ -5,7 +5,7 @@
     <section class="auth-left login-left">
 
         <div class="auth-preview-card">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Recursos educativos">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Recursos educativos">
         </div>
 
         <div class="auth-left-content">
@@ -19,12 +19,12 @@
 
     <section class="auth-right">
 
-        <a href="/UNRINCONDEPT/public/login.php" class="auth-back">
+        <a href="<?= BASE_URL ?>public/login.php" class="auth-back">
             ← Volver al login
         </a>
 
         <div class="auth-logo">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Logo">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Logo">
             <span>UnRincónPT</span>
         </div>
 
@@ -48,11 +48,11 @@
                 </div>
 
                 <p class="auth-switch">
-                    <a href="/UNRINCONDEPT/public/login.php">Ir al inicio de sesión</a>
+                    <a href="<?= BASE_URL ?>public/login.php">Ir al inicio de sesión</a>
                 </p>
             <?php else: ?>
 
-                <form action="/UNRINCONDEPT/public/restablecer-password.php" method="POST" novalidate>
+                <form action="<?= BASE_URL ?>public/restablecer-password.php" method="POST" novalidate>
 
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token ?? '') ?>">
 

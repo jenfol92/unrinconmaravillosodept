@@ -1,34 +1,34 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * AJAX: responder ticket de soporte desde el usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para que un usuario logueado pueda
+ * responder a una conversación de soporte desde su panel.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_usuario_soporte_responder.php
+ * → SoporteController::responderTicketUsuarioAjax()
+ * → Soporte::enviarMensaje()
+ *
+ * Entrada esperada por POST:
+ * - ticket_id
+ * - mensaje
+ *
+ * Respuesta:
+ * - JSON con ok y mensaje, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode(['ok' => false, 'error' => 'No autorizado']);
-    exit;
-}
+/**
+ * Instanciamos el controlador de soporte.
+ */
+$controller = new SoporteController();
 
-$ticket_id = $_POST['ticket_id'] ?? null;
-$mensaje = trim($_POST['mensaje'] ?? '');
-
-if (!$ticket_id || $mensaje === '') {
-    echo json_encode(['ok' => false, 'error' => 'Datos incompletos']);
-    exit;
-}
-
-$model = new Soporte();
-$model->enviarMensaje($ticket_id, 'usuario', $mensaje, $_SESSION['nombre_usuario'] ?? 'Usuario');
-$ok = $model->enviarMensaje($ticket_id, 'usuario', $mensaje,  $_SESSION['nombre_usuario'] ?? 'Usuario');
-
-if (!$ok) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Esta consulta está cerrada y no admite nuevos mensajes.'
-    ]);
-    exit;
-}
-
-echo json_encode(['ok' => true, 'mensaje' => 'Respuesta enviada correctamente.']);
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->responderTicketUsuarioAjax();

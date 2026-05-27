@@ -8,6 +8,16 @@
  * el enlace de recuperación de contraseña.
  */
 
-define('APP_ENV', 'local');
+$host = $_SERVER['HTTP_HOST'] ?? '';
 
-define('APP_BASE_URL', 'http://localhost/UNRINCONDEPT/public');
+if ($host === 'localhost' || str_starts_with($host, '127.0.0.1')) {
+
+    define('APP_ENV', 'local');
+    define('BASE_URL', 'http://localhost/UNRINCONDEPT/');
+
+} else {
+
+    define('APP_ENV', 'production');
+    define('BASE_URL', 'https://unrinconmaravillosodept.es/');
+
+}

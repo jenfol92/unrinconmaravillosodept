@@ -223,7 +223,7 @@
                             <?php if (!empty($producto) && !empty($producto['imagen'])): ?>
 
                                 <img
-                                    src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                    src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
                                     alt="<?= htmlspecialchars($producto['titulo']) ?>">
 
                                 <div class="contacto-img-caption">
@@ -321,6 +321,9 @@
      - formContactoPublico
      - respuestaContactoPublico
  -->
-<script src="/UNRINCONDEPT/static/js/contacto.js"></script>
+     <script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/contacto.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

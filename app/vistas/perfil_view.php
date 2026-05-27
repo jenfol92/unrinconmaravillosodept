@@ -284,7 +284,7 @@
                                                             <div class="d-flex align-items-center gap-3 panel-recurso-info">
                                                                 <?php if (!empty($producto['imagen'])): ?>
                                                                     <img
-                                                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
                                                                         alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
                                                                         class="panel-product-img">
                                                                 <?php else: ?>
@@ -323,14 +323,14 @@
 
                                                             <div class="panel-acciones-recursos">
                                                                 <!-- Descarga mediante token seguro -->
-                                                                <a href="/UNRINCONDEPT/public/descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
+                                                                <a href="<?= BASE_URL ?>public/descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
                                                                     class="btn btn-sm btn-success">
                                                                     <i class="bi bi-download"></i>
                                                                     Descargar
                                                                 </a>
                                                                 <!-- Acceso al detalle público del producto -->
                                                                 <a
-                                                                    href="/UNRINCONDEPT/public/detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
+                                                                    href="<?= BASE_URL ?>public/detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
                                                                     class="btn btn-sm btn-outline-primary"
                                                                     title="Ver detalle">
                                                                     <i class="bi bi-eye"></i>
@@ -412,14 +412,14 @@
 
                                             <?php foreach ($favoritos as $fav): ?>
 
-                                                < id="favorito-row-<?= (int)$fav['id'] ?>">
+                                                <tr id="favorito-row-<?= (int)$fav['id'] ?>">
 
                                                     <!-- Imagen + título -->
                                                     <td>
                                                         <div class="d-flex align-items-center gap-3">
 
                                                             <img
-                                                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($fav['imagen']) ?>"
+                                                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($fav['imagen']) ?>"
                                                                 alt="<?= htmlspecialchars($fav['titulo']) ?>"
                                                                 class="panel-product-img">
 
@@ -447,7 +447,7 @@
 
                                                         <!-- Ver detalle -->
                                                         <a
-                                                            href="/UNRINCONDEPT/public/detalle.php?id=<?= $fav['id'] ?>"
+                                                            href="<?= BASE_URL ?>public/detalle.php?id=<?= $fav['id'] ?>"
                                                             class="btn btn-primary btn-sm">
                                                             Ver
                                                         </a>
@@ -457,17 +457,17 @@
                                                             -->
                                                         <button
                                                             type="button"
-                                                            class="btn btn-sm btn-success"
-                                                            onclick="gestionarSesion(<?= (int)$fav['id'] ?>, 'add_carrito')">
+                                                            class="btn btn-sm btn-success btn-carrito-accion"
+                                                            data-id="<?= (int)$fav['id'] ?>"
+                                                            data-accion="add_carrito">
                                                             <i class="bi bi-cart-plus"></i>
-
                                                         </button>
 
                                                     </td>
 
-                                                    </tr>
+                                                </tr>
 
-                                                <?php endforeach; ?>
+                                            <?php endforeach; ?>
 
                                         </tbody>
 
@@ -667,7 +667,7 @@
                                 Gestiona la seguridad de tu cuenta.
                             </p>
 
-                        
+
                             <!-- Último acceso -->
                             <div class="security-card">
 
@@ -722,7 +722,7 @@
                                 </p>
 
                                 <a
-                                    href="/UNRINCONDEPT/public/logout.php"
+                                    href="<?= BASE_URL ?>public/logout.php"
                                     class="btn btn-outline-danger">
                                     Cerrar sesión
                                 </a>
@@ -1179,7 +1179,12 @@ Modal reutilizable para mostrar información adicional.
      - finalización de tickets;
      - envío de sugerencias;
      - apertura y envío de reseñas.-->
-<script src="/UNRINCONDEPT/static/js/usuario.js"></script>
-<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
+<script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/usuario.js"></script>
+<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
+<script src="<?= BASE_URL ?>static/js/carrito.js"></script>
+<script src="<?= BASE_URL ?>static/js/soporte_usuario.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

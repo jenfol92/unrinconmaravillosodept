@@ -62,7 +62,7 @@
 
         <!-- Tarjeta visual con imagen de la marca -->
         <div class="auth-preview-card">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Recursos educativos">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Recursos educativos">
         </div>
 
         <!-- Texto promocional de la zona izquierda -->
@@ -83,13 +83,13 @@
     <section class="auth-right">
 
         <!-- Enlace para volver a la página principal -->
-        <a href="/UNRINCONDEPT/public/index.php" class="auth-back">
+        <a href="<?= BASE_URL ?>public/index.php" class="auth-back">
             ← Volver al inicio
         </a>
 
         <!-- Logo pequeño de la zona de autenticación -->
         <div class="auth-logo">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Logo">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Logo">
             <span>UnRincónPT</span>
         </div>
 
@@ -107,8 +107,8 @@
                  La pestaña activa es "Entrar".
              -->
             <div class="auth-tabs">
-                <a href="/UNRINCONDEPT/public/login.php" class="active">Entrar</a>
-                <a href="/UNRINCONDEPT/public/registro.php">Registrarse</a>
+                <a href="<?= BASE_URL ?>public/login.php" class="active">Entrar</a>
+                <a href="<?= BASE_URL ?>public/registro.php">Registrarse</a>
             </div>
 
             <!-- 
@@ -123,7 +123,7 @@
                  Desactiva la validación automática del navegador para
                  poder controlar los mensajes desde nuestro JavaScript.
         -->
-            <form id="formLogin" action="/UNRINCONDEPT/public/login.php" method="POST" novalidate>
+            <form id="formLogin" action="<?= BASE_URL ?>public/login.php" method="POST" novalidate>
 
                 <!-- Campo email -->
                 <div class="auth-field">
@@ -148,7 +148,7 @@
                             Enlace reservado para recuperación de contraseña.
                           
                         -->
-                        <a href="/UNRINCONDEPT/public/recuperar-password.php">¿Olvidaste tu contraseña?</a>
+                        <a href="<?= BASE_URL ?>public/recuperar-password.php">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <input
@@ -205,7 +205,7 @@
           -->
             <div class="auth-socials">
                 <a
-                    href="/UNRINCONDEPT/public/oauth-google.php"
+                    href="<?= BASE_URL ?>public/oauth-google.php"
                     class="auth-social-btn">
                     Google
                 </a>

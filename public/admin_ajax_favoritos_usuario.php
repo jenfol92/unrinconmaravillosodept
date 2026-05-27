@@ -1,47 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Producto.php';
+/**
+ * AJAX: obtener favoritos de un usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para consultar los productos favoritos
+ * de un usuario desde el panel de administración.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_usuario_favoritos.php
+ * → AdminUsuarioController::obtenerFavoritosUsuarioAjax()
+ * → Producto::obtenerProductosFavoritos()
+ *
+ * Entrada esperada por GET:
+ * - usuario_id
+ *
+ * Respuesta:
+ * - JSON
+ */
 
-header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/../app/controladores/admin_usuario_controller.php';
 
-// Solo admin o rol autorizado
-if (
-    empty($_SESSION['usuario_id']) ||
-    !in_array((int)($_SESSION['rol'] ?? 0), [1, 2], true)
-) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
+/**
+ * Instanciamos el controlador de usuarios del panel admin.
+ */
+$controller = new AdminUsuarioController();
 
-$usuarioId = isset($_GET['usuario_id']) ? (int)$_GET['usuario_id'] : 0;
-
-if ($usuarioId <= 0) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Usuario no válido'
-    ]);
-    exit;
-}
-
-try {
-    $productoModel = new Producto();
-
-    $favoritos = $productoModel->obtenerProductosFavoritos($usuarioId);
-
-    echo json_encode([
-        'ok' => true,
-        'favoritos' => $favoritos
-    ]);
-    exit;
-
-} catch (Exception $e) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Error cargando favoritos: ' . $e->getMessage()
-    ]);
-    exit;
-}
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->obtenerFavoritosUsuarioAjax();

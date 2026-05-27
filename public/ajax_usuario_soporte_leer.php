@@ -1,35 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Soporte.php';
+/**
+ * AJAX: leer mensajes de soporte del usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para que un usuario logueado pueda
+ * cargar los mensajes de uno de sus tickets de soporte.
+ *
+ * Este archivo no contiene lógica de negocio ni SQL.
+ *
+ * Flujo:
+ * public/ajax_usuario_soporte_leer.php
+ * → SoporteController::leerTicketUsuarioAjax()
+ * → Soporte::obtenerMensajesTicket()
+ *
+ * Entrada esperada por GET:
+ * - ticket_id
+ *
+ * Respuesta:
+ * - JSON con ok y mensajes, o error.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/soporte_controller.php';
 
-if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
+/**
+ * Instanciamos el controlador de soporte.
+ */
+$controller = new SoporteController();
 
-$ticket_id = $_GET['ticket_id'] ?? null;
-
-if (!$ticket_id) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Ticket no válido'
-    ]);
-    exit;
-}
-
-$model = new Soporte();
-
-$mensajes = $model->obtenerMensajesTicket($ticket_id);
-
-echo json_encode([
-    'ok' => true,
-    'mensajes' => $mensajes
-]);
-
-exit;
+/**
+ * Ejecutamos la acción AJAX correspondiente.
+ */
+$controller->leerTicketUsuarioAjax();

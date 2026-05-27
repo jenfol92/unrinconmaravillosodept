@@ -67,7 +67,7 @@ function cargarProductos(pagina = 1) {
      Endpoint que devuelve los productos filtrados.
  */
 
-    const url = `/UNRINCONDEPT/public/ajax_productos.php?pagina=${pagina}` +
+    const url =`${BASE_URL}public/ajax_productos.php?pagina=${pagina}` +
         `&categorias=${encodeURIComponent(JSON.stringify(categorias))}` +
         `&niveles=${encodeURIComponent(JSON.stringify(niveles))}` +
         `&busqueda=${encodeURIComponent(busqueda)}`;
@@ -107,7 +107,7 @@ function cargarProductos(pagina = 1) {
                        
                    */
                     const imagen = p.imagen || "default.png";
-                    const imagenUrl = `/UNRINCONDEPT/static/images/img/${escapeHtml(imagen)}`;
+                    const imagenUrl = BASE_URL +`static/images/img/${escapeHtml(imagen)}`;
                     /*
                       Texto seguro para evitar inyección HTML.
                   */
@@ -128,7 +128,7 @@ function cargarProductos(pagina = 1) {
         class="tienda-card-img"
         alt="${titulo}"
         loading="lazy"
-        onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';"
+          onerror="this.onerror=null;this.src='${BASE_URL}static/images/img/default.png';"
     >
 
 </div>
@@ -158,7 +158,7 @@ function cargarProductos(pagina = 1) {
                                     <div class="tienda-card-actions">
 
                                         <a
-                                            href="/UNRINCONDEPT/public/detalle.php?id=${encodeURIComponent(p.id)}"
+                                            href="${BASE_URL}public/detalle.php?id=${encodeURIComponent(p.id)}"
                                             class="btn-ver-recurso">
                                             Ver
                                         </a>
@@ -172,14 +172,15 @@ function cargarProductos(pagina = 1) {
                                             <i class="bi bi-heart-fill"></i>
                                         </button>
 
-                                        <button
-                                            type="button"
-                                            onclick="gestionarSesion(${Number(p.id)}, 'add_carrito')"
-                                            class="btn-card-icon btn-carrito"
-                                            title="Añadir al carrito"
-                                        >
-                                            <i class="bi bi-cart"></i>
-                                        </button>
+                                      <button
+    type="button"
+    class="btn-card-icon btn-carrito btn-carrito-accion"
+    data-id="${escapeHtml(p.id)}"
+    data-accion="add_carrito"
+    title="Añadir al carrito"
+>
+    <i class="bi bi-cart"></i>
+</button>
 
                                     </div>
 
@@ -261,7 +262,7 @@ function renderPaginacion(totalPaginas, paginaActual) {
     contenedor.innerHTML = pag;
 }
 
-// AÑADIR PRODUCTO AL CARRITO
+/* AÑADIR PRODUCTO AL CARRITO
 // Esta función se usa desde el botón del carrito.
 // Envía el producto al endpoint que gestiona la sesión/carrito.
 
@@ -277,7 +278,7 @@ function gestionarSesion(id, accion) {
     formData.append("accion", accion);
 
     // Enviamos la petición al PHP que gestiona el carrito
-    fetch("/UNRINCONDEPT/public/ajax_operaciones_carrito.php", {
+    fetch(BASE_URL+"public/ajax_operaciones_carrito.php", {
         method: "POST",
         body: formData
     })
@@ -319,18 +320,18 @@ function gestionarSesion(id, accion) {
             } else {
                 alert(data.message || "No se pudo añadir el producto al carrito.");
             }
-            /*
-    Si PHP nos indica que el producto se ha eliminado de favoritos,
-    actualizamos la vista.
-*/
+            
+    //Si PHP nos indica que el producto se ha eliminado de favoritos,
+    //actualizamos la vista.
+
             if (data.favorito_eliminado === true) {
 
-                /*
-                    Buscamos el botón de favorito del producto en la tienda.
-                    Tu botón debe tener:
-                    class="btn-favorito"
-                    data-id="ID_DEL_PRODUCTO"
-                */
+              
+                    //Buscamos el botón de favorito del producto en la tienda.
+                   // Tu botón debe tener:
+                    //class="btn-favorito"
+                   // data-id="ID_DEL_PRODUCTO"
+                
                 const botonFavorito = document.querySelector(
                     `.btn-favorito[data-id="${id}"]`
                 );
@@ -339,10 +340,10 @@ function gestionarSesion(id, accion) {
                     botonFavorito.classList.remove("activo");
                 }
 
-                /*
-                    Si estamos en la sección favoritos del perfil y existe una fila
-                    con este producto, la eliminamos visualmente.
-                */
+                
+                   // Si estamos en la sección favoritos del perfil y existe una fila
+                   // con este producto, la eliminamos visualmente.
+                
                 const filaFavorito = document.getElementById("favorito-row-" + id);
 
                 if (filaFavorito) {
@@ -356,7 +357,7 @@ function gestionarSesion(id, accion) {
             alert("Error al añadir el producto al carrito.");
         });
 }
-
+*/
 // FAVORITOS
 // Escucha cualquier click sobre un botón .btn-favorito.
 // Como las tarjetas se generan por AJAX, usamos delegación
@@ -374,7 +375,7 @@ document.addEventListener("click", function (e) {
     const productoId = boton.dataset.id;
 
     // Enviamos petición AJAX para guardar o eliminar favorito
-    fetch("/UNRINCONDEPT/public/ajax_favorito.php", {
+    fetch(BASE_URL+"public/ajax_favorito.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -417,7 +418,7 @@ function comprarAhora(id) {
     formData.append("id", id);
     formData.append("accion", "add_carrito");
 
-    fetch("/UNRINCONDEPT/public/ajax_operaciones_carrito.php", {
+    fetch(BASE_URL+"public/ajax_operaciones_carrito.php", {
         method: "POST",
         body: formData
     })
@@ -425,7 +426,7 @@ function comprarAhora(id) {
         .then(data => {
 
             if (data.status === "success") {
-                window.location.href = "/UNRINCONDEPT/public/carrito.php";
+                window.location.href = BASE_URL+"public/carrito.php";
             } else {
                 alert(data.message || "No se pudo procesar la compra.");
             }
@@ -450,12 +451,12 @@ function escapeHtml(text) {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
 }
-// =====================================================
+
 // SUGERENCIA DE RECURSO DESDE TIENDA
 // -----------------------------------------------------
 // Este bloque gestiona el formulario del modal de sugerencias.
 // Solo existirá en la vista si el usuario está logueado.
-// =====================================================
+
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -477,7 +478,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'Enviando sugerencia...' +
             '</div>';
 
-        fetch("/UNRINCONDEPT/public/ajax_sugerencia.php", {
+        fetch(BASE_URL+"public/ajax_sugerencia.php", {
             method: "POST",
             body: formData
         })
@@ -526,7 +527,7 @@ function cargarProductosRecientesTienda() {
 
     if (!widget || !lista) return;
 
-    fetch("/UNRINCONDEPT/public/ajax_ultimos_productos_visitados.php")
+    fetch(BASE_URL+"public/ajax_ultimos_productos_visitados.php")
         .then(res => res.json())
         .then(data => {
 
@@ -556,16 +557,16 @@ function cargarProductosRecientesTienda() {
                     ? String(p.imagen).trim()
                     : "default.png";
 
-                const imagenUrl = `/UNRINCONDEPT/static/images/img/${encodeURIComponent(nombreImagen)}`;
+                const imagenUrl = `${BASE_URL}static/images/img/${encodeURIComponent(nombreImagen)}`;
 
                 html += `
-                    <a href="/UNRINCONDEPT/public/detalle.php?id=${encodeURIComponent(p.id)}"
+                    <a href="${BASE_URL}public/detalle.php?id=${encodeURIComponent(p.id)}"
                        class="tienda-reciente-item">
 
                         <img src="${imagenUrl}"
                              alt="${titulo}"
                              loading="lazy"
-                             onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+                             onerror="this.onerror=null;this.src='${BASE_URL}static/images/img/default.png';">
 
                         <div>
                             <strong>${titulo}</strong>

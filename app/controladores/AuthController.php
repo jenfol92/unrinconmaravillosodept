@@ -301,7 +301,7 @@ if (!$resultadoAcceso) {
                 /*
                 Enlace que recibirá el usuario.
             */
-                $enlace = APP_BASE_URL . '/restablecer-password.php?token=' . urlencode($token);
+                $enlace = rtrim(BASE_URL, '/') . '/public/restablecer-password.php?token=' . urlencode($token);
 
                 /*
                 Envío real mediante SMTP.

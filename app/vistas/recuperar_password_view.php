@@ -5,7 +5,7 @@
     <section class="auth-left login-left">
 
         <div class="auth-preview-card">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Recursos educativos">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Recursos educativos">
         </div>
 
         <div class="auth-left-content">
@@ -19,12 +19,12 @@
 
     <section class="auth-right">
 
-        <a href="/UNRINCONDEPT/public/login.php" class="auth-back">
+        <a href="<?= BASE_URL ?>public/login.php" class="auth-back">
             ← Volver al login
         </a>
 
         <div class="auth-logo">
-            <img src="/UNRINCONDEPT/static/images/logo/logo.jpeg" alt="Logo">
+            <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" alt="Logo">
             <span>UnRincónPT</span>
         </div>
 
@@ -48,7 +48,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/UNRINCONDEPT/public/recuperar-password.php" method="POST" novalidate>
+            <form action="<?= BASE_URL ?>public/recuperar-password.php" method="POST" novalidate>
 
                 <div class="auth-field">
                     <label>Correo electrónico</label>
@@ -70,7 +70,7 @@
 
             <p class="auth-switch">
                 ¿Ya recuerdas tu contraseña?
-                <a href="/UNRINCONDEPT/public/login.php">Inicia sesión aquí</a>
+                <a href="<?= BASE_URL ?>public/login.php">Inicia sesión aquí</a>
             </p>
 
         </div>

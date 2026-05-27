@@ -47,9 +47,9 @@ class RecursoGratuito
         $this->conexion = conectarBD();
     }
 
-    // =========================================================
+   
     // CATEGORÍAS GRATUITAS
-    // =========================================================
+
 
     /**
      * Obtiene las categorías gratuitas activas.
@@ -99,9 +99,9 @@ class RecursoGratuito
         return (int)$this->conexion->lastInsertId();
     }
 
-    // =========================================================
+
     // RECURSOS GRATUITOS - PARTE PÚBLICA
-    // =========================================================
+
 
     /**
      * Obtiene recursos gratuitos activos para la parte pública.
@@ -276,14 +276,13 @@ class RecursoGratuito
             $this->conexion->commit();
 
             return true;
-
         } catch (Exception $e) {
             $this->conexion->rollBack();
             throw $e;
         }
     }
 
-    /**
+    /*
      * Incrementa las descargas de un recurso gratuito.
      * ---------------------------------------------------------
      * Esta función realiza dos acciones dentro de una transacción:
@@ -298,15 +297,15 @@ class RecursoGratuito
      * @return bool True si se completa correctamente.
      *
      * @throws Exception Si falla la transacción.
-     */
+     
     public function incrementarDescargas($id)
     {
         $this->conexion->beginTransaction();
 
         try {
-            /*
+           
                 Actualizamos el contador total de descargas.
-            */
+            
             $sql = "UPDATE recursos_gratuitos
                     SET descargas = COALESCE(descargas, 0) + 1
                     WHERE id = ?";
@@ -316,9 +315,9 @@ class RecursoGratuito
                 $id
             ]);
 
-            /*
+           
                 Registramos la descarga con fecha y hora.
-            */
+            
             $this->registrarMetrica($id, 'descarga');
 
             $this->conexion->commit();
@@ -329,7 +328,7 @@ class RecursoGratuito
             $this->conexion->rollBack();
             throw $e;
         }
-    }
+    } */
 
     /**
      * Obtiene recursos gratuitos destacados para la home.
@@ -370,9 +369,9 @@ class RecursoGratuito
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =========================================================
+    
     // RECURSOS GRATUITOS - PANEL ADMINISTRADOR
-    // =========================================================
+
 
     /**
      * Obtiene recursos gratuitos para el panel administrador.
@@ -524,15 +523,15 @@ class RecursoGratuito
         $imagen = $datos['imagen'] ?? 'default.png';
 
         $categoriaId = (int)(
-            $datos['categoria_id'] 
-            ?? $datos['categoria_gratuita_id'] 
+            $datos['categoria_id']
+            ?? $datos['categoria_gratuita_id']
             ?? 0
         );
 
         $urlDrive = trim(
-            $datos['url_drive'] 
-            ?? $datos['drive_url'] 
-            ?? ''
+            $datos['url_drive']
+                ?? $datos['drive_url']
+                ?? ''
         );
 
         $formato = $datos['formato'] ?? 'PDF';
@@ -543,24 +542,26 @@ class RecursoGratuito
         */
         if ($id > 0) {
             $sql = "UPDATE recursos_gratuitos
-                    SET titulo = ?,
-                        imagen = ?,
-                        categoria_id = ?,
-                        url_drive = ?,
-                        formato = ?,
-                        estado = ?
-                    WHERE id = ?";
+        SET titulo = ?,
+            imagen = ?,
+            categoria_id = ?,
+            url_drive = ?,
+            google_drive_file_id = ?,
+            formato = ?,
+            estado = ?
+        WHERE id = ?";
 
             $stmt = $this->conexion->prepare($sql);
 
-            return $stmt->execute([
-                $titulo,
-                $imagen,
-                $categoriaId,
-                $urlDrive,
-                $formato,
-                $estado,
-                $id
+            $stmt->execute([
+                $datos['titulo'],
+                $datos['imagen'],
+                $datos['categoria_id'],
+                $datos['url_drive'],
+                $datos['google_drive_file_id'],
+                $datos['formato'],
+                $datos['estado'],
+                $datos['id']
             ]);
         }
 
@@ -570,18 +571,19 @@ class RecursoGratuito
             Los contadores de clicks y descargas comienzan en 0.
         */
         $sql = "INSERT INTO recursos_gratuitos
-                (titulo, imagen, categoria_id, url_drive, formato, estado, clicks, descargas, fecha_creacion)
-                VALUES (?, ?, ?, ?, ?, ?, 0, 0, NOW())";
+        (titulo, imagen, categoria_id, url_drive, google_drive_file_id, formato, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conexion->prepare($sql);
 
         $stmt->execute([
-            $titulo,
-            $imagen,
-            $categoriaId,
-            $urlDrive,
-            $formato,
-            $estado
+            $datos['titulo'],
+            $datos['imagen'],
+            $datos['categoria_id'],
+            $datos['url_drive'],
+            $datos['google_drive_file_id'],
+            $datos['formato'],
+            $datos['estado']
         ]);
 
         return (int)$this->conexion->lastInsertId();

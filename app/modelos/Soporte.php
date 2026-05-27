@@ -51,113 +51,209 @@ class Soporte
     {
         $this->conexion = conectarBD();
     }
+/**
+ * Crea un nuevo ticket de soporte.
+ * ---------------------------------------------------------
+ * Crea el ticket principal y guarda el primer mensaje
+ * enviado por el usuario.
+ *
+ * El nombre visible del usuario no se guarda aquí.
+ * Se obtendrá después mediante JOIN con la tabla usuarios.
+ *
+ * @param int $usuario_id ID del usuario que crea el ticket.
+ * @param string $asunto Asunto del ticket.
+ * @param string $mensaje Primer mensaje del usuario.
+ *
+ * @return int ID del ticket creado.
+ */
+public function crearTicket($usuario_id, $asunto, $mensaje)
+{
+    $sql = "INSERT INTO soporte_tickets (usuario_id, asunto) 
+            VALUES (?, ?)";
 
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$usuario_id,
+        $asunto
+    ]);
+
+    $ticket_id = $this->conexion->lastInsertId();
+
+    $sql = "INSERT INTO soporte_mensajes 
+            (ticket_id, remitente, mensaje) 
+            VALUES (?, 'usuario', ?)";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        $mensaje
+    ]);
+
+    return $ticket_id;
+}
+/**
+ * Obtiene todos los tickets de soporte de un usuario concreto.
+ * ---------------------------------------------------------
+ * Se utiliza en el perfil del usuario para mostrar sus consultas
+ * de soporte.
+ *
+ * Devuelve los tickets ordenados desde el más reciente al más antiguo.
+ *
+ * La fecha se devuelve también formateada para poder mostrarla
+ * fácilmente en la vista.
+ *
+ * @param int $usuario_id ID del usuario logueado.
+ *
+ * @return array Listado de tickets del usuario.
+ */
+public function obtenerTicketsUsuario($usuario_id)
+{
+    $sql = "SELECT 
+                id,
+                usuario_id,
+                asunto,
+                estado,
+                fecha,
+                DATE_FORMAT(fecha, '%d/%m/%Y %H:%i') AS fecha_formateada
+            FROM soporte_tickets
+            WHERE usuario_id = ?
+            ORDER BY fecha DESC";
+
+    $stmt = $this->conexion->prepare($sql);
+
+    $stmt->execute([
+        (int)$usuario_id
+    ]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
     /**
-     * Crea un nuevo ticket de soporte.
-     * ---------------------------------------------------------
-     * Esta función crea primero el ticket principal y después
-     * guarda el primer mensaje enviado por el usuario.
-     *
-     * Flujo:
-     *
-     * 1. Inserta un nuevo registro en soporte_tickets.
-     * 2. Obtiene el ID del ticket creado.
-     * 3. Inserta el primer mensaje en soporte_mensajes.
-     * 4. Devuelve el ID del ticket.
-     *
-     * @param int $usuario_id ID del usuario que crea el ticket.
-     * @param string $asunto Asunto del ticket.
-     * @param string $mensaje Primer mensaje del usuario.
-     *
-     * @return int ID del ticket creado.
-     */
-    public function crearTicket($usuario_id, $asunto, $mensaje)
-    {
-        /*
-            Insertamos el ticket principal.
+ * Obtiene los mensajes de un ticket perteneciente a un usuario.
+ * ---------------------------------------------------------
+ * Esta versión se usa en el panel del usuario.
+ * Evita que un usuario pueda ver tickets de otro cambiando
+ * el ticket_id en la URL.
+ *
+ * @param int $ticket_id ID del ticket.
+ * @param int $usuario_id ID del usuario logueado.
+ *
+ * @return array Mensajes del ticket.
+ */
+/**
+ * Obtiene los mensajes de un ticket perteneciente a un usuario.
+ * ---------------------------------------------------------
+ * Solo devuelve mensajes si el ticket pertenece al usuario
+ * logueado.
+ *
+ * El nombre visible del usuario se obtiene desde la tabla usuarios.
+ *
+ * @param int $ticket_id ID del ticket.
+ * @param int $usuario_id ID del usuario logueado.
+ *
+ * @return array Mensajes del ticket.
+ */
+public function obtenerMensajesTicketUsuario($ticket_id, $usuario_id)
+{
+    $sql = "SELECT 
+                sm.id,
+                sm.ticket_id,
+                sm.remitente,
+                sm.remitente_nombre,
+                sm.mensaje,
+                sm.fecha,
+                DATE_FORMAT(sm.fecha, '%d/%m/%Y %H:%i') AS fecha_formateada,
 
-            En esta tabla se guarda la información general:
-            - usuario_id
-            - asunto
-            - estado
-            - fecha
-        */
-        $sql = "INSERT INTO soporte_tickets (usuario_id, asunto) 
-                VALUES (?, ?)";
+                CASE 
+                    WHEN sm.remitente = 'usuario' THEN 
+                        COALESCE(
+                            NULLIF(TRIM(CONCAT(u.nombre, ' ', COALESCE(u.apellidos, ''))), ''),
+                            'Usuario'
+                        )
+                    ELSE 
+                        'Soporte'
+                END AS nombre_visible
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([$usuario_id, $asunto]);
+            FROM soporte_mensajes sm
 
-        /*
-            Obtenemos el ID del ticket recién creado.
+            INNER JOIN soporte_tickets st 
+                ON st.id = sm.ticket_id
 
-            Este ID se utilizará para asociar el primer mensaje
-            dentro de soporte_mensajes.
-        */
-        $ticket_id = $this->conexion->lastInsertId();
+            LEFT JOIN usuarios u 
+                ON u.id = st.usuario_id
 
-        /*
-            Insertamos el primer mensaje del usuario.
+            WHERE sm.ticket_id = ?
+            AND st.usuario_id = ?
 
-            El campo remitente se guarda como 'usuario' para diferenciarlo
-            de los mensajes enviados por administración.
-        */
-        $sql = "INSERT INTO soporte_mensajes (ticket_id, remitente, mensaje) 
-                VALUES (?, 'usuario', ?)";
+            ORDER BY sm.fecha ASC";
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([$ticket_id, $mensaje]);
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        (int)$usuario_id
+    ]);
 
-        return $ticket_id;
-    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-    /**
-     * Obtiene todos los tickets de un usuario concreto.
-     * ---------------------------------------------------------
-     * Se utiliza en el perfil del usuario para mostrar sus consultas
-     * de soporte.
-     *
-     * @param int $usuario_id ID del usuario.
-     *
-     * @return array Listado de tickets del usuario.
-     */
-    public function obtenerTicketsUsuario($usuario_id)
-    {
-        $sql = "SELECT *
-                FROM soporte_tickets
-                WHERE usuario_id = ?
-                ORDER BY fecha DESC";
+   /**
+ * Obtiene los mensajes de un ticket para administración.
+ * ---------------------------------------------------------
+ * Devuelve la conversación completa de un ticket.
+ *
+ * Si el mensaje es del usuario, el nombre visible se obtiene
+ * desde la tabla usuarios mediante:
+ *
+ * soporte_mensajes.ticket_id
+ *      → soporte_tickets.id
+ *      → soporte_tickets.usuario_id
+ *      → usuarios.id
+ *
+ * Si el mensaje es de administración, se muestra "Soporte".
+ *
+ * @param int $ticket_id ID del ticket.
+ *
+ * @return array Mensajes del ticket.
+ */
+public function obtenerMensajesTicket($ticket_id)
+{
+    $sql = "SELECT 
+                sm.id,
+                sm.ticket_id,
+                sm.remitente,
+                sm.remitente_nombre,
+                sm.mensaje,
+                sm.fecha,
+                DATE_FORMAT(sm.fecha, '%d/%m/%Y %H:%i') AS fecha_formateada,
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([$usuario_id]);
+                CASE 
+                    WHEN sm.remitente = 'usuario' THEN 
+                        COALESCE(
+                            NULLIF(TRIM(CONCAT(u.nombre, ' ', COALESCE(u.apellidos, ''))), ''),
+                            'Usuario'
+                        )
+                    ELSE 
+                        'Soporte'
+                END AS nombre_visible
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+            FROM soporte_mensajes sm
 
-    /**
-     * Obtiene los mensajes de un ticket.
-     * ---------------------------------------------------------
-     * Devuelve todos los mensajes asociados a un ticket concreto,
-     * ordenados de más antiguo a más reciente.
-     *
-     * Se utiliza para mostrar la conversación completa en formato chat.
-     *
-     * @param int $ticket_id ID del ticket.
-     *
-     * @return array Mensajes del ticket.
-     */
-    public function obtenerMensajesTicket($ticket_id)
-    {
-        $sql = "SELECT *
-                FROM soporte_mensajes
-                WHERE ticket_id = ?
-                ORDER BY fecha ASC";
+            INNER JOIN soporte_tickets st 
+                ON st.id = sm.ticket_id
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([$ticket_id]);
+            LEFT JOIN usuarios u 
+                ON u.id = st.usuario_id
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+            WHERE sm.ticket_id = ?
+
+            ORDER BY sm.fecha ASC";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id
+    ]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     /**
      * Envía un mensaje dentro de un ticket de soporte.
@@ -274,30 +370,33 @@ class Soporte
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Finaliza o cierra un ticket de soporte.
-     * ---------------------------------------------------------
-     * Esta función permite cerrar un ticket concreto siempre que
-     * pertenezca al usuario indicado.
-     *
-     * Se utiliza para que el usuario pueda dar por resuelta una consulta.
-     *
-     * @param int $ticket_id ID del ticket.
-     * @param int $usuario_id ID del usuario propietario del ticket.
-     *
-     * @return bool True si se actualiza correctamente.
-     */
-    public function finalizarTicket($ticket_id, $usuario_id)
-    {
-        $sql = "UPDATE soporte_tickets 
-                SET estado = 'cerrado'
-                WHERE id = ? 
-                AND usuario_id = ?";
+  /**
+ * Finaliza o cierra un ticket de soporte.
+ * ---------------------------------------------------------
+ * Solo cierra el ticket si pertenece al usuario indicado
+ * y si no estaba cerrado previamente.
+ *
+ * @param int $ticket_id ID del ticket.
+ * @param int $usuario_id ID del usuario propietario.
+ *
+ * @return bool True si realmente se cerró el ticket.
+ */
+public function finalizarTicket($ticket_id, $usuario_id)
+{
+    $sql = "UPDATE soporte_tickets 
+            SET estado = 'cerrado'
+            WHERE id = ? 
+            AND usuario_id = ?
+            AND estado <> 'cerrado'";
 
-        $stmt = $this->conexion->prepare($sql);
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        (int)$usuario_id
+    ]);
 
-        return $stmt->execute([$ticket_id, $usuario_id]);
-    }
+    return $stmt->rowCount() > 0;
+}
 
     /**
      * Obtiene todas las sugerencias para el panel administrador.
@@ -401,4 +500,63 @@ class Soporte
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    /**
+ * Envía un mensaje de usuario verificando propiedad del ticket.
+ * ---------------------------------------------------------
+ * Solo permite responder si:
+ * - El ticket existe.
+ * - Pertenece al usuario logueado.
+ * - No está cerrado.
+ *
+ * No guardamos remitente_nombre porque el nombre visible
+ * se obtiene desde usuarios mediante JOIN.
+ *
+ * @param int $ticket_id ID del ticket.
+ * @param int $usuario_id ID del usuario logueado.
+ * @param string $mensaje Mensaje enviado.
+ *
+ * @return bool
+ */
+public function enviarMensajeUsuario($ticket_id, $usuario_id, $mensaje)
+{
+    $sql = "SELECT estado
+            FROM soporte_tickets
+            WHERE id = ?
+            AND usuario_id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        (int)$usuario_id
+    ]);
+
+    $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$ticket || $ticket['estado'] === 'cerrado') {
+        return false;
+    }
+
+    $sql = "INSERT INTO soporte_mensajes 
+            (ticket_id, remitente, mensaje)
+            VALUES (?, 'usuario', ?)";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        $mensaje
+    ]);
+
+    $sql = "UPDATE soporte_tickets 
+            SET estado = 'abierto'
+            WHERE id = ?
+            AND usuario_id = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([
+        (int)$ticket_id,
+        (int)$usuario_id
+    ]);
+
+    return true;
+}
 }

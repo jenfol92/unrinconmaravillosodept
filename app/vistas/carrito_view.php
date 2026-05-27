@@ -82,7 +82,7 @@ require_once __DIR__ . "/../../templates/header.php";
                     Todavía no has añadido ningún recurso a tu carrito.
                 </p>
 
-                <a href="/UNRINCONDEPT/public/tienda.php" class="btn">
+                <a href="<?= BASE_URL ?>public/tienda.php" class="btn">
                     Explorar recursos
                 </a>
 
@@ -111,7 +111,7 @@ require_once __DIR__ . "/../../templates/header.php";
                             <?= count($productos_carrito) === 1 ? 'producto seleccionado' : 'productos seleccionados' ?>
                         </h2>
 
-                        <a href="/UNRINCONDEPT/public/tienda.php">
+                        <a href="<?= BASE_URL ?>public/tienda.php">
                             Seguir comprando
                         </a>
 
@@ -153,7 +153,7 @@ require_once __DIR__ . "/../../templates/header.php";
                             <div class="carrito-item-img">
                                 <?php if (!empty($imagen)): ?>
                                     <img
-                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($imagen) ?>"
+                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($imagen) ?>"
                                         alt="<?= htmlspecialchars($titulo) ?>">
                                 <?php else: ?>
                                      <!-- Imagen alternativa si el producto no tiene imagen -->
@@ -346,7 +346,7 @@ require_once __DIR__ . "/../../templates/header.php";
 
                     </div>
  <!-- Enlace para volver a la tienda -->
-                    <a href="/UNRINCONDEPT/public/tienda.php" class="carrito-continue">
+                    <a href="<?= BASE_URL ?>public/tienda.php" class="carrito-continue">
                         <i class="bi bi-arrow-left"></i>
                         Seguir explorando recursos
                     </a>
@@ -368,8 +368,10 @@ require_once __DIR__ . "/../../templates/header.php";
      - Eliminar producto.
      - Actualizar el carrito tras cada acción.
  -->
-
-<script src="/UNRINCONDEPT/static/js/carrito.js"></script>
+<script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/carrito.js"></script>
 
 <?php
 require_once __DIR__ . '/../../templates/footer.php';

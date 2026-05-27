@@ -1,36 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Producto.php';
+/**
+ * AJAX: denunciar reseña y bloquear usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para la acción de moderación.
+ *
+ * Este archivo no contiene lógica de negocio.
+ * Solo carga el controlador y ejecuta el método correspondiente.
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/resena_controller.php';
 
-if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], [1, 2])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
-
-$resena_id = $_POST['resena_id'] ?? null;
-$usuario_id = $_POST['usuario_id'] ?? null;
-
-if (!$resena_id || !$usuario_id) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Datos incompletos'
-    ]);
-    exit;
-}
-
-$model = new Producto();
-
-$model->denunciarResenaYBloquearUsuario($resena_id, $usuario_id);
-
-echo json_encode([
-    'ok' => true,
-    'mensaje' => 'Reseña denunciada y usuario bloqueado para nuevas reseñas.'
-]);
-
-exit;
+$controller = new ResenaController();
+$controller->denunciarResenaAjax();

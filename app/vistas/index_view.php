@@ -89,12 +89,12 @@ require_once __DIR__ . '/../../templates/header.php';
                     <!-- Botones principales de navegación -->
                     <div class="home-actions">
 
-                        <a href="/UNRINCONDEPT/public/tienda.php" class="home-btn-primary">
+                        <a href="<?= BASE_URL ?>public/tienda.php" class="home-btn-primary">
                             Explorar recursos
                             <i class="bi bi-arrow-right"></i>
                         </a>
 
-                        <a href="/UNRINCONDEPT/public/recursos_gratuitos.php" class="home-btn-link">
+                        <a href="<?= BASE_URL ?>public/recursos_gratuitos.php" class="home-btn-link">
                             Ver material gratuito
                         </a>
 
@@ -111,7 +111,7 @@ require_once __DIR__ . '/../../templates/header.php';
                         <div class="home-hero-bg-two"></div>
 
                         <img
-                            src="/UNRINCONDEPT/static/images/logo/logo.jpeg"
+                            src="<?= BASE_URL ?>static/images/logo/logo.jpeg"
                             alt="Un rincón maravilloso de PT"
                             class="home-hero-image">
 
@@ -225,7 +225,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                     <div class="home-card-img-wrap">
                                         <img
-                                            src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
+                                            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
                                             alt="<?= htmlspecialchars($recurso['titulo']) ?>">
                                     </div>
 
@@ -302,7 +302,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                             <article
                                 class="home-resource-card <?= $colorClase ?>"
-                                onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
+                                onclick="window.location.href='<?= BASE_URL ?>public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
 
                                 <span class="home-card-badge">
                                     <?= htmlspecialchars($categoria) ?>
@@ -310,7 +310,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                 <div class="home-card-img-wrap">
                                     <img
-                                        src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
+                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($recurso['imagen']) ?>"
                                         alt="<?= htmlspecialchars($recurso['titulo']) ?>">
                                 </div>
 
@@ -491,7 +491,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                         <div class="home-free-img-wrap">
                                             <img
-                                                src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
+                                                src="<?=BASE_URL?>static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
                                                 alt="<?= htmlspecialchars($gratis['titulo']) ?>">
                                         </div>
 
@@ -559,7 +559,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                     <div class="home-free-img-wrap">
                                         <img
-                                            src="/UNRINCONDEPT/static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
+                                            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
                                             alt="<?= htmlspecialchars($gratis['titulo']) ?>">
                                     </div>
 
@@ -602,7 +602,7 @@ require_once __DIR__ . '/../../templates/header.php';
                 <!-- Enlace a la página completa de recursos gratuitos -->
                 <div class="text-center mt-4">
 
-                    <a href="/UNRINCONDEPT/public/recursos_gratuitos.php" class="home-btn-outline">
+                    <a href="<?= BASE_URL ?>public/recursos_gratuitos.php" class="home-btn-outline">
                         Ver todos los recursos gratuitos
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -616,6 +616,9 @@ require_once __DIR__ . '/../../templates/header.php';
     </section>
 
 </main>
-<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
+<script>
+    const BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
+<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

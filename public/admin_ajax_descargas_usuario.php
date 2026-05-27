@@ -1,33 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../app/modelos/Usuario.php';
+/**
+ * AJAX: obtener descargas de un usuario
+ * ---------------------------------------------------------
+ * Punto de entrada público para consultar las descargas de
+ * un usuario desde el panel de administración.
+ *
+ * Este archivo no contiene lógica de negocio.
+ *
+ * Flujo:
+ * public/ajax_usuario_descargas.php
+ * → AdminUsuarioController::obtenerDescargasUsuarioAjax()
+ * → Usuario::obtenerDescargasUsuario()
+ */
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../app/controladores/admin_usuario_controller.php';
 
-if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], [1, 2])) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'No autorizado'
-    ]);
-    exit;
-}
-
-$usuario_id = $_GET['usuario_id'] ?? null;
-
-if (!$usuario_id) {
-    echo json_encode([
-        'ok' => false,
-        'error' => 'Usuario no válido'
-    ]);
-    exit;
-}
-
-$model = new Usuario();
-
-echo json_encode([
-    'ok' => true,
-    'descargas' => $model->obtenerDescargasUsuario($usuario_id)
-]);
-
-exit;
+$controller = new AdminUsuarioController();
+$controller->obtenerDescargasUsuarioAjax();

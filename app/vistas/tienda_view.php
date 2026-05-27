@@ -100,12 +100,12 @@ require_once __DIR__ . '/../../templates/header.php';
 
                         </aside>
 
-                        <!-- =====================================================
+                        <!-- 
      TIENDA - ÚLTIMOS PRODUCTOS VISTOS
      -----------------------------------------------------
      Se rellena mediante AJAX leyendo la cookie
      productos_recientes.
-====================================================== -->
+ -->
 
                         <div class="tienda-recientes-widget d-none" id="tiendaRecientesWidget">
 
@@ -148,7 +148,7 @@ require_once __DIR__ . '/../../templates/header.php';
         Se envía al formulario público de contacto.
     -->
                                     <a
-                                        href="/UNRINCONDEPT/public/contacto.php"
+                                        href="<?= BASE_URL ?>public/contacto.php"
                                         class="btn tienda-sugerencia-btn">
                                         Sugerir un recurso
                                         <i class="bi bi-arrow-right"></i>
@@ -175,7 +175,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                             <div class="tienda-sugerencia-img d-none d-md-block">
                                 <img
-                                    src="/UNRINCONDEPT/static/images/logo/logo.jpeg"
+                                    src="<?= BASE_URL ?>static/images/logo/logo.jpeg"
                                     alt="Sugerir un recurso">
                             </div>
 
@@ -282,23 +282,11 @@ require_once __DIR__ . '/../../templates/header.php';
 
 </main>
 
-
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const busquedaHero = document.getElementById("busquedaHero");
-        const busquedaReal = document.getElementById("busqueda");
-
-        if (busquedaHero && busquedaReal) {
-            busquedaHero.addEventListener("input", function() {
-                busquedaReal.value = this.value;
-                busquedaReal.dispatchEvent(new Event("input"));
-                busquedaReal.dispatchEvent(new Event("keyup"));
-            });
-        }
-    });
+    const BASE_URL = "<?= BASE_URL ?>";
 </script>
 
-<script src="/UNRINCONDEPT/static/js/tienda.js"></script>
+<script src="<?= BASE_URL ?>static/js/carrito.js"></script>
+<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

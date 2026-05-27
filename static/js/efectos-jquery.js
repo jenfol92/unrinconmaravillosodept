@@ -21,17 +21,15 @@ $(document).ready(function () {
 });
 
 
-/* =========================================================
+/* 
    1. FILTROS ADMIN CON JQUERY
-   ========================================================= */
 
-/**
  * Inicializa los botones de filtros del panel admin.
- *
+ 
  * En tu HTML ya tienes botones con:
  * - class="admin-filtros-toggle"
  * - data-filter-target="idDelPanel"
- *
+ 
  * Ejemplo real:
  * data-filter-target="filtrosProductosBody"
  * data-filter-target="filtrosGratuitosBody"
@@ -107,11 +105,9 @@ function actualizarTextoAccesibleFiltros(boton, estaVisible) {
 }
 
 
-/* =========================================================
+/* 
    2. MENSAJES ANIMADOS DE ÉXITO / ERROR
-   ========================================================= */
 
-/**
  * Inicializa la animación de mensajes.
  *
  * Como tu admin.js usa fetch() y escribe respuestas con innerHTML,
@@ -218,11 +214,9 @@ window.mostrarMensajeJquery = function (selector, tipo, texto) {
 };
 
 
-/* =========================================================
+/* 
    3. CHAT DE SOPORTE ADMIN
-   ========================================================= */
 
-/**
  * Mejora visualmente el soporte admin.
  *
  * Tu panel ya tiene:
