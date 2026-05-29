@@ -19,12 +19,12 @@ require_once __DIR__ . '/../config/oauth.php';
 require_once __DIR__ . '/../app/modelos/Usuario.php';
 
 if (!empty($_GET['error'])) {
-    header('Location: /UNRINCONDEPT/public/login.php?error=oauth_cancelado');
+    header('Location:' . PUBLIC_URL . 'login.php?error=oauth_cancelado');
     exit;
 }
 
 if (empty($_GET['code'])) {
-    header('Location: /UNRINCONDEPT/public/login.php?error=oauth_sin_codigo');
+    header('Location:' . PUBLIC_URL . 'login.php?error=oauth_sin_codigo');
     exit;
 }
 
@@ -35,7 +35,7 @@ if (
 ) {
     unset($_SESSION['google_oauth_state']);
 
-    header('Location: /UNRINCONDEPT/public/login.php?error=oauth_state_invalido');
+    header('Location:' . PUBLIC_URL . 'login.php?error=oauth_state_invalido');
     exit;
 }
 
@@ -92,13 +92,12 @@ try {
     $_SESSION['usuario_id'] = $usuario['id'];
     $_SESSION['usuario_nombre'] = $usuario['nombre'] ?? 'Usuario';
     $_SESSION['rol'] = $usuario['rol_id'] ?? 3;
-    
+
     $usuarioModel->registrarAccesoUsuario($usuario['id']);
 
-    header('Location: /UNRINCONDEPT/public/perfil.php');
+    header('Location' . PUBLIC_URL . 'perfil.php');
     exit;
-
 } catch (Exception $e) {
-    header('Location: /UNRINCONDEPT/public/login.php?error=oauth_google');
+    header('Location:' . PUBLIC_URL . 'login.php?error=oauth_google');
     exit;
 }

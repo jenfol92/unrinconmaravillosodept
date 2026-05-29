@@ -3,7 +3,7 @@
 // - Cargar los productos de la tienda mediante AJAX.
 // - Aplicar filtros de categoría, nivel y búsqueda.
 // - Pintar las tarjetas de producto de forma dinámica.
-// - Gestionar favoritos y carrito.
+
 
 // Esperamos a que cargue todo el HTML antes de ejecutar el JS
 document.addEventListener("DOMContentLoaded", function () {
@@ -67,7 +67,7 @@ function cargarProductos(pagina = 1) {
      Endpoint que devuelve los productos filtrados.
  */
 
-    const url =`${BASE_URL}public/ajax_productos.php?pagina=${pagina}` +
+    const url = `${PUBLIC_URL}ajax_productos.php?pagina=${pagina}` +
         `&categorias=${encodeURIComponent(JSON.stringify(categorias))}` +
         `&niveles=${encodeURIComponent(JSON.stringify(niveles))}` +
         `&busqueda=${encodeURIComponent(busqueda)}`;
@@ -107,13 +107,15 @@ function cargarProductos(pagina = 1) {
                        
                    */
                     const imagen = p.imagen || "default.png";
-                    const imagenUrl = BASE_URL +`static/images/img/${escapeHtml(imagen)}`;
+                    const imagenUrl = BASE_URL + `static/images/img/${escapeHtml(imagen)}`;
                     /*
                       Texto seguro para evitar inyección HTML.
                   */
                     const titulo = escapeHtml(p.titulo || "Recurso");
                     const nivel = escapeHtml(p.nivel_nombre || "");
                     const categoria = escapeHtml(p.categoria_nombre || "");
+                    const mediaResenas = parseFloat(p.media_resenas ?? 0) || 0;
+                    const totalResenas = parseInt(p.total_resenas ?? 0, 10) || 0;
 
                     html += `
                         <div class="col-12 col-sm-6 col-lg-4 mb-4">
@@ -141,9 +143,16 @@ function cargarProductos(pagina = 1) {
                                             ${nivel} - ${categoria}
                                         </span>
 
-                                        <div class="stars-mini">
-                                            ★★★★☆
-                                        </div>
+                                    <div 
+    class="stars-mini" 
+    title="${mediaResenas.toFixed(1)} de 5"
+>
+    ${pintarEstrellasMedia(mediaResenas)}
+
+    <span class="stars-mini__count">
+        (${totalResenas})
+    </span>
+</div>
 
                                     </div>
 
@@ -158,7 +167,7 @@ function cargarProductos(pagina = 1) {
                                     <div class="tienda-card-actions">
 
                                         <a
-                                            href="${BASE_URL}public/detalle.php?id=${encodeURIComponent(p.id)}"
+                                            href="${PUBLIC_URL}detalle.php?id=${encodeURIComponent(p.id)}"
                                             class="btn-ver-recurso">
                                             Ver
                                         </a>
@@ -172,7 +181,7 @@ function cargarProductos(pagina = 1) {
                                             <i class="bi bi-heart-fill"></i>
                                         </button>
 
-                                      <button
+<button
     type="button"
     class="btn-card-icon btn-carrito btn-carrito-accion"
     data-id="${escapeHtml(p.id)}"
@@ -181,7 +190,6 @@ function cargarProductos(pagina = 1) {
 >
     <i class="bi bi-cart"></i>
 </button>
-
                                     </div>
 
                                 </div>
@@ -194,6 +202,9 @@ function cargarProductos(pagina = 1) {
             }
 
             document.getElementById("contenedor-productos").innerHTML = html;
+            if (typeof window.aplicarFavoritosTemporales === "function") {
+    window.aplicarFavoritosTemporales();
+}
 
             renderPaginacion(data.total_paginas, pagina);
 
@@ -278,7 +289,7 @@ function gestionarSesion(id, accion) {
     formData.append("accion", accion);
 
     // Enviamos la petición al PHP que gestiona el carrito
-    fetch(BASE_URL+"public/ajax_operaciones_carrito.php", {
+    fetch(BASE_URL+"ajax_operaciones_carrito.php", {
         method: "POST",
         body: formData
     })
@@ -362,7 +373,7 @@ function gestionarSesion(id, accion) {
 // Escucha cualquier click sobre un botón .btn-favorito.
 // Como las tarjetas se generan por AJAX, usamos delegación
 // de eventos sobre document.
-
+/*
 document.addEventListener("click", function (e) {
 
     // Detectamos si se ha pulsado un botón de favorito
@@ -375,7 +386,7 @@ document.addEventListener("click", function (e) {
     const productoId = boton.dataset.id;
 
     // Enviamos petición AJAX para guardar o eliminar favorito
-    fetch(BASE_URL+"public/ajax_favorito.php", {
+    fetch(PUBLIC_URL + "ajax_favorito.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -407,7 +418,7 @@ document.addEventListener("click", function (e) {
             alert("Error al guardar favorito");
         });
 });
-
+*/
 // COMPRAR AHORA
 // Añade el producto al carrito y redirige directamente
 // a carrito.php.
@@ -418,7 +429,7 @@ function comprarAhora(id) {
     formData.append("id", id);
     formData.append("accion", "add_carrito");
 
-    fetch(BASE_URL+"public/ajax_operaciones_carrito.php", {
+    fetch(PUBLIC_URL + "ajax_operaciones_carrito.php", {
         method: "POST",
         body: formData
     })
@@ -426,7 +437,7 @@ function comprarAhora(id) {
         .then(data => {
 
             if (data.status === "success") {
-                window.location.href = BASE_URL+"public/carrito.php";
+                window.location.href = PUBLIC_URL + "carrito.php";
             } else {
                 alert(data.message || "No se pudo procesar la compra.");
             }
@@ -478,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'Enviando sugerencia...' +
             '</div>';
 
-        fetch(BASE_URL+"public/ajax_sugerencia.php", {
+        fetch(PUBLIC_URL + "ajax_sugerencia_crear.php", {
             method: "POST",
             body: formData
         })
@@ -527,7 +538,7 @@ function cargarProductosRecientesTienda() {
 
     if (!widget || !lista) return;
 
-    fetch(BASE_URL+"public/ajax_ultimos_productos_visitados.php")
+    fetch(PUBLIC_URL + "ajax_ultimos_productos_visitados.php")
         .then(res => res.json())
         .then(data => {
 
@@ -560,7 +571,7 @@ function cargarProductosRecientesTienda() {
                 const imagenUrl = `${BASE_URL}static/images/img/${encodeURIComponent(nombreImagen)}`;
 
                 html += `
-                    <a href="${BASE_URL}public/detalle.php?id=${encodeURIComponent(p.id)}"
+                    <a href="${PUBLIC_URL}detalle.php?id=${encodeURIComponent(p.id)}"
                        class="tienda-reciente-item">
 
                         <img src="${imagenUrl}"
@@ -584,4 +595,29 @@ function cargarProductosRecientesTienda() {
             console.error("Error cargando productos recientes:", error);
             widget.classList.add("d-none");
         });
+}
+/**
+ * Genera estrellas de valoración media usando Bootstrap Icons.
+ *
+ * @param {number|string} media Media de reseñas del producto.
+ * @returns {string} HTML con estrellas.
+ */
+function pintarEstrellasMedia(media) {
+
+    media = parseFloat(media) || 0;
+
+    let html = "";
+
+    for (let i = 1; i <= 5; i++) {
+
+        if (media >= i) {
+            html += `<i class="bi bi-star-fill"></i>`;
+        } else if (media >= i - 0.5) {
+            html += `<i class="bi bi-star-half"></i>`;
+        } else {
+            html += `<i class="bi bi-star"></i>`;
+        }
+    }
+
+    return html;
 }

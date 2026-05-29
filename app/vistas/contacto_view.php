@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: contacto_view.php
  * ---------------------------------------------------------
@@ -321,9 +322,7 @@
      - formContactoPublico
      - respuestaContactoPublico
  -->
-     <script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
+
 <script src="<?= BASE_URL ?>static/js/contacto.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

@@ -58,7 +58,7 @@
              Permite al usuario regresar al carrito para revisar
              los productos o intentar completar la compra de nuevo.
          -->
-        <a href="<?= BASE_URL ?>public/carrito.php" class="btn btn-secondary">
+        <a href="<?= PUBLIC_URL ?>carrito.php" class="btn btn-secondary">
             Volver al carrito
         </a>
 

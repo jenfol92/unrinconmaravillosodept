@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
          * La búsqueda también se codifica para evitar problemas con espacios,
          * tildes o caracteres especiales.
          */
-        const url = `${BASE_URL}public/ajax_recursos_gratuitos.php?categorias=${encodeURIComponent(JSON.stringify(categorias))}&busqueda=${encodeURIComponent(busqueda)}`;
+        const url = `${PUBLIC_URL}ajax_recursos_gratuitos.php?categorias=${encodeURIComponent(JSON.stringify(categorias))}&busqueda=${encodeURIComponent(busqueda)}`;
 
         /**
          * Mostramos un mensaje temporal mientras se cargan los recursos.
@@ -248,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
          * Recorremos cada recurso y generamos su tarjeta.
          */
         recursos.forEach(recurso => {
+            
             /**
              * Si el recurso tiene imagen, construimos su ruta completa.
              *
@@ -257,6 +258,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const imagen = recurso.imagen
                 ? `${BASE_URL}static/images/img/${escapeHtml(recurso.imagen)}`
                 : "";
+
+    console.log("Nombre imagen en BD:", recurso.imagen);
+    console.log("Ruta final:", imagen);
 
             /**
              * Generamos el HTML de la tarjeta.
@@ -291,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <h3>${escapeHtml(recurso.titulo)}</h3>
 
                             <a
-                                href="${BASE_URL}public/ver_recursos_gratis.php?id=${recurso.id}"
+                                href="${PUBLIC_URL}ver_recursos_gratis.php?id=${recurso.id}"
                                 target="_blank"
                                 rel="noopener"
                                 class="btn gratis-card-btn">

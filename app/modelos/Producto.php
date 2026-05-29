@@ -194,129 +194,174 @@ class Producto
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+/**
+ * Obtiene productos filtrados para la tienda pública.
+ * ---------------------------------------------------------
+ * Permite filtrar productos por:
+ * - Categorías.
+ * - Niveles.
+ * - Búsqueda por título.
+ *
+ * También aplica paginación mediante límite y offset.
+ *
+ * Además, devuelve para cada producto:
+ * - media_resenas: media de puntuaciones visibles.
+ * - total_resenas: número total de reseñas visibles.
+ *
+ * Devuelve:
+ * - productos encontrados.
+ * - total de páginas.
+ *
+ * @param array|null $categorias Categorías seleccionadas.
+ * @param array|null $niveles Niveles seleccionados.
+ * @param string $busqueda Texto de búsqueda.
+ * @param int $limite Número de productos por página.
+ * @param int $offset Desplazamiento para paginación.
+ *
+ * @return array Productos y total de páginas.
+ */
+public function RecursosFiltrados($categorias, $niveles, $busqueda, $limite, $offset)
+{
+    /*
+        Sanitizamos límite y offset para evitar que entren valores no numéricos
+        directamente en la consulta SQL.
+    */
+    $limite = (int)$limite;
+    $offset = (int)$offset;
 
-    /**
-     * Obtiene productos filtrados para la tienda pública.
-     * ---------------------------------------------------------
-     * Permite filtrar productos por:
-     * - Categorías.
-     * - Niveles.
-     * - Búsqueda por título.
-     *
-     * También aplica paginación mediante límite y offset.
-     *
-     * Devuelve:
-     * - productos encontrados.
-     * - total de páginas.
-     *
-     * @param array|null $categorias Categorías seleccionadas.
-     * @param array|null $niveles Niveles seleccionados.
-     * @param string $busqueda Texto de búsqueda.
-     * @param int $limite Número de productos por página.
-     * @param int $offset Desplazamiento para paginación.
-     *
-     * @return array Productos y total de páginas.
-     */
-    public function RecursosFiltrados($categorias, $niveles, $busqueda, $limite, $offset)
-    {
-        /*
-            Consulta base.
-
-            Se cruzan productos con niveles y categorías para poder mostrar
-            el nombre del nivel y el nombre de la categoría en la tienda.
-        */
-        $sql = "SELECT 
-                    p.*,
-                    n.nombre AS nivel_nombre,
-                    c.nombre AS categoria_nombre
-                FROM productos p
-                INNER JOIN niveles n ON p.nivel_id = n.id
-                INNER JOIN categorias c ON p.categoria_id = c.id
-                WHERE estado = 'activo'";
-
-        $params = [];
-
-        /*
-            Filtro por categorías.
-
-            Se generan placeholders dinámicos para evitar inyección SQL.
-        */
-        if (!empty($categorias)) {
-            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-            $sql .= " AND p.categoria_id IN ($placeholders)";
-            $params = array_merge($params, $categorias);
-        }
-
-        /*
-            Filtro por niveles.
-        */
-        if (!empty($niveles)) {
-            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-            $sql .= " AND p.nivel_id IN ($placeholders)";
-            $params = array_merge($params, $niveles);
-        }
-
-        /*
-            Filtro por búsqueda textual en el título del producto.
-        */
-        if (!empty($busqueda)) {
-            $sql .= " AND p.titulo LIKE ?";
-            $params[] = "%$busqueda%";
-        }
-
-        /*
-            Paginación.
-
-            En este proyecto se muestran normalmente 9 productos por página.
-        */
-        $sql .= " LIMIT $limite OFFSET $offset";
-
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute($params);
-        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        /*
-            Consulta para calcular el número total de productos encontrados
-            con los mismos filtros.
-        */
-        $sql_total = "SELECT COUNT(*) 
-                      FROM productos p 
-                      WHERE p.estado = 'activo'";
-
-        $params_total = [];
-
-        if (!empty($categorias)) {
-            $placeholders = implode(',', array_fill(0, count($categorias), '?'));
-            $sql_total .= " AND p.categoria_id IN ($placeholders)";
-            $params_total = array_merge($params_total, $categorias);
-        }
-
-        if (!empty($niveles)) {
-            $placeholders = implode(',', array_fill(0, count($niveles), '?'));
-            $sql_total .= " AND p.nivel_id IN ($placeholders)";
-            $params_total = array_merge($params_total, $niveles);
-        }
-
-        if (!empty($busqueda)) {
-            $sql_total .= " AND p.titulo LIKE ?";
-            $params_total[] = "%$busqueda%";
-        }
-
-        $stmt_total = $this->conexion->prepare($sql_total);
-        $stmt_total->execute($params_total);
-
-        $total = $stmt_total->fetchColumn();
-
-        /*
-            Calculamos el total de páginas.
-        */
-        $total_paginas = ceil($total / $limite);
-
-        return [
-            "productos" => $productos,
-            "total_paginas" => $total_paginas
-        ];
+    if ($limite <= 0) {
+        $limite = 9;
     }
+
+    if ($offset < 0) {
+        $offset = 0;
+    }
+
+    /*
+        Consulta base.
+
+        Se cruzan productos con niveles y categorías para poder mostrar
+        el nombre del nivel y el nombre de la categoría en la tienda.
+
+        También se añade una subconsulta con el resumen de reseñas visibles:
+        - media_resenas
+        - total_resenas
+    */
+    $sql = "SELECT 
+                p.*,
+                n.nombre AS nivel_nombre,
+                c.nombre AS categoria_nombre,
+
+                COALESCE(res.media_resenas, 0) AS media_resenas,
+                COALESCE(res.total_resenas, 0) AS total_resenas
+
+            FROM productos p
+
+            INNER JOIN niveles n 
+                ON p.nivel_id = n.id
+
+            INNER JOIN categorias c 
+                ON p.categoria_id = c.id
+
+            LEFT JOIN (
+                SELECT 
+                    producto_id,
+                    ROUND(AVG(puntuacion), 1) AS media_resenas,
+                    COUNT(id) AS total_resenas
+                FROM `reseñas`
+                WHERE estado = 'visible'
+                GROUP BY producto_id
+            ) res 
+                ON res.producto_id = p.id
+
+            WHERE p.estado = 'activo'";
+
+    $params = [];
+
+    /*
+        Filtro por categorías.
+
+        Se generan placeholders dinámicos para evitar inyección SQL.
+    */
+    if (!empty($categorias)) {
+        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+        $sql .= " AND p.categoria_id IN ($placeholders)";
+        $params = array_merge($params, $categorias);
+    }
+
+    /*
+        Filtro por niveles.
+    */
+    if (!empty($niveles)) {
+        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+        $sql .= " AND p.nivel_id IN ($placeholders)";
+        $params = array_merge($params, $niveles);
+    }
+
+    /*
+        Filtro por búsqueda textual en el título del producto.
+    */
+    if (!empty($busqueda)) {
+        $sql .= " AND p.titulo LIKE ?";
+        $params[] = "%$busqueda%";
+    }
+
+    /*
+        Orden y paginación.
+
+        En este proyecto se muestran normalmente 9 productos por página.
+    */
+    $sql .= " ORDER BY p.id DESC LIMIT $limite OFFSET $offset";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute($params);
+
+    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    /*
+        Consulta para calcular el número total de productos encontrados
+        con los mismos filtros.
+
+        No hace falta unir reseñas aquí porque solo queremos contar productos.
+    */
+    $sql_total = "SELECT COUNT(*) 
+                  FROM productos p 
+                  WHERE p.estado = 'activo'";
+
+    $params_total = [];
+
+    if (!empty($categorias)) {
+        $placeholders = implode(',', array_fill(0, count($categorias), '?'));
+        $sql_total .= " AND p.categoria_id IN ($placeholders)";
+        $params_total = array_merge($params_total, $categorias);
+    }
+
+    if (!empty($niveles)) {
+        $placeholders = implode(',', array_fill(0, count($niveles), '?'));
+        $sql_total .= " AND p.nivel_id IN ($placeholders)";
+        $params_total = array_merge($params_total, $niveles);
+    }
+
+    if (!empty($busqueda)) {
+        $sql_total .= " AND p.titulo LIKE ?";
+        $params_total[] = "%$busqueda%";
+    }
+
+    $stmt_total = $this->conexion->prepare($sql_total);
+    $stmt_total->execute($params_total);
+
+    $total = (int)$stmt_total->fetchColumn();
+
+    /*
+        Calculamos el total de páginas.
+    */
+    $total_paginas = (int)ceil($total / $limite);
+
+    return [
+        "productos" => $productos,
+        "total_paginas" => $total_paginas
+    ];
+}
 
     /**
      * Obtiene uno o varios productos por ID.
@@ -413,37 +458,65 @@ class Producto
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+/**
+ * Obtiene reseñas públicas de un producto.
+ * ---------------------------------------------------------
+ * Devuelve las reseñas visibles asociadas a un producto junto
+ * con el nombre del usuario que las escribió.
+ *
+ * Se utiliza en producto_detalle.php para pintar cada reseña
+ * con su puntuación individual.
+ *
+ * @param int $producto_id ID del producto.
+ * @return array Listado de reseñas visibles.
+ */
+public function obtenerResenasPorProducto($producto_id)
+{
+    $sql = "SELECT 
+                r.id,
+                r.usuario_id,
+                r.producto_id,
+                r.comentario,
+                r.puntuacion,
+                r.fecha,
+                u.nombre AS usuario_nombre
+            FROM `reseñas` r
+            LEFT JOIN usuarios u ON r.usuario_id = u.id
+            WHERE r.producto_id = ?
+            AND r.estado = 'visible'
+            ORDER BY r.fecha DESC";
 
-    /**
-     * Obtiene reseñas públicas de un producto.
-     * ---------------------------------------------------------
-     * Devuelve las reseñas asociadas a un producto junto con el nombre
-     * del usuario que las escribió.
-     *
-     * @param int $producto_id ID del producto.
-     * @return array Listado de reseñas.
-     */
-    public function obtenerResenasPorProducto($producto_id)
-    {
-        $sql = "SELECT 
-                    r.id,
-                    r.usuario_id,
-                    r.producto_id,
-                    r.comentario,
-                    r.puntuacion,
-                    r.fecha,
-                    u.nombre AS usuario_nombre
-                FROM reseñas r
-                LEFT JOIN usuarios u ON r.usuario_id = u.id
-                WHERE r.producto_id = ?
-                ORDER BY r.fecha DESC";
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$producto_id]);
 
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute([$producto_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
+
+/**
+ * Obtiene la media y el total de reseñas visibles de un producto.
+ * ---------------------------------------------------------
+ * Se utiliza para pintar la valoración media del producto
+ * en la parte superior de producto_detalle.php.
+ *
+ * @param int $producto_id ID del producto.
+ * @return array Media y total de reseñas visibles.
+ */
+public function obtenerResumenResenasProducto($producto_id)
+{
+    $sql = "SELECT 
+                COALESCE(AVG(puntuacion), 0) AS media_resenas,
+                COUNT(id) AS total_resenas
+            FROM `reseñas`
+            WHERE producto_id = ?
+            AND estado = 'visible'";
+
+    $stmt = $this->conexion->prepare($sql);
+    $stmt->execute([$producto_id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
     /**
      * Añade o elimina un producto favorito.
      * ---------------------------------------------------------
@@ -873,7 +946,6 @@ class Producto
             $this->conexion->commit();
 
             return true;
-
         } catch (Exception $e) {
             $this->conexion->rollBack();
             throw $e;
@@ -1369,132 +1441,132 @@ class Producto
         ]);
     }
     /**
- * Elimina un producto de favoritos de un usuario.
- * ---------------------------------------------------------
- * Esta función se usa cuando el usuario añade un producto al carrito.
- *
- * Objetivo:
- * - Si el producto estaba en favoritos, se elimina.
- * - Si no estaba en favoritos, no pasa nada.
- *
- *
- * @param int $usuario_id ID del usuario logueado.
- * @param int $producto_id ID del producto.
- *
- * @return bool True si se eliminó de favoritos, false si no había nada que eliminar.
- */
-public function eliminarFavoritoUsuario($usuario_id, $producto_id)
-{
-    $sql = "DELETE FROM favoritos
+     * Elimina un producto de favoritos de un usuario.
+     * ---------------------------------------------------------
+     * Esta función se usa cuando el usuario añade un producto al carrito.
+     *
+     * Objetivo:
+     * - Si el producto estaba en favoritos, se elimina.
+     * - Si no estaba en favoritos, no pasa nada.
+     *
+     *
+     * @param int $usuario_id ID del usuario logueado.
+     * @param int $producto_id ID del producto.
+     *
+     * @return bool True si se eliminó de favoritos, false si no había nada que eliminar.
+     */
+    public function eliminarFavoritoUsuario($usuario_id, $producto_id)
+    {
+        $sql = "DELETE FROM favoritos
             WHERE usuario_id = ?
             AND producto_id = ?";
 
-    $stmt = $this->conexion->prepare($sql);
+        $stmt = $this->conexion->prepare($sql);
 
-    $stmt->execute([
-        (int)$usuario_id,
-        (int)$producto_id
-    ]);
+        $stmt->execute([
+            (int)$usuario_id,
+            (int)$producto_id
+        ]);
 
-    /*
+        /*
         rowCount() indica cuántas filas se han eliminado.
 
         Si devuelve más de 0, significa que realmente
         el producto estaba en favoritos y se ha quitado.
     */
-    return $stmt->rowCount() > 0;
-}
-/**
- * Obtiene productos a partir de un listado de IDs.
- * ---------------------------------------------------------
- * Este método se usa para mostrar los productos guardados
- * en la cookie productos_recientes.
- *
- * La cookie solo guarda IDs. Por eso necesitamos consultar
- * la base de datos para obtener:
- *
- * - título
- * - imagen
- * - id
- *
- * Además, se respeta el orden de la cookie para que el último
- * producto visto aparezca primero.
- *
- * @param array $ids Array de IDs de productos.
- *
- * @return array Listado de productos encontrados.
- */
-public function obtenerProductosPorIds(array $ids): array
-{
-    /*
+        return $stmt->rowCount() > 0;
+    }
+    /**
+     * Obtiene productos a partir de un listado de IDs.
+     * ---------------------------------------------------------
+     * Este método se usa para mostrar los productos guardados
+     * en la cookie productos_recientes.
+     *
+     * La cookie solo guarda IDs. Por eso necesitamos consultar
+     * la base de datos para obtener:
+     *
+     * - título
+     * - imagen
+     * - id
+     *
+     * Además, se respeta el orden de la cookie para que el último
+     * producto visto aparezca primero.
+     *
+     * @param array $ids Array de IDs de productos.
+     *
+     * @return array Listado de productos encontrados.
+     */
+    public function obtenerProductosPorIds(array $ids): array
+    {
+        /*
         Si no llegan IDs, no hacemos consulta.
     */
-    if (empty($ids)) {
-        return [];
-    }
+        if (empty($ids)) {
+            return [];
+        }
 
-    /*
+        /*
         Convertimos los IDs a enteros por seguridad.
     */
-    $ids = array_map('intval', $ids);
+        $ids = array_map('intval', $ids);
 
-    /*
+        /*
         Eliminamos IDs inválidos.
     */
-    $ids = array_filter($ids, function ($id) {
-        return $id > 0;
-    });
+        $ids = array_filter($ids, function ($id) {
+            return $id > 0;
+        });
 
-    /*
+        /*
         Quitamos duplicados.
     */
-    $ids = array_values(array_unique($ids));
+        $ids = array_values(array_unique($ids));
 
-    /*
+        /*
         Si después de limpiar no queda nada, devolvemos vacío.
     */
-    if (empty($ids)) {
-        return [];
-    }
+        if (empty($ids)) {
+            return [];
+        }
 
-    /*
+        /*
         Creamos los placeholders para la consulta preparada.
 
         Ejemplo:
         Si hay 3 IDs, genera:
         ?, ?, ?
     */
-    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
-    /*
+        /*
         Consulta SQL.
 
         Ajusta el nombre de la tabla o columnas si en tu base de datos
         se llaman de otra manera.
     */
-    $sql = "SELECT 
+        $sql = "SELECT 
                 id,
                 titulo,
                 imagen
             FROM productos
             WHERE id IN ($placeholders)";
 
-    /*
+        /*
         Preparamos y ejecutamos la consulta.
 
         IMPORTANTE:
         Si en tu modelo la conexión no se llama $this->db,
         cambia $this->db por el nombre que estés usando.
     */
-    $stmt = $this->conexion->prepare($sql);
-    $stmt->execute($ids);
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute($ids);
 
-    /*
+        /*
         Obtenemos todos los productos encontrados.
     */
-    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    /*
+        /*
         Creamos un índice de orden basado en la cookie.
 
         Ejemplo:
@@ -1502,19 +1574,19 @@ public function obtenerProductosPorIds(array $ids): array
 
         Queremos que el resultado salga en ese mismo orden.
     */
-    $orden = array_flip($ids);
+        $orden = array_flip($ids);
 
-    /*
+        /*
         Ordenamos los productos según el orden de los IDs guardados
         en la cookie.
     */
-    usort($productos, function ($a, $b) use ($orden) {
-        return ($orden[(int)$a['id']] ?? 9999) <=> ($orden[(int)$b['id']] ?? 9999);
-    });
+        usort($productos, function ($a, $b) use ($orden) {
+            return ($orden[(int)$a['id']] ?? 9999) <=> ($orden[(int)$b['id']] ?? 9999);
+        });
 
-    /*
+        /*
         Devolvemos los productos ordenados.
     */
-    return $productos;
-}
+        return $productos;
+    }
 }

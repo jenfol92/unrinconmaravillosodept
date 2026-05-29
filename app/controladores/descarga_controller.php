@@ -58,7 +58,7 @@ class DescargaController
          * Comprobamos que el usuario esté logueado.
          */
         if (empty($_SESSION['usuario_id'])) {
-            header('Location: ' . BASE_URL . 'public/login.php');
+            header('Location: ' . PUBLIC_URL . 'login.php');
             exit;
         }
 
@@ -167,7 +167,7 @@ class DescargaController
         echo '<body>';
         echo '<h1>Error de descarga</h1>';
         echo '<p>' . htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8') . '</p>';
-        echo '<p><a href="' . BASE_URL . 'public/perfil.php">Volver a mi perfil</a></p>';
+        echo '<p><a href="' . PUBLIC_URL . 'perfil.php">Volver a mi perfil</a></p>';
         echo '</body>';
         echo '</html>';
         exit;

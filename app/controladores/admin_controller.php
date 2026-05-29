@@ -204,7 +204,7 @@ class AdminController
          * Usamos la función global de session.php.
          */
         if (!usuarioEsAdminOGestor()) {
-            header('Location: ' . BASE_URL . 'public/login.php');
+            header('Location: ' . PUBLIC_URL . 'login.php');
             exit;
         }
 
@@ -212,19 +212,19 @@ class AdminController
          * La subida solo se permite por POST.
          */
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . 'public/admin.php');
+            header('Location: ' . PUBLIC_URL . 'admin.php');
             exit;
         }
 
         $producto_id = isset($_POST['producto_id']) ? (int) $_POST['producto_id'] : 0;
 
         if ($producto_id <= 0) {
-            header('Location: ' . BASE_URL . 'public/admin.php?archivo=producto_no_valido');
+            header('Location: ' . PUBLIC_URL . 'admin.php?archivo=producto_no_valido');
             exit;
         }
 
         if (!isset($_FILES['archivo']) || empty($_FILES['archivo']['name'])) {
-            header('Location: ' . BASE_URL . 'public/admin.php?archivo=sin_archivo');
+            header('Location: ' . PUBLIC_URL . 'admin.php?archivo=sin_archivo');
             exit;
         }
 
@@ -235,7 +235,7 @@ class AdminController
             $productoActual = $this->productoModel->obtenerProductosID($producto_id);
 
             if (!$productoActual) {
-                header('Location: ' . BASE_URL . 'public/admin.php?archivo=producto_no_encontrado');
+                header('Location: ' . PUBLIC_URL . 'admin.php?archivo=producto_no_encontrado');
                 exit;
             }
 
@@ -267,10 +267,10 @@ class AdminController
                 }
             }
 
-            header('Location: ' . BASE_URL . 'public/admin.php?archivo=subido');
+            header('Location: ' . PUBLIC_URL . 'admin.php?archivo=subido');
             exit;
         } catch (Exception $e) {
-            header('Location: ' . BASE_URL . 'public/admin.php?archivo=error');
+            header('Location: ' . PUBLIC_URL . 'admin.php?archivo=error');
             exit;
         }
     }
@@ -428,158 +428,158 @@ class AdminController
     }
 
     /**
- * Elimina un producto o lo desactiva si tiene pedidos asociados.
- * ---------------------------------------------------------
- * Esta función devuelve JSON y se utiliza desde el panel admin.
- *
- * Flujo:
- * 1. Comprueba permisos.
- * 2. Valida producto_id.
- * 3. Lee si el admin quiere eliminar también el archivo de Cloudflare.
- * 4. Obtiene el producto.
- * 5. Elimina archivo de Cloudflare R2 solo si el admin lo ha confirmado.
- * 6. Si el producto tiene pedidos, lo desactiva.
- * 7. Si no tiene pedidos, lo elimina físicamente.
- */
-public function eliminarProducto()
-{
-    header('Content-Type: application/json; charset=utf-8');
-
-    /**
-     * Control de permisos.
+     * Elimina un producto o lo desactiva si tiene pedidos asociados.
      * ---------------------------------------------------------
-     * Usamos la función global de session.php.
-     */
-    if (!usuarioEsAdminOGestor()) {
-        echo json_encode([
-            'ok' => false,
-            'mensaje' => 'No tienes permisos para eliminar productos.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode([
-            'ok' => false,
-            'mensaje' => 'Método no permitido.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    $producto_id = isset($_POST['producto_id'])
-        ? (int) $_POST['producto_id']
-        : 0;
-
-    /**
-     * Indica si el admin ha elegido eliminar también
-     * el archivo asociado en Cloudflare R2.
+     * Esta función devuelve JSON y se utiliza desde el panel admin.
      *
-     * Este valor debe enviarlo admin.js:
-     * - eliminar_archivo = 1 -> borrar archivo
-     * - eliminar_archivo = 0 -> conservar archivo
+     * Flujo:
+     * 1. Comprueba permisos.
+     * 2. Valida producto_id.
+     * 3. Lee si el admin quiere eliminar también el archivo de Cloudflare.
+     * 4. Obtiene el producto.
+     * 5. Elimina archivo de Cloudflare R2 solo si el admin lo ha confirmado.
+     * 6. Si el producto tiene pedidos, lo desactiva.
+     * 7. Si no tiene pedidos, lo elimina físicamente.
      */
-    $eliminarArchivo = ($_POST['eliminar_archivo'] ?? '0') === '1';
+    public function eliminarProducto()
+    {
+        header('Content-Type: application/json; charset=utf-8');
 
-    if ($producto_id <= 0) {
-        echo json_encode([
-            'ok' => false,
-            'mensaje' => 'Producto no válido.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    try {
         /**
-         * Obtenemos el producto actual.
+         * Control de permisos.
+         * ---------------------------------------------------------
+         * Usamos la función global de session.php.
          */
-        $producto = $this->productoModel->obtenerProductosID($producto_id);
-
-        if (!$producto) {
+        if (!usuarioEsAdminOGestor()) {
             echo json_encode([
                 'ok' => false,
-                'mensaje' => 'Producto no encontrado.'
+                'mensaje' => 'No tienes permisos para eliminar productos.'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        /**
-         * Si el admin ha elegido eliminar el archivo y el producto
-         * tiene archivo en Cloudflare R2, lo eliminamos.
-         */
-        if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
-            $r2Service = new R2Service();
-            $r2Service->eliminarArchivo($producto['archivo_s3_key']);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => 'Método no permitido.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
         }
 
-        /*
+        $producto_id = isset($_POST['producto_id'])
+            ? (int) $_POST['producto_id']
+            : 0;
+
+        /**
+         * Indica si el admin ha elegido eliminar también
+         * el archivo asociado en Cloudflare R2.
+         *
+         * Este valor debe enviarlo admin.js:
+         * - eliminar_archivo = 1 -> borrar archivo
+         * - eliminar_archivo = 0 -> conservar archivo
+         */
+        $eliminarArchivo = ($_POST['eliminar_archivo'] ?? '0') === '1';
+
+        if ($producto_id <= 0) {
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => 'Producto no válido.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        try {
+            /**
+             * Obtenemos el producto actual.
+             */
+            $producto = $this->productoModel->obtenerProductosID($producto_id);
+
+            if (!$producto) {
+                echo json_encode([
+                    'ok' => false,
+                    'mensaje' => 'Producto no encontrado.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            /**
+             * Si el admin ha elegido eliminar el archivo y el producto
+             * tiene archivo en Cloudflare R2, lo eliminamos.
+             */
+            if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
+                $r2Service = new R2Service();
+                $r2Service->eliminarArchivo($producto['archivo_s3_key']);
+            }
+
+            /*
          * Si el producto tiene pedidos asociados, no lo borramos físicamente.
          * Se desactiva para mantener la integridad histórica de las compras.
          */
-        if ($this->productoModel->productoTienePedidos($producto_id)) {
-            $this->productoModel->desactivarProductoAdmin($producto_id);
+            if ($this->productoModel->productoTienePedidos($producto_id)) {
+                $this->productoModel->desactivarProductoAdmin($producto_id);
 
-            /**
-             * Si el producto se conserva en base de datos porque tiene pedidos,
-             * y además se ha eliminado el archivo de R2, limpiamos la referencia
-             * para que no apunte a un archivo que ya no existe.
-             */
-            if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
-                $this->productoModel->actualizarArchivoR2($producto_id, null);
+                /**
+                 * Si el producto se conserva en base de datos porque tiene pedidos,
+                 * y además se ha eliminado el archivo de R2, limpiamos la referencia
+                 * para que no apunte a un archivo que ya no existe.
+                 */
+                if ($eliminarArchivo && !empty($producto['archivo_s3_key'])) {
+                    $this->productoModel->actualizarArchivoR2($producto_id, null);
+                }
+
+                $mensaje = $eliminarArchivo
+                    ? 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha eliminado su archivo de Cloudflare.'
+                    : 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha conservado su archivo de Cloudflare.';
+
+                echo json_encode([
+                    'ok' => true,
+                    'mensaje' => $mensaje,
+                    'modo' => 'desactivado'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
 
+            /**
+             * Si no tiene pedidos, se elimina físicamente.
+             *
+             * Si el admin ha elegido conservar el archivo, el producto desaparecerá
+             * de la base de datos, pero el archivo seguirá existiendo en Cloudflare R2.
+             */
+            $this->productoModel->eliminarProductoFisicoAdmin($producto_id);
+
             $mensaje = $eliminarArchivo
-                ? 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha eliminado su archivo de Cloudflare.'
-                : 'El recurso tenía pedidos asociados. Se ha ocultado de la tienda y se ha conservado su archivo de Cloudflare.';
+                ? 'Recurso eliminado correctamente junto con su archivo de Cloudflare.'
+                : 'Recurso eliminado correctamente. El archivo de Cloudflare se ha conservado.';
 
             echo json_encode([
                 'ok' => true,
                 'mensaje' => $mensaje,
-                'modo' => 'desactivado'
+                'modo' => 'eliminado'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } catch (Exception $e) {
+            echo json_encode([
+                'ok' => false,
+                'mensaje' => 'Error eliminando producto: ' . $e->getMessage()
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
-
-        /**
-         * Si no tiene pedidos, se elimina físicamente.
-         *
-         * Si el admin ha elegido conservar el archivo, el producto desaparecerá
-         * de la base de datos, pero el archivo seguirá existiendo en Cloudflare R2.
-         */
-        $this->productoModel->eliminarProductoFisicoAdmin($producto_id);
-
-        $mensaje = $eliminarArchivo
-            ? 'Recurso eliminado correctamente junto con su archivo de Cloudflare.'
-            : 'Recurso eliminado correctamente. El archivo de Cloudflare se ha conservado.';
-
-        echo json_encode([
-            'ok' => true,
-            'mensaje' => $mensaje,
-            'modo' => 'eliminado'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-
-    } catch (Exception $e) {
-        echo json_encode([
-            'ok' => false,
-            'mensaje' => 'Error eliminando producto: ' . $e->getMessage()
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
     }
-}
     /**
-     * Obtiene el rango de fechas usado para las ventas del dashboard.
+     * Obtiene el rango de fechas usado para las estadísticas del dashboard.
      * ---------------------------------------------------------
-     * Lee el parámetro GET periodo_ventas y lo convierte en fecha de inicio
-     * y fecha de fin.
+     * Este método lee el periodo seleccionado en el filtro superior del panel
+     * y lo convierte en una fecha de inicio y una fecha de fin.
      *
-     * Periodos permitidos:
-     * - hoy
-     * - ultimos_7
-     * - ultimos_30
-     * - mes_anterior
-     * - anio_actual
-     * - personalizado
-     * - mes_actual
+     * El rango resultante se usa para:
+     * - Ventas del periodo.
+     * - Nuevos usuarios registrados.
+     * - Descargas realizadas.
+     * - Recursos más vendidos.
+     *
+     * Acepta dos formatos de parámetros:
+     * - ventas_desde / ventas_hasta: nuevo formato usado por el JS.
+     * - fecha_desde / fecha_hasta: compatibilidad con el formulario anterior.
      *
      * @return array Devuelve periodo, inicio y fin en formato Y-m-d.
      */
@@ -587,9 +587,25 @@ public function eliminarProducto()
     {
         $periodo = $_GET['periodo_ventas'] ?? 'mes_actual';
 
+        $periodosPermitidos = [
+            'hoy',
+            'ultimos_7',
+            'ultimos_30',
+            'mes_anterior',
+            'anio_actual',
+            'personalizado',
+            'todos',
+            'mes_actual'
+        ];
+
+        if (!in_array($periodo, $periodosPermitidos, true)) {
+            $periodo = 'mes_actual';
+        }
+
         $hoy = new DateTime();
 
         switch ($periodo) {
+
             case 'hoy':
                 $inicio = clone $hoy;
                 $fin = clone $hoy;
@@ -615,9 +631,21 @@ public function eliminarProducto()
                 $fin = new DateTime(date('Y') . '-12-31');
                 break;
 
+            case 'todos':
+                return [
+                    'periodo' => 'todos',
+                    'inicio' => null,
+                    'fin' => null,
+                ];
+
             case 'personalizado':
-                $desde = $_GET['fecha_desde'] ?? null;
-                $hasta = $_GET['fecha_hasta'] ?? null;
+                $desde = $_GET['ventas_desde']
+                    ?? $_GET['fecha_desde']
+                    ?? null;
+
+                $hasta = $_GET['ventas_hasta']
+                    ?? $_GET['fecha_hasta']
+                    ?? null;
 
                 if ($desde && $hasta) {
                     $inicio = new DateTime($desde);
@@ -627,15 +655,11 @@ public function eliminarProducto()
                     $fin = new DateTime('last day of this month');
                     $periodo = 'mes_actual';
                 }
+
                 break;
 
             case 'mes_actual':
             default:
-                /*
-                 * Mes actual completo:
-                 * - Desde el día 1.
-                 * - Hasta el último día real del mes.
-                 */
                 $inicio = new DateTime('first day of this month');
                 $fin = new DateTime('last day of this month');
                 $periodo = 'mes_actual';
@@ -665,7 +689,7 @@ public function eliminarProducto()
     public function exportarProductosPdf()
     {
         if (!usuarioEsAdminOGestor()) {
-            header('Location: ' . BASE_URL . 'public/login.php');
+            header('Location: ' . PUBLIC_URL . 'login.php');
             exit;
         }
 
@@ -820,61 +844,61 @@ public function eliminarProducto()
                 }
             }
 
-        /*
+            /*
  * Archivo PDF/ZIP para Google Drive.
  * ---------------------------------------------------------
  * Si se sube un archivo, se envía a Google Drive mediante
  * GoogleDriveService y se guarda automáticamente la URL devuelta.
  */
-$googleDriveFileId = $recursoActual['google_drive_file_id'] ?? null;
+            $googleDriveFileId = $recursoActual['google_drive_file_id'] ?? null;
 
-if (isset($_FILES['archivo_drive']) && $_FILES['archivo_drive']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if (isset($_FILES['archivo_drive']) && $_FILES['archivo_drive']['error'] !== UPLOAD_ERR_NO_FILE) {
 
-    if ($_FILES['archivo_drive']['error'] !== UPLOAD_ERR_OK) {
-        throw new Exception('Error al subir el archivo gratuito.');
-    }
+                if ($_FILES['archivo_drive']['error'] !== UPLOAD_ERR_OK) {
+                    throw new Exception('Error al subir el archivo gratuito.');
+                }
 
-    $extensionArchivo = strtolower(pathinfo($_FILES['archivo_drive']['name'], PATHINFO_EXTENSION));
-    $extensionesPermitidas = ['pdf', 'zip'];
+                $extensionArchivo = strtolower(pathinfo($_FILES['archivo_drive']['name'], PATHINFO_EXTENSION));
+                $extensionesPermitidas = ['pdf', 'zip'];
 
-    if (!in_array($extensionArchivo, $extensionesPermitidas, true)) {
-        throw new Exception('El archivo gratuito debe ser PDF o ZIP.');
-    }
+                if (!in_array($extensionArchivo, $extensionesPermitidas, true)) {
+                    throw new Exception('El archivo gratuito debe ser PDF o ZIP.');
+                }
 
-    $driveService = new GoogleDriveService();
+                $driveService = new GoogleDriveService();
 
-    /*
+                /*
      * Si estamos editando y ya existe archivo en Drive,
      * lo eliminamos antes de subir el nuevo.
      */
-    if ($id > 0 && !empty($googleDriveFileId)) {
-        $driveService->eliminarArchivo($googleDriveFileId);
-    }
+                if ($id > 0 && !empty($googleDriveFileId)) {
+                    $driveService->eliminarArchivo($googleDriveFileId);
+                }
 
-    $archivoDrive = $driveService->subirArchivo(
-        $_FILES['archivo_drive']['tmp_name'],
-        $_FILES['archivo_drive']['name'],
-        $_FILES['archivo_drive']['type'] ?? null
-    );
+                $archivoDrive = $driveService->subirArchivo(
+                    $_FILES['archivo_drive']['tmp_name'],
+                    $_FILES['archivo_drive']['name'],
+                    $_FILES['archivo_drive']['type'] ?? null
+                );
 
-    $urlDrive = $archivoDrive['webViewLink'] ?? '';
-    $googleDriveFileId = $archivoDrive['id'] ?? null;
+                $urlDrive = $archivoDrive['webViewLink'] ?? '';
+                $googleDriveFileId = $archivoDrive['id'] ?? null;
 
-    if ($urlDrive === '') {
-        throw new Exception('Google Drive no ha devuelto URL del archivo.');
-    }
-}
+                if ($urlDrive === '') {
+                    throw new Exception('Google Drive no ha devuelto URL del archivo.');
+                }
+            }
 
-$datos = [
-    'id' => $id,
-    'titulo' => $titulo,
-    'imagen' => $imagen,
-    'categoria_id' => $categoriaId,
-    'url_drive' => $urlDrive,
-    'google_drive_file_id' => $googleDriveFileId,
-    'formato' => $_POST['formato'] ?? 'PDF',
-    'estado' => $estado
-];
+            $datos = [
+                'id' => $id,
+                'titulo' => $titulo,
+                'imagen' => $imagen,
+                'categoria_id' => $categoriaId,
+                'url_drive' => $urlDrive,
+                'google_drive_file_id' => $googleDriveFileId,
+                'formato' => $_POST['formato'] ?? 'PDF',
+                'estado' => $estado
+            ];
 
             $resultado = $this->recursoGratuitoModel->guardarRecursoGratuitoAdmin($datos);
 
@@ -1155,8 +1179,9 @@ $datos = [
      *
      * Periodos permitidos:
      * - todos
+     * - hoy
      * - ultimos_7
-     * - ultimos_30
+     * - mes_actual
      * - mes_anterior
      * - personalizado
      *
@@ -1166,24 +1191,39 @@ $datos = [
     {
         $periodo = $_GET['periodo_gratis'] ?? 'todos';
 
+        $periodosPermitidos = [
+            'todos',
+            'hoy',
+            'ultimos_7',
+            'mes_actual',
+            'mes_anterior',
+            'personalizado'
+        ];
+
+        if (!in_array($periodo, $periodosPermitidos, true)) {
+            $periodo = 'todos';
+        }
+
         $hoy = new DateTime();
 
         switch ($periodo) {
 
+            case 'hoy':
+                $inicio = clone $hoy;
+                $fin = clone $hoy;
+                break;
+
             case 'ultimos_7':
-                // Incluye hoy y los 6 días anteriores.
                 $inicio = (clone $hoy)->modify('-6 days');
                 $fin = clone $hoy;
                 break;
 
-            case 'ultimos_30':
-                // Incluye hoy y los 29 días anteriores.
-                $inicio = (clone $hoy)->modify('-29 days');
-                $fin = clone $hoy;
+            case 'mes_actual':
+                $inicio = new DateTime('first day of this month');
+                $fin = new DateTime('last day of this month');
                 break;
 
             case 'mes_anterior':
-                // Primer y último día del mes anterior.
                 $inicio = new DateTime('first day of last month');
                 $fin = new DateTime('last day of last month');
                 break;
@@ -1200,6 +1240,7 @@ $datos = [
                     $inicio = null;
                     $fin = null;
                 }
+
                 break;
 
             case 'todos':

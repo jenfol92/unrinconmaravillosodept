@@ -250,6 +250,11 @@ public function detalle()
         die("Producto no existe");
     }
 
+    $resumenResenas = $this->productModel->obtenerResumenResenasProducto($id);
+
+$media_resenas = (float)($resumenResenas['media_resenas'] ?? 0);
+$total_resenas = (int)($resumenResenas['total_resenas'] ?? 0);
+
     /*
         Guardamos el producto actual en la cookie de productos recientes.
         ---------------------------------------------------------

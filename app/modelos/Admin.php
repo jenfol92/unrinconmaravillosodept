@@ -39,97 +39,116 @@ class Admin
     {
         $this->conexion = conectarBD();
     }
-
     /**
      * Obtiene las estadísticas principales del dashboard.
      * ---------------------------------------------------------
-     * Esta función devuelve los datos que se muestran normalmente
-     * en las tarjetas superiores del panel de administración.
+     * Esta función devuelve los datos que se muestran en las tarjetas
+     * superiores del panel de administración.
      *
      * Datos que obtiene:
      *
      * - Total de productos activos.
-     * - Total de usuarios clientes.
-     * - Total de descargas registradas.
-     * - Total de ventas pagadas.
+     * - Usuarios clientes registrados dentro del periodo seleccionado.
+     * - Descargas realizadas dentro del periodo seleccionado.
+     * - Total de ventas pagadas dentro del periodo seleccionado.
      *
-     * Las ventas pueden filtrarse por rango de fechas.
+     * Si no se recibe rango de fechas, devuelve los totales históricos.
      *
      * @param string|null $fechaInicio Fecha inicial en formato Y-m-d.
      * @param string|null $fechaFin Fecha final en formato Y-m-d.
      *
-     * @return array Devuelve un array con ventas, usuarios, descargas y productos activos.
+     * @return array Devuelve ventas, usuarios, descargas y productos activos.
      */
     public function obtenerEstadisticas($fechaInicio = null, $fechaFin = null)
     {
         /*
             Total de productos activos.
 
-            Se cuentan únicamente los productos cuyo estado es 'activo',
-            ya que son los recursos visibles o disponibles en la tienda.
+            Este dato se mantiene como total general, porque representa
+            los recursos actualmente publicados y no depende del periodo
+            de ventas seleccionado.
         */
         $productosActivos = $this->conexion
             ->query("SELECT COUNT(*) FROM productos WHERE estado = 'activo'")
             ->fetchColumn();
 
         /*
-            Total de usuarios clientes.
+            Fechas completas para consultas con rango.
 
-            En este proyecto, el rol_id = 3 corresponde a usuarios clientes.
-            No se cuentan administradores ni otros roles internos.
+            Se añaden horas para incluir todo el día inicial y todo el día final.
         */
-        $usuarios = $this->conexion
-            ->query("SELECT COUNT(*) FROM usuarios WHERE rol_id = 3")
-            ->fetchColumn();
+        $fechaInicioCompleta = $fechaInicio ? $fechaInicio . ' 00:00:00' : null;
+        $fechaFinCompleta = $fechaFin ? $fechaFin . ' 23:59:59' : null;
 
         /*
-            Total de descargas.
+            Usuarios clientes registrados.
 
-            Se suma el campo numero_descargas de la tabla descargas.
-            COALESCE evita que el resultado sea NULL si no hay registros.
+            Si hay rango de fechas, cuenta solo los usuarios registrados
+            dentro de ese periodo usando usuarios.fecha_registro.
         */
-        $descargas = $this->conexion
-            ->query("SELECT COALESCE(SUM(numero_descargas), 0) FROM descargas")
-            ->fetchColumn();
+        $sqlUsuarios = "SELECT COUNT(*) 
+                        FROM usuarios 
+                        WHERE rol_id = 3";
+
+        $paramsUsuarios = [];
+
+        if ($fechaInicio && $fechaFin) {
+            $sqlUsuarios .= " AND fecha_registro BETWEEN ? AND ?";
+            $paramsUsuarios[] = $fechaInicioCompleta;
+            $paramsUsuarios[] = $fechaFinCompleta;
+        }
+
+        $stmtUsuarios = $this->conexion->prepare($sqlUsuarios);
+        $stmtUsuarios->execute($paramsUsuarios);
+        $usuarios = $stmtUsuarios->fetchColumn();
 
         /*
-            Consulta base para calcular ventas pagadas.
+            Descargas realizadas.
 
-            Solo se tienen en cuenta los pagos cuyo estado sea 'pagado'.
+            Si hay rango de fechas, suma solo las descargas cuya fecha_compra
+            está dentro del periodo seleccionado.
+        */
+        $sqlDescargas = "SELECT COALESCE(SUM(numero_descargas), 0) 
+                         FROM descargas
+                         WHERE 1 = 1";
+
+        $paramsDescargas = [];
+
+        if ($fechaInicio && $fechaFin) {
+            $sqlDescargas .= " AND fecha_compra BETWEEN ? AND ?";
+            $paramsDescargas[] = $fechaInicioCompleta;
+            $paramsDescargas[] = $fechaFinCompleta;
+        }
+
+        $stmtDescargas = $this->conexion->prepare($sqlDescargas);
+        $stmtDescargas->execute($paramsDescargas);
+        $descargas = $stmtDescargas->fetchColumn();
+
+        /*
+            Ventas pagadas.
+
+            Solo se tienen en cuenta pagos con estado 'pagado'.
+            Si hay rango de fechas, se filtra por pagos.fecha_pago.
         */
         $sqlVentas = "SELECT COALESCE(SUM(monto), 0) 
                       FROM pagos 
                       WHERE estado = 'pagado'";
 
-        /*
-            Array de parámetros para consulta preparada.
+        $paramsVentas = [];
 
-            Se rellena solo si se recibe rango de fechas.
-        */
-        $params = [];
-
-        /*
-            Si se reciben fechaInicio y fechaFin, se filtran las ventas
-            entre el inicio del primer día y el final del último día.
-        */
         if ($fechaInicio && $fechaFin) {
             $sqlVentas .= " AND fecha_pago BETWEEN ? AND ?";
-            $params[] = $fechaInicio . ' 00:00:00';
-            $params[] = $fechaFin . ' 23:59:59';
+            $paramsVentas[] = $fechaInicioCompleta;
+            $paramsVentas[] = $fechaFinCompleta;
         }
 
-        /*
-            Preparamos y ejecutamos la consulta de ventas.
-
-            Se usa prepare() porque la consulta puede recibir parámetros.
-        */
-        $stmt = $this->conexion->prepare($sqlVentas);
-        $stmt->execute($params);
-        $ventas = $stmt->fetchColumn();
+        $stmtVentas = $this->conexion->prepare($sqlVentas);
+        $stmtVentas->execute($paramsVentas);
+        $ventas = $stmtVentas->fetchColumn();
 
         /*
             Devolvemos todas las estadísticas en un array asociativo
-            para que el controlador pueda pasarlas fácilmente a la vista.
+            para que el controlador pueda pasarlas a la vista.
         */
         return [
             'ventas' => $ventas,

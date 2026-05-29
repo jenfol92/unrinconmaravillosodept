@@ -51,7 +51,7 @@ class UsuarioController
             una sesión activa. En ese caso, redirigimos al login.
         */
         if (!isset($_SESSION['usuario_id'])) {
-            header("Location:". BASE_URL . " login.php");
+            header("Location:" . PUBLIC_URL . " login.php");
             exit();
         }
 
@@ -62,7 +62,7 @@ class UsuarioController
             Si intenta acceder otro tipo de usuario, se redirige al inicio.
         */
         if ($_SESSION['rol'] != 3) {
-            header("Location:". BASE_URL . "index.php");
+            header("Location:" . PUBLIC_URL . "index.php");
             exit();
         }
 
@@ -94,6 +94,8 @@ class UsuarioController
         */
         $productoModel = new Producto();
         $favoritos = $productoModel->obtenerProductosFavoritos($usuarioId);
+        
+        $usuarioModel->sincronizarDescargasUsuario($usuarioId);
 
         /*
             Cargamos los recursos adquiridos por el usuario.

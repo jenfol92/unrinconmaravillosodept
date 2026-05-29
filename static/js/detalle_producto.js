@@ -67,19 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         /**
          * Enviamos la consulta al endpoint PHP.
-         *
-         * IMPORTANTE:
-         * Se usa BASE_URL con backticks.
-         *
-         * Antes estaba así:
-         * "/UNRINCONDEPT/public/ajax_soporte_producto.php"
-         *
-         * Eso funciona en local, pero puede fallar en producción.
-         *
-         * Con BASE_URL funcionará tanto en local como en producción,
-         * siempre que BASE_URL esté bien definida.
          */
-        fetch(`${BASE_URL}public/ajax_soporte_producto.php`, {
+    
+        fetch(`${PUBLIC_URL}ajax_soporte_producto.php`, {
             method: "POST",
             body: formData
         })

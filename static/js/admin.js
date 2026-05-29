@@ -1,10 +1,56 @@
+/**
+ * admin_panel.js
+ * ---------------------------------------------------------
+ * Archivo JavaScript completo del panel de administración.
+ *
+ * Este archivo gestiona la parte interactiva del panel admin:
+ * - Navegación entre secciones del panel.
+ * - Edición y creación de productos.
+ * - Creación de categorías.
+ * - Soporte/tickets.
+ * - Reseñas de productos y usuarios.
+ * - Tabla AJAX de productos con filtros y paginación.
+ * - Subida y eliminación de archivos asociados a productos.
+ * - Recursos gratuitos.
+ * - Filtros de contenido gratuito.
+ * - Sidebar responsive.
+ * - Favoritos, descargas y reseñas de usuarios.
+ * - Filtro del dashboard para ventas del periodo.
+ *
+ * Cambios realizados sobre tu archivo original:
+ * - Se añade documentación mediante comentarios.
+ * - Se corrige únicamente la variante incorrecta con doble L -> PUBLIC_URL.
+ *
+ * No se refactoriza la lógica ni se cambian nombres de funciones.
+ */
+
+/* =========================================================
+   NAVEGACIÓN ENTRE SECCIONES DEL PANEL ADMIN
+   =========================================================
+   Permite cambiar entre secciones del panel.
+
+   Además, al recargar la página, lee ?section=...
+   para abrir automáticamente la sección correcta.
+
+   Ejemplo:
+   admin.php?section=gratuitos&periodo_gratis=ultimos_7
+
+   abrirá directamente la sección de contenido gratuito.
+*/
 document.addEventListener("DOMContentLoaded", function () {
 
     const links = document.querySelectorAll(".admin-link");
     const sections = document.querySelectorAll(".admin-section");
     const openButtons = document.querySelectorAll(".admin-open-section");
 
+    /**
+     * Abre una sección del panel admin.
+     *
+     * @param {string} sectionName Nombre de la sección.
+     */
     function abrirSeccion(sectionName) {
+
+        if (!sectionName) return;
 
         links.forEach(link => link.classList.remove("active"));
         sections.forEach(section => section.classList.remove("active"));
@@ -42,8 +88,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-});
+    /*
+        Abrir sección inicial según la URL.
 
+        Esto soluciona que, después de pulsar "Aplicar periodo"
+        en contenido gratuito, la página recargue y vuelva al dashboard.
+    */
+    const params = new URLSearchParams(window.location.search);
+    const sectionUrl = params.get("section");
+
+    if (sectionUrl && document.getElementById(`admin-section-${sectionUrl}`)) {
+        abrirSeccion(sectionUrl);
+    }
+});
+/* 
+   PRODUCTOS - EDITAR DESDE LA TABLA
+
+   Abre la sección de subida/edición, muestra solo el formulario
+   de producto y rellena sus campos con los data-* del botón.
+*/
 // Editar producto desde la tabla
 document.addEventListener("click", function (e) {
 
@@ -98,7 +161,7 @@ document.addEventListener("click", function (e) {
     const imgProducto = document.getElementById("imgActualProducto");
 
     if (previewProducto && imgProducto) {
-        imgProducto.src = `/UNRINCONDEPT/static/images/img/${imagen}`;
+        imgProducto.src = `${BASE_URL}static/images/img/${imagen}`;
         previewProducto.style.display = "block";
     }
 
@@ -115,7 +178,16 @@ document.addEventListener("click", function (e) {
         btnGuardar.innerText = "Guardar cambios";
     }
 });
+/* 
+   PRODUCTOS - CREAR NUEVA CATEGORÍA DESDE MODAL
+  
+   Envía por AJAX el formulario de nueva categoría y añade la
+   categoría creada al select del formulario de producto.
+*/
 // Crear nueva categoría desde modal
+/* 
+   PRODUCTOS - CREAR NUEVA CATEGORÍA DESDE MODAL
+*/
 document.addEventListener("DOMContentLoaded", function () {
 
     const formNuevaCategoria = document.getElementById("formNuevaCategoria");
@@ -126,50 +198,111 @@ document.addEventListener("DOMContentLoaded", function () {
 
         e.preventDefault();
 
+        const respuesta = document.getElementById("respuestaNuevaCategoria");
+        const selectCategoria = document.getElementById("productoCategoria");
         const formData = new FormData(formNuevaCategoria);
 
-        fetch(BASE_URL + "public/admin_ajax_crear_categoria.php", {
+        if (respuesta) {
+            respuesta.innerHTML = `
+                <div class="alert alert-info mb-0">
+                    Guardando categoría...
+                </div>
+            `;
+        }
+
+        fetch(PUBLIC_URL + "ajax_crear_categoria.php", {
             method: "POST",
             body: formData
         })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.text())
+            .then(texto => {
 
-                const respuesta = document.getElementById("respuestaNuevaCategoria");
+                console.log("Respuesta ajax_crear_categoria.php:", texto);
 
-                if (!data.ok) {
-                    respuesta.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${data.error}
-                    </div>
-                `;
+                let data;
+
+                try {
+                    data = JSON.parse(texto);
+                } catch (error) {
+                    console.error("Respuesta no JSON al crear categoría:", texto);
+
+                    if (respuesta) {
+                        respuesta.innerHTML = `
+                            <div class="alert alert-danger mb-0">
+                                El servidor no ha devuelto JSON válido. Revisa la consola.
+                            </div>
+                        `;
+                    }
+
                     return;
                 }
 
-                const selectCategoria = document.getElementById("productoCategoria");
+              if (!data.ok) {
+    respuesta.innerHTML = `
+        <div class="alert alert-danger">
+            ${data.error || data.mensaje || "No se pudo crear la categoría."}
+            ${data.debug ? `<br><small>${data.debug}</small>` : ""}
+        </div>
+    `;
 
-                const option = document.createElement("option");
-                option.value = data.categoria.id;
-                option.textContent = data.categoria.nombre;
-                option.selected = true;
+    return;
+}
+                if (selectCategoria && data.categoria) {
+                    const option = document.createElement("option");
+                    option.value = data.categoria.id;
+                    option.textContent = data.categoria.nombre;
+                    option.selected = true;
 
-                selectCategoria.appendChild(option);
+                    selectCategoria.appendChild(option);
+                }
 
-                respuesta.innerHTML = `
-                <div class="alert alert-success">
-                    Categoría creada correctamente.
-                </div>
-            `;
+                if (respuesta) {
+                    respuesta.innerHTML = `
+                        <div class="alert alert-success mb-0">
+                            Categoría creada correctamente.
+                        </div>
+                    `;
+                }
 
                 formNuevaCategoria.reset();
+
+                const modalEl = document.getElementById("modalNuevaCategoria");
+
+                if (modalEl) {
+                    if (modalEl.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+                    if (modalInstance) {
+                        setTimeout(() => {
+                            modalInstance.hide();
+                        }, 700);
+                    }
+                }
             })
             .catch(error => {
                 console.error("Error creando categoría:", error);
+
+                if (respuesta) {
+                    respuesta.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            Error creando categoría. Revisa la consola.
+                        </div>
+                    `;
+                }
             });
 
     });
 
 });
+/* 
+   FORMULARIO PRODUCTO - LIMPIAR AL CREAR NUEVO RECURSO
+  
+   Si se abre la sección de subir sin venir de edición, limpia el
+   formulario para evitar reutilizar datos anteriores.
+*/
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest('.admin-open-section[data-section="subir"]');
@@ -201,6 +334,11 @@ document.addEventListener("click", function (e) {
     }
 });
 
+/* 
+   SOPORTE ADMIN - ABRIR MODAL PARA RESPONDER TICKET
+
+   Carga los mensajes de un ticket y abre el modal de respuesta.
+*/
 // SOPORTE ADMIN - RESPONDER TICKET
 
 
@@ -247,7 +385,7 @@ function cargarMensajesTicket(ticketId) {
         </div>
     `;
 
-    fetch(`${BASE_URL}public/admin_ajax_soporte_leer.php?ticket_id=${ticketId}`)
+    fetch(`${PUBLIC_URL}admin_ajax_soporte_leer.php?ticket_id=${ticketId}`)
         .then(res => res.json())
         .then(data => {
 
@@ -333,6 +471,12 @@ function cargarMensajesTicket(ticketId) {
         });
 }
 
+/* 
+   SOPORTE ADMIN - ENVIAR RESPUESTA
+ 
+   Envía la respuesta del administrador por AJAX y recarga la
+   conversación del ticket.
+*/
 // Enviar respuesta admin
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -351,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("ticket_id", ticketId);
         formData.append("mensaje", mensaje);
 
-        fetch(BASE_URL + "public/admin_ajax_soporte_responder.php", {
+        fetch(PUBLIC_URL + "admin_ajax_soporte_responder.php", {
             method: "POST",
             body: formData
         })
@@ -381,6 +525,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 });
+/*
+   RESEÑAS DE PRODUCTO - VER EN MODAL
+ 
+   Muestra las reseñas de un producto concreto en el modal admin.
+*/
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-ver-resenas-producto");
@@ -402,13 +551,19 @@ document.addEventListener("click", function (e) {
 });
 
 
+/**
+ * Carga reseñas de un producto desde el endpoint AJAX y las pinta
+ * dentro del modal de reseñas del panel admin.
+ *
+ * @param {number|string} productoId ID del producto seleccionado.
+ */
 function cargarResenasProductoAdmin(productoId) {
 
     const contenedor = document.getElementById("contenedorResenasProductoAdmin");
 
     contenedor.innerHTML = "Cargando reseñas...";
 
-    fetch(`/UNRINCONDEPT/public/ajax_reseñas_producto.php?producto_id=${productoId}`)
+    fetch(`${PUBLIC_URL}ajax_reseñas_producto.php?producto_id=${productoId}`)
         .then(res => res.json())
         .then(data => {
 
@@ -450,6 +605,11 @@ function cargarResenasProductoAdmin(productoId) {
         });
 }
 
+/* 
+   RESEÑAS - DENUNCIAR Y BLOQUEAR USUARIO
+ 
+   Permite denunciar una reseña y bloquear al usuario para futuras reseñas.
+*/
 //VER RESEÑAS
 document.addEventListener("click", function (e) {
 
@@ -465,7 +625,7 @@ document.addEventListener("click", function (e) {
     formData.append("resena_id", btn.dataset.resenaId);
     formData.append("usuario_id", btn.dataset.usuarioId);
 
-    fetch(BASE_URL + "public/ajax_denunciar_reseña.php", {
+    fetch(PUBLIC_URL + "ajax_denunciar_resena.php", {
         method: "POST",
         body: formData
     })
@@ -482,6 +642,12 @@ document.addEventListener("click", function (e) {
             btn.closest(".admin-ticket").remove();
         });
 });
+/* 
+   PRODUCTOS ADMIN - FILTROS, CARGA AJAX Y PAGINACIÓN
+   
+   Inicializa la carga de productos y enlaza los filtros de búsqueda,
+   categoría, estado y periodo de datos.
+*/
 //PAGINACION
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -541,6 +707,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+/**
+ * Carga por AJAX los productos del panel admin aplicando filtros.
+ *
+ * @param {number} pagina Página que se desea cargar.
+ */
 function cargarProductosAdmin(pagina = 1) {
 
     const tbody = document.getElementById("adminProductosTbody");
@@ -563,7 +734,7 @@ function cargarProductosAdmin(pagina = 1) {
         </tr>
     `;
 
-    const url = `${BASE_URL}public/ajax_admin_panel_productos.php?pagina=${pagina}` +
+    const url = `${PUBLIC_URL}ajax_admin_panel_productos.php?pagina=${pagina}` +
         `&busqueda=${encodeURIComponent(busqueda)}` +
         `&categoria=${encodeURIComponent(categoria)}` +
         `&estado=${encodeURIComponent(estado)}` +
@@ -620,6 +791,12 @@ function cargarProductosAdmin(pagina = 1) {
         });
 }
 
+/**
+ * Pinta la respuesta de productos tanto en tabla de escritorio
+ * como en tarjetas móviles.
+ *
+ * @param {Array} productos Lista de productos recibida del servidor.
+ */
 function pintarProductosAdmin(productos) {
 
     const tbody = document.getElementById("adminProductosTbody");
@@ -734,7 +911,7 @@ function pintarProductosAdmin(productos) {
                         </button>
 
                         <a
-                            href="${BASE_URL}public/detalle.php?id=${p.id}"
+                            href="${PUBLIC_URL}detalle.php?id=${p.id}"
                             class="btn btn-sm btn-outline-secondary"
                             target="_blank">
                             <i class="bi bi-eye"></i>
@@ -820,7 +997,7 @@ function pintarProductosAdmin(productos) {
 
                             <li>
                                 <a
-                                    href="${BASE_URL}public/detalle.php?id=${p.id}"
+                                    href="${PUBLIC_URL}detalle.php?id=${p.id}"
                                     class="dropdown-item"
                                     target="_blank">
                                     <i class="bi bi-eye me-2"></i>
@@ -894,6 +1071,12 @@ function pintarProductosAdmin(productos) {
     }
 }
 
+/**
+ * Pinta los botones de paginación de productos.
+ *
+ * @param {number} totalPaginas Total de páginas disponibles.
+ * @param {number} paginaActual Página actual.
+ */
 function pintarPaginacionProductosAdmin(totalPaginas, paginaActual) {
 
     const contenedor = document.getElementById("adminProductosPaginacion");
@@ -940,6 +1123,13 @@ function pintarPaginacionProductosAdmin(totalPaginas, paginaActual) {
     contenedor.innerHTML = html;
 }
 
+/**
+ * Escapa caracteres especiales antes de insertar texto en HTML.
+ * Ayuda a evitar que textos de base de datos rompan el DOM o inyecten HTML.
+ *
+ * @param {*} text Texto a escapar.
+ * @returns {string} Texto seguro para insertar en HTML.
+ */
 function escapeHtml(text) {
     return String(text)
         .replaceAll("&", "&amp;")
@@ -949,8 +1139,15 @@ function escapeHtml(text) {
         .replaceAll(">", "&gt;");
 }
 
+/*
+   USUARIOS - VER DESCARGAS DE UN USUARIO
 
-//FUNCION PARA VER TODOS LOS RECURSOS ADQUIRIDOS DE UN USUARIO Y LAS DESCARGAS QUE HA REALIZADO .
+   Abre un modal con recursos adquiridos, número de descargas,
+   fecha de compra y fecha de expiración.
+
+   En escritorio muestra una tabla.
+   En móvil muestra tarjetas responsivas.
+*/
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-ver-descargas-usuario");
@@ -960,64 +1157,184 @@ document.addEventListener("click", function (e) {
     const usuarioId = btn.dataset.usuarioId;
     const nombre = btn.dataset.usuarioNombre;
 
-    document.getElementById("modalAdminUsuariosTitulo").innerText =
-        "Descargas de " + nombre;
-
+    const modal = document.getElementById("modalAdminUsuarios");
+    const tituloModal = document.getElementById("modalAdminUsuariosTitulo");
     const contenedor = document.getElementById("modalAdminUsuariosContenido");
-    contenedor.innerHTML = "Cargando descargas...";
 
-    fetch(`${BASE_URL}public/admin_ajax_descargas_usuario.php?usuario_id=${usuarioId}`)
+    tituloModal.innerText = "Descargas de " + nombre;
+
+    contenedor.innerHTML = `
+        <div class="text-center py-4">
+            Cargando descargas...
+        </div>
+    `;
+
+    fetch(`${PUBLIC_URL}admin_ajax_descargas_usuario.php?usuario_id=${usuarioId}`)
         .then(res => res.json())
         .then(data => {
 
             if (!data.ok) {
-                contenedor.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-                new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
+                contenedor.innerHTML = `
+                    <div class="alert alert-danger mb-0">
+                        ${data.error}
+                    </div>
+                `;
+
+                new bootstrap.Modal(modal).show();
                 return;
             }
 
-            if (!data.descargas.length) {
-                contenedor.innerHTML = `<p>No tiene descargas.</p>`;
-                new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
+            if (!data.descargas || !data.descargas.length) {
+                contenedor.innerHTML = `
+                    <div class="alert alert-info mb-0">
+                        Este usuario no tiene descargas registradas.
+                    </div>
+                `;
+
+                new bootstrap.Modal(modal).show();
                 return;
             }
 
-            let html = `
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Nº descargas</th>
-                                <th>Máximo</th>
-                                <th>Fecha compra</th>
-                                <th>Expira</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
+            let filasTabla = "";
+            let tarjetasMobile = "";
+
+         const imagenDefault = `${BASE_URL}static/images/img/default.png`;
 
             data.descargas.forEach(d => {
-                html += `
+
+                const imagen = d.imagen
+                    ? `${BASE_URL}static/images/img/${d.imagen}` : imagenDefault;
+                  
+
+                const titulo = d.titulo ?? "";
+                const numeroDescargas = d.numero_descargas ?? 0;
+                const maxDescargas = d.max_descargas ?? 0;
+                const fechaCompra = d.fecha_compra ?? "";
+                const fechaExpiracion = d.fecha_expiracion ?? "";
+
+                /*
+                   FILA DE TABLA - ESCRITORIO
+                */
+                filasTabla += `
                     <tr>
-                        <td>${d.titulo}</td>
-                        <td>${d.numero_descargas ?? 0}</td>
-                        <td>${d.max_descargas ?? 0}</td>
-                        <td>${d.fecha_compra ?? ""}</td>
-                        <td>${d.fecha_expiracion ?? ""}</td>
+                        <td class="admin-descargas-table__producto">
+                            <div class="d-flex align-items-center gap-2">
+                                <img 
+                                    src="${imagen}" 
+                                    alt=""
+                                    class="admin-descargas-img rounded object-fit-cover flex-shrink-0"
+                                    onerror="this.onerror=null; this.src='${imagenDefault}';"
+                                >
+
+                                <span class="admin-descargas-table__titulo">
+                                    ${titulo}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>${numeroDescargas}</td>
+                        <td>${maxDescargas}</td>
+                        <td>${fechaCompra}</td>
+                        <td>${fechaExpiracion}</td>
                     </tr>
+                `;
+
+                /*
+                   TARJETA - MÓVIL
+                */
+                tarjetasMobile += `
+                    <div class="card admin-descarga-card mb-3">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <img 
+                                    src="${imagen}" 
+                                    alt=""
+                                    class="admin-descargas-img rounded object-fit-cover flex-shrink-0"
+                                    onerror="this.onerror=null; this.src='${imagenDefault}';"
+                                >
+
+                                <div class="flex-grow-1">
+                                    <h6 class="admin-descarga-card__titulo mb-2">
+                                        ${titulo}
+                                    </h6>
+
+                                    <span class="badge text-bg-light">
+                                        ${numeroDescargas} / ${maxDescargas} descargas
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="admin-descarga-card__datos">
+                                <div>
+                                    <span>Fecha compra</span>
+                                    <strong>${fechaCompra}</strong>
+                                </div>
+
+                                <div>
+                                    <span>Expira</span>
+                                    <strong>${fechaExpiracion}</strong>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 `;
             });
 
-            html += `</tbody></table></div>`;
+            const html = `
+                <div class="admin-descargas-wrapper">
+
+                    <!-- Tabla para escritorio y tablet -->
+                    <div class="table-responsive d-none d-md-block">
+                        <table class="table table-hover align-middle admin-descargas-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Nº descargas</th>
+                                    <th>Máximo</th>
+                                    <th>Fecha compra</th>
+                                    <th>Expira</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                ${filasTabla}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tarjetas para móvil -->
+                    <div class="admin-descargas-cards d-md-none">
+                        ${tarjetasMobile}
+                    </div>
+
+                </div>
+            `;
 
             contenedor.innerHTML = html;
 
-            new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
+            new bootstrap.Modal(modal).show();
+        })
+        .catch(error => {
+
+            console.error("Error al cargar las descargas del usuario:", error);
+
+            contenedor.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    No se han podido cargar las descargas del usuario.
+                </div>
+            `;
+
+            new bootstrap.Modal(modal).show();
         });
 });
-//FUNCION PARA VER TODAS LAS RESEÑAS DE UN USUARIO.
-
+/* 
+   USUARIOS - VER RESEÑAS DE UN USUARIO
+ 
+   Abre un modal con las reseñas realizadas por el usuario.
+*/
+// FUNCIÓN PARA VER TODAS LAS RESEÑAS DE UN USUARIO.
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-ver-resenas-usuario");
@@ -1033,8 +1350,20 @@ document.addEventListener("click", function (e) {
     const contenedor = document.getElementById("modalAdminUsuariosContenido");
     contenedor.innerHTML = "Cargando reseñas...";
 
-    fetch(`${BASE_URL}public/ajax_admin_reseñas_usuario.php?usuario_id=${usuarioId}`)
-        .then(res => res.json())
+    fetch(`${PUBLIC_URL}ajax_admin_reseñas_usuario.php?usuario_id=${usuarioId}`)
+        .then(async res => {
+
+            const texto = await res.text();
+
+            try {
+                return JSON.parse(texto);
+            } catch (error) {
+                console.error("Respuesta no JSON al cargar reseñas:");
+                console.error(texto);
+                throw new Error("El servidor no ha devuelto JSON válido al cargar las reseñas.");
+            }
+
+        })
         .then(data => {
 
             if (!data.ok) {
@@ -1052,36 +1381,58 @@ document.addEventListener("click", function (e) {
             let html = "";
 
             data.resenas.forEach(r => {
+
+                const puntuacion = parseInt(r.puntuacion || 0);
+
                 html += `
-                    <div class="admin-ticket mb-3">
+                    <div class="admin-ticket mb-3 p-3 border rounded" data-resena-card="${r.id}">
+                        
                         <div>
-                            <strong>${r.producto_titulo}</strong>
+                            <strong>${r.producto_titulo ?? "Producto sin título"}</strong>
+
                             <div class="text-warning">
-                                ${"★".repeat(r.puntuacion)}${"☆".repeat(5 - r.puntuacion)}
+                                ${"★".repeat(puntuacion)}${"☆".repeat(5 - puntuacion)}
                             </div>
-                            <p>${r.comentario}</p>
-                            <small>Estado: ${r.estado} · ${r.fecha}</small>
+
+                            <p class="mb-2">${r.comentario ?? ""}</p>
+
+                            <small class="d-block mb-2">
+                                Estado: 
+                                <span class="badge bg-secondary estado-resena-texto">
+                                    ${r.estado ?? "sin estado"}
+                                </span>
+                                · ${r.fecha ?? ""}
+                            </small>
                         </div>
 
                         <div class="mt-2 d-flex gap-2 flex-wrap">
-                            <button class="btn btn-sm btn-outline-success btn-cambiar-estado-resena"
+
+                            <button 
+                                type="button"
+                                class="btn btn-sm btn-outline-success btn-cambiar-estado-resena"
                                 data-resena-id="${r.id}"
                                 data-estado="visible">
                                 Visible
                             </button>
 
-                            <button class="btn btn-sm btn-outline-secondary btn-cambiar-estado-resena"
+                            <button 
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary btn-cambiar-estado-resena"
                                 data-resena-id="${r.id}"
                                 data-estado="oculta">
                                 Ocultar
                             </button>
 
-                            <button class="btn btn-sm btn-outline-danger btn-cambiar-estado-resena"
+                            <button 
+                                type="button"
+                                class="btn btn-sm btn-outline-danger btn-denunciar-resena"
                                 data-resena-id="${r.id}"
-                                data-estado="denunciada">
+                                data-usuario-id="${usuarioId}">
                                 Denunciar
                             </button>
+
                         </div>
+
                     </div>
                 `;
             });
@@ -1089,10 +1440,23 @@ document.addEventListener("click", function (e) {
             contenedor.innerHTML = html;
 
             new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
+        })
+        .catch(error => {
+            console.error("Error cargando reseñas del usuario:", error);
+
+            contenedor.innerHTML = `
+                <div class="alert alert-danger">
+                    ${error.message}
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
         });
 });
-//FUNCION PARA CAMBIAR EL ESTADO DE LA RESEÑA VISIBLE, OCULTO, DENUNCIAR.
-
+/* 
+   RESEÑAS - CAMBIAR ESTADO
+*/
+// FUNCIÓN PARA CAMBIAR EL ESTADO DE UNA RESEÑA: visible u oculta.
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest(".btn-cambiar-estado-resena");
@@ -1103,15 +1467,125 @@ document.addEventListener("click", function (e) {
     formData.append("resena_id", btn.dataset.resenaId);
     formData.append("estado", btn.dataset.estado);
 
-    fetch(BASE_URL + "public/ajax_admin_estado_reseña.php", {
+    fetch(PUBLIC_URL + "ajax_admin_estado_resena.php", {
         method: "POST",
         body: formData
     })
-        .then(res => res.json())
+        .then(async res => {
+
+            const texto = await res.text();
+
+            let data;
+
+            try {
+                data = JSON.parse(texto);
+            } catch (error) {
+                console.error("Respuesta no JSON al cambiar estado:");
+                console.error(texto);
+                throw new Error("El servidor no ha devuelto JSON válido.");
+            }
+
+            if (!data.ok) {
+                throw new Error(data.error || "No se ha podido cambiar el estado de la reseña.");
+            }
+
+            return data;
+        })
         .then(data => {
-            alert(data.mensaje || data.error);
+
+            alert(data.mensaje || "Estado de reseña actualizado.");
+
+            const tarjeta = btn.closest("[data-resena-card]");
+            const estadoTexto = tarjeta?.querySelector(".estado-resena-texto");
+
+            if (estadoTexto) {
+                estadoTexto.textContent = btn.dataset.estado;
+            }
+
+            if (tarjeta) {
+                tarjeta.classList.remove("border-success", "border-warning", "border-danger");
+
+                if (btn.dataset.estado === "visible") {
+                    tarjeta.classList.add("border-success");
+                }
+
+                if (btn.dataset.estado === "oculta") {
+                    tarjeta.classList.add("border-warning");
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Error al cambiar estado de reseña:", error);
+            alert(error.message);
         });
 });
+// FUNCIÓN PARA DENUNCIAR UNA RESEÑA Y BLOQUEAR AL USUARIO PARA FUTURAS RESEÑAS.
+document.addEventListener("click", function (e) {
+
+    const btn = e.target.closest(".btn-denunciar-resena");
+
+    if (!btn) return;
+
+    const confirmar = confirm(
+        "¿Seguro que quieres denunciar esta reseña y bloquear al usuario para futuras reseñas?"
+    );
+
+    if (!confirmar) return;
+
+    const formData = new FormData();
+    formData.append("resena_id", btn.dataset.resenaId);
+    formData.append("usuario_id", btn.dataset.usuarioId);
+
+    fetch(PUBLIC_URL + "ajax_denunciar_resena.php", {
+        method: "POST",
+        body: formData
+    })
+        .then(async res => {
+
+            const texto = await res.text();
+
+            let data;
+
+            try {
+                data = JSON.parse(texto);
+            } catch (error) {
+                console.error("Respuesta no JSON al denunciar reseña:");
+                console.error(texto);
+                throw new Error("El servidor no ha devuelto JSON válido.");
+            }
+
+            if (!data.ok) {
+                throw new Error(data.error || "No se ha podido denunciar la reseña.");
+            }
+
+            return data;
+        })
+        .then(data => {
+
+            alert(data.mensaje || "Reseña denunciada correctamente.");
+
+            const tarjeta = btn.closest("[data-resena-card]");
+            const estadoTexto = tarjeta?.querySelector(".estado-resena-texto");
+
+            if (estadoTexto) {
+                estadoTexto.textContent = "denunciada";
+            }
+
+            if (tarjeta) {
+                tarjeta.classList.remove("border-success", "border-warning");
+                tarjeta.classList.add("border-danger");
+            }
+        })
+        .catch(error => {
+            console.error("Error al denunciar reseña:", error);
+            alert(error.message);
+        });
+});
+/* 
+   USUARIOS - BLOQUEAR / DESBLOQUEAR
+   
+   Cambia el estado activo del usuario desde el panel admin.
+*/
 // BLOQUEAR / DESBLOQUEAR USUARIO
 document.addEventListener("click", function (e) {
 
@@ -1138,7 +1612,7 @@ document.addEventListener("click", function (e) {
     formData.append("usuario_id", usuarioId);
     formData.append("activo", nuevoEstado);
 
-    fetch(BASE_URL + "public/ajax_admin_estado_usuario.php", {
+    fetch(PUBLIC_URL + "ajax_admin_estado_usuario.php", {
         method: "POST",
         body: formData
     })
@@ -1155,6 +1629,12 @@ document.addEventListener("click", function (e) {
             alert("Se ha producido un error al procesar la solicitud.");
         });
 });
+/* 
+   PRODUCTOS - GUARDAR Y MOSTRAR SUBIDA DE ARCHIVO
+
+   Guarda el producto y, si se guarda correctamente, muestra el bloque
+   para asociar un PDF/ZIP al recurso.
+*/
 // GUARDAR PRODUCTO Y MOSTRAR OPCIÓN DE SUBIR ARCHIVO
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -1167,7 +1647,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData(formProducto);
 
-        fetch(BASE_URL + "public/admin_guardar_producto.php", {
+        fetch(PUBLIC_URL + "admin_guardar_producto.php", {
             method: "POST",
             body: formData
         })
@@ -1239,6 +1719,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+/*    PRODUCTOS - SUBIR ARCHIVO PDF/ZIP
+
+   Sube el archivo del recurso y lo asocia al producto guardado.
+*/
 /// SUBIR ARCHIVO PDF/ZIP Y ASOCIARLO AL PRODUCTO
 document.addEventListener("submit", function (e) {
 
@@ -1260,7 +1744,7 @@ document.addEventListener("submit", function (e) {
         `;
     }
 
-    fetch(BASE_URL + "public/admin_ajax_subir_recurso.php", {
+    fetch(PUBLIC_URL + "admin_ajax_subir_recurso.php", {
         method: "POST",
         body: formData
     })
@@ -1306,6 +1790,12 @@ document.addEventListener("submit", function (e) {
         });
 });
 
+/* 
+   PRODUCTOS - ELIMINAR PRODUCTO Y ARCHIVO ASOCIADO
+
+   Elimina un producto y pregunta si también debe eliminarse su archivo
+   de Cloudflare R2 cuando existe archivo_s3_key.
+*/
 // ELIMINAR PRODUCTO Y PREGUNTAR SI ELIMINAR SU ARCHIVO EN CLOUDFLARE R2
 document.addEventListener("click", function (e) {
 
@@ -1347,7 +1837,7 @@ document.addEventListener("click", function (e) {
     formData.append("producto_id", productoId);
     formData.append("eliminar_archivo", eliminarArchivo);
 
-    fetch(BASE_URL + "public/admin_eliminar_producto.php", {
+    fetch(PUBLIC_URL + "admin_eliminar_producto.php", {
         method: "POST",
         body: formData
     })
@@ -1381,6 +1871,11 @@ document.addEventListener("click", function (e) {
             alert("Se ha producido un error al eliminar el recurso.");
         });
 });
+/* 
+   PRODUCTOS - EXPORTAR REPORTE PDF
+   
+   Genera la URL del reporte usando los filtros activos.
+*/
 //FILTROS DE LA TABLA PARA EL REPORTE.
 document.addEventListener("click", function (e) {
 
@@ -1394,13 +1889,18 @@ document.addEventListener("click", function (e) {
     const categoria = document.getElementById("adminFiltroCategoria")?.value || "";
     const estado = document.getElementById("adminFiltroEstado")?.value || "";
 
-    const url = BASE_URL + "public/admin_exportar_reporte_pdf.php" +
+    const url = PUBLIC_URL + "admin_exportar_reporte_pdf.php" +
         "?busqueda=" + encodeURIComponent(busqueda) +
         "&categoria=" + encodeURIComponent(categoria) +
         "&estado=" + encodeURIComponent(estado);
 
     window.open(url, "_blank");
 });
+/*
+   RECURSOS GRATUITOS - GUARDAR
+   
+   Guarda o actualiza un recurso gratuito por AJAX.
+*/
 // GUARDAR RECURSO GRATUITO
 document.addEventListener("submit", function (e) {
 
@@ -1413,7 +1913,7 @@ document.addEventListener("submit", function (e) {
     const formData = new FormData(form);
     const respuesta = document.getElementById("respuestaRecursoGratuito");
 
-    fetch(BASE_URL + "public/ajax_guardar_recurso_gratuito.php", {
+    fetch(PUBLIC_URL + "ajax_guardar_recurso_gratuito.php", {
         method: "POST",
         body: formData
     })
@@ -1438,6 +1938,11 @@ document.addEventListener("submit", function (e) {
 });
 
 
+/* 
+   RECURSOS GRATUITOS - EDITAR
+
+   Rellena el formulario de recurso gratuito con los datos del botón.
+*/
 // EDITAR RECURSO GRATUITO
 document.addEventListener("click", function (e) {
 
@@ -1484,7 +1989,11 @@ document.addEventListener("click", function (e) {
 });
 
 
-// LIMPIAR FORMULARIO GRATUITO
+/* 
+   RECURSOS GRATUITOS - LIMPIAR FORMULARIO
+ 
+   Limpia el formulario para crear un nuevo recurso gratuito.
+*/
 document.addEventListener("click", function (e) {
 
     const btn = e.target.closest("#btnLimpiarGratuito");
@@ -1507,6 +2016,11 @@ document.addEventListener("click", function (e) {
 });
 
 
+/* 
+   RECURSOS GRATUITOS - CREAR CATEGORÍA
+ 
+   Crea una categoría de recursos gratuitos y la añade al select.
+*/
 // CREAR CATEGORÍA GRATUITA
 document.addEventListener("submit", function (e) {
 
@@ -1519,7 +2033,7 @@ document.addEventListener("submit", function (e) {
     const formData = new FormData(form);
     const respuesta = document.getElementById("respuestaCategoriaGratuita");
 
-    fetch(BASE_URL + "public/admin_crear_categoria_gratuita.php", {
+    fetch(PUBLIC_URL + "admin_crear_categoria_gratuita.php", {
         method: "POST",
         body: formData
     })
@@ -1550,6 +2064,11 @@ document.addEventListener("submit", function (e) {
 });
 
 
+/* 
+   RECURSOS GRATUITOS - ELIMINAR
+  
+   Elimina un recurso gratuito por AJAX.
+*/
 /// ELIMINAR RECURSO GRATUITO
 document.addEventListener("click", function (e) {
 
@@ -1567,7 +2086,7 @@ document.addEventListener("click", function (e) {
     const formData = new FormData();
     formData.append("id", id);
 
-    fetch(BASE_URL + "public/admin_eliminar_recurso_gratuito.php", {
+    fetch(PUBLIC_URL + "admin_eliminar_recurso_gratuito.php", {
         method: "POST",
         body: formData
     })
@@ -1596,6 +2115,12 @@ document.addEventListener("click", function (e) {
         });
 });
 
+/* 
+   FORMULARIOS - MOSTRAR SOLO FORMULARIO EN EDICIÓN
+ 
+   Alterna entre formulario de producto y formulario de gratuito
+   según el tipo de recurso que se esté editando.
+*/
 // MOSTRAR SOLO EL FORMULARIO QUE SE ESTÁ EDITANDO
 function mostrarSoloFormularioEdicion(tipo) {
     const colProducto = document.getElementById("colFormularioProducto");
@@ -1637,6 +2162,11 @@ function mostrarSoloFormularioEdicion(tipo) {
 }
 
 
+/* 
+   FORMULARIOS - MOSTRAR AMBOS PARA CREAR
+   
+   Restaura los dos formularios para crear recursos nuevos.
+*/
 // MOSTRAR LOS DOS FORMULARIOS PARA CREAR RECURSOS NUEVOS
 function mostrarFormulariosParaCrear() {
     const colProducto = document.getElementById("colFormularioProducto");
@@ -1739,9 +2269,22 @@ function mostrarFormulariosParaCrear() {
         imgGratuito.src = "";
     }
 }
-// FILTROS CONTENIDO GRATUITO
+/* 
 
+   
+   Filtra filas y tarjetas de recursos gratuitos por texto, categoría
+   y estado sin recargar la página.
+*/
 
+/**
+ * Normaliza texto para búsquedas internas:
+ * - Convierte a minúsculas.
+ * - Elimina acentos.
+ * - Elimina espacios sobrantes.
+ *
+ * @param {*} texto Texto a normalizar.
+ * @returns {string} Texto normalizado.
+ */
 function normalizarTexto(texto) {
     return String(texto || "")
         .toLowerCase()
@@ -1750,6 +2293,9 @@ function normalizarTexto(texto) {
         .trim();
 }
 
+/**
+ * Aplica los filtros de recursos gratuitos a filas de tabla y tarjetas móviles.
+ */
 function filtrarRecursosGratuitos() {
 
     const inputBusqueda = document.getElementById("adminBuscarGratuito");
@@ -1844,7 +2390,13 @@ document.addEventListener("change", function (e) {
     }
 });
 
-// APLICAR PERIODO EN CONTENIDO GRATUITO
+/* =========================================================
+   RECURSOS GRATUITOS - APLICAR PERIODO
+   =========================================================
+   Redirige a admin.php con el periodo elegido para consultar
+   recursos gratuitos por fecha.
+*/
+// APLICAR PERIODO EN CONTENIDO GRATUITO PARA SABER CUALES SON LOS MAS VISITADOS
 
 
 document.addEventListener("click", function (e) {
@@ -1857,7 +2409,7 @@ document.addEventListener("click", function (e) {
     const desde = document.getElementById("gratisDesde")?.value || "";
     const hasta = document.getElementById("gratisHasta")?.value || "";
 
-    let url = BASE_URL + "public/admin.php?section=gratuitos&periodo_gratis=" + encodeURIComponent(periodo);
+    let url = PUBLIC_URL + "admin.php?section=gratuitos&periodo_gratis=" + encodeURIComponent(periodo);
 
     if (periodo === "personalizado") {
         url += "&gratis_desde=" + encodeURIComponent(desde);
@@ -1867,6 +2419,11 @@ document.addEventListener("click", function (e) {
     window.location.href = url;
 });
 
+/* =========================================================
+   SIDEBAR ADMIN RESPONSIVE
+   =========================================================
+   Abre/cierra el menú lateral en dispositivos móviles.
+*/
 // SIDEBAR ADMIN RESPONSIVE
 
 
@@ -1908,6 +2465,9 @@ document.addEventListener("click", function (e) {
     }
 });
 
+/**
+ * Cierra el sidebar móvil y limpia las clases visuales del overlay y botón.
+ */
 function cerrarSidebarAdminMovil() {
     const btn = document.getElementById("btnAdminMobileMenu");
     const sidebar = document.getElementById("adminMobileSidebar");
@@ -1943,6 +2503,11 @@ function cerrarSidebarAdminMovil() {
     body.classList.toggle("is-open");
 });*/
 
+/* =========================================================
+   USUARIOS - VER FAVORITOS
+   =========================================================
+   Muestra en un modal los productos favoritos de un usuario.
+*/
 // VER FAVORITOS DE UN USUARIO EN PANEL ADMIN
 
 
@@ -1966,7 +2531,7 @@ document.addEventListener("click", function (e) {
         contenedor.innerHTML = "Cargando favoritos...";
     }
 
-    fetch(`${BASE_URL}public/admin_ajax_favoritos_usuario.php?usuario_id=${encodeURIComponent(usuarioId)}`)
+    fetch(`${PUBLIC_URL}admin_ajax_favoritos_usuario.php?usuario_id=${encodeURIComponent(usuarioId)}`)
         .then(res => res.text())
         .then(texto => {
 
@@ -2064,7 +2629,7 @@ document.addEventListener("click", function (e) {
                         </td>
 
                         <td data-label="Acciones" class="text-end">
-                            <a href= "${BASE_URL}public/detalle.php?id=${f.id}"
+                            <a href= "${PUBLIC_URL}detalle.php?id=${f.id}"
                                target="_blank"
                                class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-eye"></i>
@@ -2095,4 +2660,99 @@ document.addEventListener("click", function (e) {
 
             new bootstrap.Modal(document.getElementById("modalAdminUsuarios")).show();
         });
+});
+/* =========================================================
+   DASHBOARD - FILTRO DE VENTAS DEL PERIODO
+   =========================================================
+   Calcula fechas automáticamente según el periodo seleccionado
+   y redirige a admin.php con periodo_ventas, ventas_desde y ventas_hasta.
+*/
+// FILTRO DASHBOARD - VENTAS DEL PERIODO
+document.addEventListener("DOMContentLoaded", function () {
+
+    const selectPeriodo = document.getElementById("adminFiltroPeriodoVentas");
+    const inputDesde = document.getElementById("ventasDesde");
+    const inputHasta = document.getElementById("ventasHasta");
+    const btnAplicar = document.getElementById("btnAplicarPeriodoVentas");
+
+    if (!selectPeriodo || !inputDesde || !inputHasta || !btnAplicar) return;
+
+    function formatearFecha(fecha) {
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, "0");
+        const day = String(fecha.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function actualizarFechasSegunPeriodo() {
+        const periodo = selectPeriodo.value;
+        const hoy = new Date();
+
+        if (periodo === "mes_actual") {
+            inputDesde.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+            inputHasta.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0));
+            return;
+        }
+
+        if (periodo === "mes_anterior") {
+            inputDesde.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1));
+            inputHasta.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth(), 0));
+            return;
+        }
+
+        if (periodo === "hoy") {
+            inputDesde.value = formatearFecha(hoy);
+            inputHasta.value = formatearFecha(hoy);
+            return;
+        }
+
+        if (periodo === "ultimos_7") {
+            inputDesde.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 6));
+            inputHasta.value = formatearFecha(hoy);
+            return;
+        }
+
+        if (periodo === "ultimos_30") {
+            inputDesde.value = formatearFecha(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 29));
+            inputHasta.value = formatearFecha(hoy);
+            return;
+        }
+
+        if (periodo === "anio_actual") {
+            inputDesde.value = `${hoy.getFullYear()}-01-01`;
+            inputHasta.value = `${hoy.getFullYear()}-12-31`;
+            return;
+        }
+
+        if (periodo === "todos") {
+            inputDesde.value = "";
+            inputHasta.value = "";
+            return;
+        }
+
+        // En personalizado no tocamos las fechas.
+    }
+
+    selectPeriodo.addEventListener("change", actualizarFechasSegunPeriodo);
+
+    btnAplicar.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const periodo = selectPeriodo.value;
+        const desde = inputDesde.value;
+        const hasta = inputHasta.value;
+
+        let url = PUBLIC_URL + "admin.php?periodo_ventas=" + encodeURIComponent(periodo);
+
+        if (desde) {
+            url += "&ventas_desde=" + encodeURIComponent(desde);
+        }
+
+        if (hasta) {
+            url += "&ventas_hasta=" + encodeURIComponent(hasta);
+        }
+
+        window.location.href = url;
+    });
 });

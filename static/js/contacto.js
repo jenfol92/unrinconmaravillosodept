@@ -83,17 +83,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         /**
          * Enviamos los datos al endpoint PHP mediante fetch().
-         *
-         * IMPORTANTE:
-         * Se usa BASE_URL con backticks.
-         *
-         * Esto evita depender de rutas fijas como:
-         * /UNRINCONDEPT/public/...
-         *
          * Así funcionará tanto en local como en producción,
          * siempre que BASE_URL esté correctamente definida.
          */
-        fetch(`${BASE_URL}public/ajax_contacto_mensajes.php`, {
+        fetch(`${PUBLIC_URL}ajax_contacto_mensajes.php`, {
             method: "POST",
             body: formData
         })

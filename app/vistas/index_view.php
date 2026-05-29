@@ -89,12 +89,12 @@ require_once __DIR__ . '/../../templates/header.php';
                     <!-- Botones principales de navegación -->
                     <div class="home-actions">
 
-                        <a href="<?= BASE_URL ?>public/tienda.php" class="home-btn-primary">
+                        <a href="<?= PUBLIC_URL ?>tienda.php" class="home-btn-primary">
                             Explorar recursos
                             <i class="bi bi-arrow-right"></i>
                         </a>
 
-                        <a href="<?= BASE_URL ?>public/recursos_gratuitos.php" class="home-btn-link">
+                        <a href="<?= PUBLIC_URL ?>recursos_gratuitos.php" class="home-btn-link">
                             Ver material gratuito
                         </a>
 
@@ -217,7 +217,7 @@ require_once __DIR__ . '/../../templates/header.php';
                                 -->
                                 <article
                                     class="home-resource-card <?= $colorClase ?>"
-                                    onclick="window.location.href='/UNRINCONDEPT/public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
+                                    onclick="if (event.target.closest('button, a, .btn-carrito-accion, .btn-favorito')) return; window.location.href='<?= PUBLIC_URL ?>detalle.php?id=<?= (int)$recurso['id'] ?>'">
 
                                     <span class="home-card-badge">
                                         <?= htmlspecialchars($categoria) ?>
@@ -240,20 +240,29 @@ require_once __DIR__ . '/../../templates/header.php';
                                             <span class="home-card-price">
                                                 <?= $precio ?> €
                                             </span>
+                                            <div class="d-flex align-items-center gap-2">
 
-                                            <!--
+                                                <!--
                                                 Botón para añadir al carrito.
                                             -->
-                                            <button
-                                                type="button"
-                                                class="home-card-cart btn-agregar-carrito"
-                                                data-id="<?= (int)$recurso['id'] ?>"
-                                                title="Añadir al carrito"
-                                                onclick="event.stopPropagation(); gestionarSesion(<?= (int)$recurso['id'] ?>, 'add_carrito')">
-                                                <i class="bi bi-bag"></i>
-                                            </button>
-                                        </div>
+                                                <button
+                                                    type="button"
+                                                    class="home-card-cart btn-card-icon btn-carrito btn-carrito-accion"
+                                                    data-id="<?= (int)$recurso['id'] ?>"
+                                                    data-accion="add_carrito"
+                                                    title="Añadir al carrito">
+                                                    <i class="bi bi-bag"></i>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="home-card-fav btn-card-icon btn-favorito"
+                                                    data-id="<?= (int)$recurso['id'] ?>"
+                                                    title="Añadir o quitar favorito">
+                                                    <i class="bi bi-heart-fill"></i>
+                                                </button>
+                                            </div>
 
+                                        </div>
                                     </div>
 
                                 </article>
@@ -302,7 +311,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                             <article
                                 class="home-resource-card <?= $colorClase ?>"
-                                onclick="window.location.href='<?= BASE_URL ?>public/detalle.php?id=<?= (int)$recurso['id'] ?>'">
+                                onclick="if (event.target.closest('button, a, .btn-carrito-accion, .btn-favorito')) return; window.location.href='<?= PUBLIC_URL ?>detalle.php?id=<?= (int)$recurso['id'] ?>'">
 
                                 <span class="home-card-badge">
                                     <?= htmlspecialchars($categoria) ?>
@@ -325,15 +334,25 @@ require_once __DIR__ . '/../../templates/header.php';
                                         <span class="home-card-price">
                                             <?= $precio ?> €
                                         </span>
+                                        <div class="d-flex align-items-center gap-2">
 
-                                        <button
-                                            type="button"
-                                            class="home-card-cart"
-                                            title="Añadir al carrito"
-                                            onclick="event.stopPropagation(); gestionarSesion(<?= (int)$recurso['id'] ?>, 'add_carrito')">
-                                            <i class="bi bi-bag"></i>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="home-card-cart btn-card-icon btn-carrito btn-carrito-accion"
+                                                data-id="<?= (int)$recurso['id'] ?>"
+                                                data-accion="add_carrito"
+                                                title="Añadir al carrito">
+                                                <i class="bi bi-bag"></i>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="home-card-fav btn-card-icon btn-favorito"
+                                                data-id="<?= (int)$recurso['id'] ?>"
+                                                title="Añadir o quitar favorito">
+                                                <i class="bi bi-heart-fill"></i>
+                                            </button>
 
+                                        </div>
                                     </div>
 
                                 </div>
@@ -491,7 +510,7 @@ require_once __DIR__ . '/../../templates/header.php';
 
                                         <div class="home-free-img-wrap">
                                             <img
-                                                src="<?=BASE_URL?>static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
+                                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($gratis['imagen']) ?>"
                                                 alt="<?= htmlspecialchars($gratis['titulo']) ?>">
                                         </div>
 
@@ -602,7 +621,7 @@ require_once __DIR__ . '/../../templates/header.php';
                 <!-- Enlace a la página completa de recursos gratuitos -->
                 <div class="text-center mt-4">
 
-                    <a href="<?= BASE_URL ?>public/recursos_gratuitos.php" class="home-btn-outline">
+                    <a href="<?= PUBLIC_URL ?>recursos_gratuitos.php" class="home-btn-outline">
                         Ver todos los recursos gratuitos
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -616,9 +635,10 @@ require_once __DIR__ . '/../../templates/header.php';
     </section>
 
 </main>
-<script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
-<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
+
+<script src="<?= BASE_URL ?>static/js/tienda.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/favoritos.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/carrito.js?v=20260529-5"></script>
+
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

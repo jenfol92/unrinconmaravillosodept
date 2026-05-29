@@ -330,7 +330,7 @@ class ResenaController
      * asociadas a un producto concreto.
      *
      * Archivo público que llama a este método:
-     * - public/ajax_reseñas_producto.php
+     * ajax_reseñas_producto.php
      *
      * Entrada esperada por GET:
      * - producto_id

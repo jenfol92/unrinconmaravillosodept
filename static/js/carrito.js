@@ -43,6 +43,12 @@ document.addEventListener("click", function (e) {
      * Si el clic no corresponde a una acción del carrito, salimos.
      */
     if (!btn) return;
+/**
+ * Evita que el clic del botón active otros eventos superiores,
+ * como el onclick de la tarjeta completa del producto relacionado.
+ */
+    e.preventDefault();
+e.stopPropagation();
 
     /**
      * Obtenemos el ID del producto desde data-id.
@@ -72,7 +78,7 @@ document.addEventListener("click", function (e) {
      * Leemos primero como texto para poder ver errores PHP si el servidor
      * devuelve HTML en lugar de JSON.
      */
-    fetch(`${BASE_URL}public/ajax_operaciones_carrito.php`, {
+    fetch(`${PUBLIC_URL}ajax_operaciones_carrito.php`, {
         method: "POST",
         body: formData
     })
@@ -139,32 +145,27 @@ document.addEventListener("click", function (e) {
          *
          * Esto conserva la funcionalidad que tenías en gestionarSesion().
          */
-        if (data.favorito_eliminado === true) {
+    if (data.favorito_eliminado === true) {
 
-            /**
-             * Quitamos el estado activo del botón favorito en la tienda.
-             */
-            const botonFavorito = document.querySelector(
-                `.btn-favorito[data-id="${data.producto_id}"]`
-            );
+    if (typeof window.quitarFavoritoVisual === "function") {
+        window.quitarFavoritoVisual(data.producto_id);
+    } else {
+        document
+            .querySelectorAll(`.btn-favorito[data-id="${data.producto_id}"]`)
+            .forEach(boton => {
+                boton.classList.remove("activo");
+            });
+    }
+}
 
-            if (botonFavorito) {
-                botonFavorito.classList.remove("activo");
-            }
-
-            /**
-             * Si estamos en el perfil/favoritos y existe una fila
-             * con ese producto, la eliminamos visualmente.
-             */
-            const filaFavorito = document.getElementById(
-                "favorito-row-" + data.producto_id
-            );
-
-            if (filaFavorito) {
-                filaFavorito.remove();
-            }
-        }
-
+/**
+ * Para usuarios no logueados:
+ * si el producto estaba guardado como favorito temporal,
+ * lo quitamos también al añadirlo al carrito.
+ */
+if (accion === "add_carrito" && typeof window.quitarFavoritoVisual === "function") {
+    window.quitarFavoritoVisual(productoId);
+}
         /**
          * Si la acción es restar o eliminar, normalmente interesa recargar
          * la página del carrito para recalcular totales.

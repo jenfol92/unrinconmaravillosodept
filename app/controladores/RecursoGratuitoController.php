@@ -110,7 +110,6 @@ class RecursoGratuitoController
                 'total' => count($recursos)
             ], JSON_UNESCAPED_UNICODE);
             exit;
-
         } catch (Exception $e) {
 
             /*
@@ -129,38 +128,37 @@ class RecursoGratuitoController
         }
     }
     /**
- * Redirige a la URL externa de un recurso gratuito.
- * ---------------------------------------------------------
- * Se usa cuando el usuario pulsa en un recurso gratuito.
- *
- * Flujo:
- * 1. Recoge el ID por GET.
- * 2. Valida que el recurso exista.
- * 3. Incrementa el contador de clicks.
- * 4. Redirige a la URL de Drive.
- *
- * @return void
- */
-public function redirigirRecursoGratuito()
-{
-    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+     * Redirige a la URL externa de un recurso gratuito.
+     * ---------------------------------------------------------
+     * Se usa cuando el usuario pulsa en un recurso gratuito.
+     *
+     * Flujo:
+     * 1. Recoge el ID por GET.
+     * 2. Valida que el recurso exista.
+     * 3. Incrementa el contador de clicks.
+     * 4. Redirige a la URL de Drive.
+     *
+     * @return void
+     */
+    public function redirigirRecursoGratuito()
+    {
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-    if ($id <= 0) {
-        header('Location: ' . BASE_URL . 'public/recursos_gratuitos.php');
+        if ($id <= 0) {
+            header('Location: ' . PUBLIC_URL . 'recursos_gratuitos.php');
+            exit;
+        }
+
+        $recurso = $this->recursoGratuitoModel->obtenerRecursoPorId($id);
+
+        if (!$recurso) {
+            header('Location: ' . PUBLIC_URL . 'recursos_gratuitos.php');
+            exit;
+        }
+
+        $this->recursoGratuitoModel->incrementarClicks($id);
+
+        header('Location: ' . $recurso['url_drive']);
         exit;
     }
-
-    $recurso = $this->recursoGratuitoModel->obtenerRecursoPorId($id);
-
-    if (!$recurso) {
-        header('Location: ' . BASE_URL . 'public/recursos_gratuitos.php');
-        exit;
-    }
-
-    $this->recursoGratuitoModel->incrementarClicks($id);
-
-    header('Location: ' . $recurso['url_drive']);
-    exit;
-}
-
 }

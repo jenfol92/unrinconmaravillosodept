@@ -373,6 +373,7 @@ class RecursoGratuito
     // RECURSOS GRATUITOS - PANEL ADMINISTRADOR
 
 
+
     /**
      * Obtiene recursos gratuitos para el panel administrador.
      * ---------------------------------------------------------
@@ -396,8 +397,13 @@ class RecursoGratuito
     public function obtenerRecursosGratuitosAdmin($fechaInicio = null, $fechaFin = null)
     {
         /*
-            Si se recibe un rango de fechas, se calculan métricas
-            únicamente dentro de ese periodo.
+            Si se recibe un rango de fechas, calculamos las métricas
+            desde la tabla histórica recursos_gratuitos_metricas.
+
+            Importante:
+            - El filtro de fechas se aplica dentro del LEFT JOIN.
+            - Así se mantienen en pantalla los recursos con 0 métricas
+              durante el periodo seleccionado.
         */
         if ($fechaInicio && $fechaFin) {
             $sql = "SELECT 
@@ -424,8 +430,18 @@ class RecursoGratuito
                         ON m.recurso_id = rg.id
                         AND m.fecha BETWEEN ? AND ?
 
-                    GROUP BY rg.id
-                    ORDER BY rg.id DESC";
+                    GROUP BY 
+                        rg.id,
+                        rg.titulo,
+                        rg.imagen,
+                        rg.url_drive,
+                        rg.formato,
+                        rg.estado,
+                        rg.categoria_id,
+                        rg.fecha_creacion,
+                        cg.nombre
+
+                    ORDER BY clicks DESC, descargas DESC, rg.id DESC";
 
             $stmt = $this->conexion->prepare($sql);
 
@@ -446,6 +462,7 @@ class RecursoGratuito
 
         /*
             Si no se recibe periodo, se devuelven los totales acumulados.
+            Estos totales proceden directamente de recursos_gratuitos.
         */
         $sql = "SELECT 
                     rg.id,
@@ -462,7 +479,7 @@ class RecursoGratuito
                 FROM recursos_gratuitos rg
                 LEFT JOIN categorias_gratuitas cg 
                     ON cg.id = rg.categoria_id
-                ORDER BY rg.id DESC";
+                ORDER BY COALESCE(rg.clicks, 0) DESC, COALESCE(rg.descargas, 0) DESC, rg.id DESC";
 
         $stmt = $this->conexion->prepare($sql);
         $stmt->execute();

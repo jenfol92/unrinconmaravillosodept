@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
          * - Crear el ticket.
          * - Devolver una respuesta JSON.
          */
-        fetch(BASE_URL+"public/ajax_soporte_crear.php", {
+        fetch(PUBLIC_URL+"ajax_soporte_crear.php", {
             method: "POST",
             body: formData
         })
@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", function () {
          * Endpoint PHP que guarda la reseña.
          
          */
-        fetch(BASE_URL+"public/ajax_guardar_reseña.php", {
+        fetch(PUBLIC_URL+"ajax_guardar_reseña.php", {
             method: "POST",
             body: formData
         })
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
          * Endpoint PHP encargado de crear la sugerencia.
      
          */
-        fetch(BASE_URL+"public/ajax_sugerencia_crear.php", {
+        fetch(PUBLIC_URL+"ajax_sugerencia_crear.php", {
             method: "POST",
             body: formData
         })
@@ -370,7 +370,7 @@ window.enviarAlertaSeguridad = function () {
      * Enviamos la alerta de seguridad al servidor.
     
      */
-    fetch(`${BASE_URL}public/ajax_alerta_seguridad.php`, {
+    fetch(`${PUBLIC_URL}ajax_alerta_seguridad.php`, {
         method: "POST"
     })
         /*

@@ -19,7 +19,7 @@
 
     <section class="auth-right">
 
-        <a href="<?= BASE_URL ?>public/login.php" class="auth-back">
+        <a href="<?= PUBLIC_URL ?>login.php" class="auth-back">
             ← Volver al login
         </a>
 
@@ -48,11 +48,11 @@
                 </div>
 
                 <p class="auth-switch">
-                    <a href="<?= BASE_URL ?>public/login.php">Ir al inicio de sesión</a>
+                    <a href="<?= PUBLIC_URL ?>login.php">Ir al inicio de sesión</a>
                 </p>
             <?php else: ?>
 
-                <form action="<?= BASE_URL ?>public/restablecer-password.php" method="POST" novalidate>
+                <form action="<?= PUBLIC_URL ?>restablecer-password.php" method="POST" novalidate>
 
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token ?? '') ?>">
 

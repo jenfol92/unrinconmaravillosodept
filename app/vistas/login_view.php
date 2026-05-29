@@ -83,7 +83,7 @@
     <section class="auth-right">
 
         <!-- Enlace para volver a la página principal -->
-        <a href="<?= BASE_URL ?>public/index.php" class="auth-back">
+        <a href="<?= PUBLIC_URL ?>index.php" class="auth-back">
             ← Volver al inicio
         </a>
 
@@ -107,8 +107,8 @@
                  La pestaña activa es "Entrar".
              -->
             <div class="auth-tabs">
-                <a href="<?= BASE_URL ?>public/login.php" class="active">Entrar</a>
-                <a href="<?= BASE_URL ?>public/registro.php">Registrarse</a>
+                <a href="<?= PUBLIC_URL ?>login.php" class="active">Entrar</a>
+                <a href="<?= PUBLIC_URL ?>registro.php">Registrarse</a>
             </div>
 
             <!-- 
@@ -123,7 +123,7 @@
                  Desactiva la validación automática del navegador para
                  poder controlar los mensajes desde nuestro JavaScript.
         -->
-            <form id="formLogin" action="<?= BASE_URL ?>public/login.php" method="POST" novalidate>
+            <form id="formLogin" action="<?= PUBLIC_URL ?>login.php" method="POST" novalidate>
 
                 <!-- Campo email -->
                 <div class="auth-field">
@@ -148,7 +148,7 @@
                             Enlace reservado para recuperación de contraseña.
                           
                         -->
-                        <a href="<?= BASE_URL ?>public/recuperar-password.php">¿Olvidaste tu contraseña?</a>
+                        <a href="<?= PUBLIC_URL ?>recuperar-password.php">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <input
@@ -205,7 +205,7 @@
           -->
             <div class="auth-socials">
                 <a
-                    href="<?= BASE_URL ?>public/oauth-google.php"
+                    href="<?= PUBLIC_URL ?>oauth-google.php"
                     class="auth-social-btn">
                     Google
                 </a>

@@ -177,7 +177,7 @@ class GoogleDriveOAuthController
     private function protegerSoloAdmin()
     {
         if (!usuarioLogueado()) {
-            header('Location: ' . BASE_URL . 'public/login.php');
+            header('Location: ' . PUBLIC_URL . 'login.php');
             exit;
         }
 
@@ -233,7 +233,7 @@ class GoogleDriveOAuthController
         echo '</div>';
 
         echo '<p>Después de guardarlo, puedes desactivar o eliminar temporalmente estos endpoints OAuth si ya no los necesitas.</p>';
-        echo '<p><a href="' . BASE_URL . 'public/index.php">Volver al inicio</a></p>';
+        echo '<p><a href="' . PUBLIC_URL . 'index.php">Volver al inicio</a></p>';
 
         echo '</body>';
         echo '</html>';
@@ -258,7 +258,7 @@ class GoogleDriveOAuthController
         echo '<body>';
         echo '<h1>' . htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') . '</h1>';
         echo '<p>' . $mensaje . '</p>';
-        echo '<p><a href="' . BASE_URL . 'public/index.php">Volver</a></p>';
+        echo '<p><a href="' . PUBLIC_URL . 'index.php">Volver</a></p>';
         echo '</body>';
         echo '</html>';
         exit;

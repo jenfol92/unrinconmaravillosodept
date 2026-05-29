@@ -60,7 +60,7 @@ class PagoController
             no está autenticado. En ese caso, lo mandamos al login.
         */
         if (empty($_SESSION['usuario_id'])) {
-            header('Location: /UNRINCONDEPT/public/login.php');
+            header('Location:' . PUBLIC_URL . 'login.php');
             exit;
         }
 
@@ -71,7 +71,7 @@ class PagoController
             una sesión de pago, así que redirigimos al carrito.
         */
         if (empty($_SESSION['carrito'])) {
-            header('Location: /UNRINCONDEPT/public/carrito.php');
+            header('Location:' . PUBLIC_URL . 'carrito.php');
             exit;
         }
 
@@ -122,7 +122,7 @@ class PagoController
                 devolvemos al usuario al carrito.
             */
             if (empty($ids)) {
-                header('Location:' . BASE_URL .'public/carrito.php');
+                header('Location:' . PUBLIC_URL . 'carrito.php');
                 exit;
             }
 
@@ -219,7 +219,7 @@ class PagoController
                 devolvemos al usuario al carrito.
             */
             if (empty($line_items) || empty($productosPedido)) {
-                header('Location:' . BASE_URL . 'public/carrito.php');
+                header('Location:' . PUBLIC_URL . 'carrito.php');
                 exit;
             }
 
@@ -272,8 +272,8 @@ class PagoController
                     'pedido_id' => $pedido_id,
                 ],
 
-                'success_url' => APP_URL . '/pago_exitoso.php?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => APP_URL . '/pago_cancelado.php?pedido_id=' . $pedido_id,
+                'success_url' => PUBLIC_URL . '/pago_exitoso.php?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => PUBLIC_URL . '/pago_cancelado.php?pedido_id=' . $pedido_id,
             ]);
 
             /*
@@ -289,7 +289,6 @@ class PagoController
             */
             header('Location: ' . $checkout_session->url);
             exit;
-
         } catch (Exception $e) {
             /*
                 Si ocurre cualquier error al crear la sesión de pago,
@@ -373,7 +372,6 @@ class PagoController
                 relacionada con la compra.
             */
             require_once __DIR__ . '/../vistas/pago_exitoso_view.php';
-
         } catch (Exception $e) {
             /*
                 Si ocurre un error al consultar Stripe o al actualizar

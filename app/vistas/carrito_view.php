@@ -82,7 +82,7 @@ require_once __DIR__ . "/../../templates/header.php";
                     Todavía no has añadido ningún recurso a tu carrito.
                 </p>
 
-                <a href="<?= BASE_URL ?>public/tienda.php" class="btn">
+                <a href="<?= PUBLIC_URL ?>tienda.php" class="btn">
                     Explorar recursos
                 </a>
 
@@ -111,7 +111,7 @@ require_once __DIR__ . "/../../templates/header.php";
                             <?= count($productos_carrito) === 1 ? 'producto seleccionado' : 'productos seleccionados' ?>
                         </h2>
 
-                        <a href="<?= BASE_URL ?>public/tienda.php">
+                        <a href="<?= PUBLIC_URL?>tienda.php">
                             Seguir comprando
                         </a>
 
@@ -316,7 +316,7 @@ require_once __DIR__ . "/../../templates/header.php";
                                  El cálculo del pedido y la sesión de pago se realizan
                                  en servidor, no en esta vista.
                             -->
-                            <form action="/UNRINCONDEPT/public/crear_checkout_stripe.php" method="POST">
+                            <form action="<?= PUBLIC_URL ?>crear_checkout_stripe.php" method="POST">
                                 <button
                                     type="submit"
                                     class="carrito-checkout-btn">
@@ -346,7 +346,7 @@ require_once __DIR__ . "/../../templates/header.php";
 
                     </div>
  <!-- Enlace para volver a la tienda -->
-                    <a href="<?= BASE_URL ?>public/tienda.php" class="carrito-continue">
+                    <a href="<?= PUBLIC_URL?>tienda.php" class="carrito-continue">
                         <i class="bi bi-arrow-left"></i>
                         Seguir explorando recursos
                     </a>
@@ -368,9 +368,7 @@ require_once __DIR__ . "/../../templates/header.php";
      - Eliminar producto.
      - Actualizar el carrito tras cada acción.
  -->
-<script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
+
 <script src="<?= BASE_URL ?>static/js/carrito.js"></script>
 
 <?php

@@ -85,7 +85,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
             <i class="bi bi-chevron-down admin-mobile-menu-chevron"></i>
         </button>
 
-        <a href="<?= BASE_URL ?>public/index.php"
+        <a href="<?= PUBLIC_URL ?>index.php"
             class="admin-mobile-home">
             <i class="bi bi-house"></i>
         </a>
@@ -152,11 +152,11 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
 
             </nav>
             <div>
-                <a href="<?= BASE_URL ?>public/index.php" class="admin-back">
+                <a href="<?= PUBLIC_URL ?>index.php" class="admin-back">
                     <i class="bi bi-house"></i>
                     Volver a la Web
                 </a>
-                <a href="<?= BASE_URL ?>public/logout.php" class="admin-back">
+                <a href="<?= PUBLIC_URL ?>logout.php" class="admin-back">
                     Cerrar sessión
                 </a>
             </div>
@@ -189,7 +189,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                     </div>
 
                     <div class="admin-actions">
-                        <a href="<?= BASE_URL ?>public/admin_exportar_reporte_pdf.php"
+                        <a href="<?= PUBLIC_URL ?>admin_exportar_reporte_pdf.php"
                             class="btn btn-outline-danger"
                             id="btnExportarReporte">
                             <i class="bi bi-filetype-pdf"></i>
@@ -210,11 +210,16 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
      El controlador calcula el rango real de fechas y devuelve
      $rangoVentas para mantener seleccionados los valores.
     -->
-                <form method="GET" action="<?= BASE_URL ?>public/admin.php" class="row g-2 align-items-end mb-4">
+                <form method="GET" action="<?= PUBLIC_URL ?>admin.php" class="row g-2 align-items-end mb-4" id="formFiltroVentasDashboard">
 
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-bold">Periodo de ventas</label>
-                        <select name="periodo_ventas" class="form-select" onchange="this.form.submit()">
+
+                        <select
+                            name="periodo_ventas"
+                            id="adminFiltroPeriodoVentas"
+                            class="form-select">
+
                             <option value="mes_actual" <?= ($rangoVentas['periodo'] ?? '') === 'mes_actual' ? 'selected' : '' ?>>
                                 Mes actual
                             </option>
@@ -242,27 +247,39 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                             <option value="personalizado" <?= ($rangoVentas['periodo'] ?? '') === 'personalizado' ? 'selected' : '' ?>>
                                 Personalizado
                             </option>
+
+                            <option value="todos" <?= ($rangoVentas['periodo'] ?? '') === 'todos' ? 'selected' : '' ?>>
+                                Todos
+                            </option>
+
                         </select>
                     </div>
 
                     <div class="col-6 col-md-2">
                         <label class="form-label">Desde</label>
-                        <input type="date"
-                            name="fecha_desde"
+                        <input
+                            type="date"
+                            name="ventas_desde"
+                            id="ventasDesde"
                             class="form-control"
                             value="<?= htmlspecialchars($rangoVentas['inicio'] ?? '') ?>">
                     </div>
 
                     <div class="col-6 col-md-2">
                         <label class="form-label">Hasta</label>
-                        <input type="date"
-                            name="fecha_hasta"
+                        <input
+                            type="date"
+                            name="ventas_hasta"
+                            id="ventasHasta"
                             class="form-control"
                             value="<?= htmlspecialchars($rangoVentas['fin'] ?? '') ?>">
                     </div>
 
                     <div class="col-12 col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button
+                            type="button"
+                            id="btnAplicarPeriodoVentas"
+                            class="btn btn-primary w-100">
                             Aplicar
                         </button>
                     </div>
@@ -270,11 +287,14 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                     <div class="col-12">
                         <small class="text-muted">
                             Periodo calculado:
-                            <?= htmlspecialchars($rangoVentas['inicio'] ?? '') ?>
-                            a
-                            <?= htmlspecialchars($rangoVentas['fin'] ?? '') ?>
+                            <?= htmlspecialchars($rangoVentas['inicio'] ?? 'Todos') ?>
+                            <?php if (!empty($rangoVentas['fin'])): ?>
+                                a
+                                <?= htmlspecialchars($rangoVentas['fin']) ?>
+                            <?php endif; ?>
                         </small>
                     </div>
+
                 </form>
 
                 <!-- TARJETAS ESTADÍSTICAS
@@ -334,48 +354,60 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                 <div class="row g-4">
 
                     <!-- 
-                TABLA: RECURSOS MÁS VENDIDOS
-     Muestra los productos con más ventas dentro del periodo seleccionado.
-     Si no existen ventas, se muestra un mensaje informativo.
-     -->
+RECURSOS MÁS VENDIDOS
+---------------------------------------------------------
+Escritorio/tablet: tabla.
+Móvil: tarjetas visuales.
+-->
+
                     <div class="col-12 col-xl-8">
 
-                        <div class="admin-card">
+                        <div class="admin-card admin-best-sellers">
 
-                            <div class="admin-card-header">
-                                <h3>Recursos más vendidos</h3>
-                                <p class="text-muted">
-                                    Según el periodo seleccionado.
-                                </p>
+                            <div class="admin-card-header admin-best-sellers-header">
+
+                                <div>
+                                    <h3>Recursos más vendidos</h3>
+                                    <p class="text-muted">
+                                        Según el periodo seleccionado.
+                                    </p>
+                                </div>
+
                                 <i class="bi bi-three-dots-vertical"></i>
+
                             </div>
 
-                            <div class="table-responsive">
+                            <?php if (empty($productos)): ?>
 
-                                <table class="table align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Recurso</th>
-                                            <th>Categoría</th>
-                                            <th>Unidades vendidas</th>
-                                            <th>Importe vendido</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
+                                <div class="admin-best-sellers-empty">
+                                    <i class="bi bi-bar-chart"></i>
+                                    <strong>No hay ventas en este periodo.</strong>
+                                    <span>Cuando haya ventas, aparecerán aquí los recursos más vendidos.</span>
+                                </div>
 
-                                    <tbody>
-                                        <?php if (empty($productos)): ?>
+                            <?php else: ?>
+
+                                <!-- TABLA: escritorio y tablet -->
+                                <div class="table-responsive admin-best-sellers-table d-none d-md-block">
+
+                                    <table class="table align-middle mb-0">
+                                        <thead>
                                             <tr>
-                                                <td colspan="5" class="text-center text-muted py-4">
-                                                    No hay ventas en este periodo.
-                                                </td>
+                                                <th>Recurso</th>
+                                                <th>Categoría</th>
+                                                <th>Unidades vendidas</th>
+                                                <th>Importe vendido</th>
+                                                <th>Estado</th>
                                             </tr>
-                                        <?php else: ?>
+                                        </thead>
+
+                                        <tbody>
                                             <?php foreach ($productos as $p): ?>
                                                 <tr>
                                                     <td>
                                                         <div class="admin-product-info">
-                                                            <img src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($p['imagen'] ?? 'default.png') ?>"
+                                                            <img
+                                                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($p['imagen'] ?? 'default.png') ?>"
                                                                 alt="<?= htmlspecialchars($p['titulo']) ?>">
 
                                                             <div>
@@ -410,15 +442,90 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <!-- TARJETAS: móvil -->
+                                <div class="admin-best-sellers-mobile d-md-none">
+
+                                    <?php foreach ($productos as $p): ?>
+
+                                        <article class="admin-best-seller-card">
+
+                                            <div class="admin-best-seller-card__main">
+
+                                                <div class="admin-best-seller-card__img">
+                                                    <img
+                                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($p['imagen'] ?? 'default.png') ?>"
+                                                        alt="<?= htmlspecialchars($p['titulo']) ?>">
+                                                </div>
+
+                                                <div class="admin-best-seller-card__content">
+
+                                                    <div class="admin-best-seller-card__top">
+
+                                                        <div class="admin-best-seller-card__text">
+
+                                                            <div class="admin-best-seller-category">
+                                                                <i class="bi bi-folder2-open"></i>
+                                                                <?= htmlspecialchars($p['categoria_nombre'] ?? 'Sin categoría') ?>
+                                                            </div>
+
+                                                            <h4>
+                                                                <?= htmlspecialchars($p['titulo']) ?>
+                                                            </h4>
+
+                                                            <span class="admin-best-seller-card__id">
+                                                                ID #<?= (int)$p['id'] ?>
+                                                            </span>
+
+                                                        </div>
+
+                                                        <?php if (($p['estado'] ?? '') === 'activo'): ?>
+                                                            <span class="admin-best-seller-status is-active">
+                                                                Activo
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="admin-best-seller-status is-inactive">
+                                                                Inactivo
+                                                            </span>
+                                                        <?php endif; ?>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="admin-best-seller-card__stats">
+
+                                                <div class="admin-best-seller-stat">
+                                                    <span>Unidades</span>
+                                                    <strong><?= (int)$p['unidades_vendidas'] ?></strong>
+                                                </div>
+
+                                                <div class="admin-best-seller-stat">
+                                                    <span>Importe</span>
+                                                    <strong>
+                                                        <?= number_format((float)$p['importe_vendido'], 2, ',', '.') ?> €
+                                                    </strong>
+                                                </div>
+
+                                            </div>
+
+                                        </article>
+
+                                    <?php endforeach; ?>
+
+                                </div>
+
+                            <?php endif; ?>
 
                         </div>
 
                     </div>
-
 
                     <!--     
     SECCIÓN: SUBIR / EDITAR RECURSO
@@ -496,7 +603,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
      - Vídeo opcional.
      
      El formulario envía datos a:
-     /public/admin_guardar_producto.php
+admin_guardar_producto.php
      -->
                     <div class="col-12 col-xl-6" id="colFormularioProducto">
 
@@ -508,7 +615,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                             </p>
 
                             <form id="formSubirRecurso"
-                                action="<?= BASE_URL ?>public/admin_guardar_producto.php"
+                                action="<?= PUBLIC_URL ?>admin_guardar_producto.php"
                                 method="POST"
                                 enctype="multipart/form-data">
 
@@ -728,7 +835,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                 </p>
 
                                 <form id="formAsociarArchivo"
-                                    action="<?= BASE_URL ?>public/admin_ajax_subir_recurso.php"
+                                    action="<?= PUBLIC_URL ?>admin_ajax_subir_recurso.php"
                                     method="POST"
                                     enctype="multipart/form-data">
 
@@ -1206,15 +1313,16 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                         <option value="todos" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'todos' ? 'selected' : '' ?>>
                                             Desde el inicio
                                         </option>
-
+                                        <option value="hoy" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'hoy' ? 'selected' : '' ?>>
+                                            Hoy
+                                        </option>
                                         <option value="ultimos_7" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'ultimos_7' ? 'selected' : '' ?>>
                                             Últimos 7 días
                                         </option>
 
-                                        <option value="ultimos_30" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'ultimos_30' ? 'selected' : '' ?>>
-                                            Últimos 30 días
+                                        <option value="mes_actual" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'mes_actual' ? 'selected' : '' ?>>
+                                            Mes actual
                                         </option>
-
                                         <option value="mes_anterior" <?= ($rangoMetricasGratuitas['periodo'] ?? '') === 'mes_anterior' ? 'selected' : '' ?>>
                                             Mes anterior
                                         </option>
@@ -1242,28 +1350,10 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                 </div>
 
                                 <div class="admin-filtro-item admin-filtro-button">
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-primary w-100"
-                                        id="btnFiltrarGratuitos">
-                                        Filtrar
-                                    </button>
-                                </div>
-
-                                <div class="admin-filtro-item admin-filtro-button">
                                     <button type="button"
                                         class="btn btn-primary w-100"
                                         id="btnAplicarPeriodoGratis">
                                         Aplicar periodo
-                                    </button>
-                                </div>
-
-                                <div class="admin-filtro-item admin-filtro-button">
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary w-100"
-                                        id="btnLimpiarFiltrosGratuitos">
-                                        Limpiar
                                     </button>
                                 </div>
 
@@ -1342,7 +1432,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                                 <?= (int)($r['clicks'] ?? 0) ?>
                                             </td>
 
-                                            
+
 
                                             <td>
                                                 <?php if (($r['estado'] ?? '') === 'activo'): ?>
@@ -1426,7 +1516,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
                                             <div class="admin-free-card-mobile__image">
                                                 <img src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($r['imagen'] ?? 'default.png') ?>"
                                                     alt="<?= htmlspecialchars($r['titulo'] ?? 'Recurso gratuito') ?>"
-                                                    onerror="this.onerror=null;this.src='/UNRINCONDEPT/static/images/img/default.png';">
+                                                    onerror="this.onerror=null;this.src='<?= BASE_URL ?>static/images/img/default.png';">
                                             </div>
 
                                             <div class="admin-free-card-mobile__info">
@@ -2453,7 +2543,7 @@ require_once __DIR__ . '/../../templates/header.php'; ?>
 </div>
 
 <!-- 
- MODAL USUARIO: DESCARGAS Y RESEÑAS 
+ MODALES USUARIO: DESCARGAS Y RESEÑAS 
 -->
 <div class="modal fade" id="modalUsuarioDetalle" tabindex="-1" aria-hidden="true">
 
@@ -2600,9 +2690,7 @@ SCRIPT PRINCIPAL DEL PANEL ADMIN
      - Gestión de recursos gratuitos.
      - Modales y acciones dinámicas.
      -->
-<script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
+
 <script src="<?= BASE_URL ?>static/js/admin.js"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

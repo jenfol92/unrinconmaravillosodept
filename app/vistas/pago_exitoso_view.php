@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: pago_exitoso_view.php
  * ---------------------------------------------------------
@@ -75,7 +76,7 @@
              Redirige al perfil del usuario, donde podrá acceder
              a los recursos adquiridos tras el pago.
       -->
-        <a href="<?= BASE_URL ?>public/perfil.php" class="btn btn-primary">
+        <a href="<?= PUBLIC_URL ?>perfil.php" class="btn btn-primary">
             Ir a mis descargas
         </a>
 

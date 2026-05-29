@@ -115,7 +115,7 @@ class SeguridadController
             echo json_encode([
                 'ok' => true,
                 'mensaje' => 'Se ha registrado la IP como sospechosa y se han cerrado las sesiones activas.',
-                'redirect' => BASE_URL . 'public/recuperar-password.php?seguridad=1'
+                'redirect' => PUBLIC_URL . 'recuperar-password.php?seguridad=1'
             ]);
             exit;
         } catch (Exception $e) {

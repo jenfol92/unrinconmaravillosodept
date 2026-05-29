@@ -510,18 +510,13 @@ public function crearCategoriaProductoAjax()
         ]);
         exit;
 
-    } catch (Exception $e) {
-        /**
-         * Respuesta en caso de error.
-         * -------------------------------------------------
-         * En producción conviene no mostrar directamente
-         * $e->getMessage() para no exponer detalles internos.
-         */
-        echo json_encode([
-            'ok' => false,
-            'error' => 'Error creando la categoría.'
-        ]);
-        exit;
-    }
+} catch (Throwable $e) {
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Error creando la categoría.',
+        'debug' => $e->getMessage()
+    ]);
+    exit;
+}
 }
 }

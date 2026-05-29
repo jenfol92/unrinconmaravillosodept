@@ -82,14 +82,14 @@
 
                     <!-- Enlace a la tienda -->
                     <li>
-                        <a href="<?= BASE_URL ?>public/tienda.php">
+                        <a href="<?= PUBLIC_URL ?>tienda.php">
                             Tienda
                         </a>
                     </li>
 
                     <!-- Enlace a material gratuito -->
                     <li>
-                        <a href="<?= BASE_URL ?>public/tienda.php?precio=gratis">
+                        <a href="<?= PUBLIC_URL ?>tienda.php?precio=gratis">
                             Material gratuito
                         </a>
                     </li>
@@ -113,19 +113,19 @@
                 <ul class="footer-list">
 
                     <li>
-                        <a href="<?= BASE_URL ?>public/politica-privacidad.php">
+                        <a href="<?= PUBLIC_URL ?>politica-privacidad.php">
                             Política de privacidad
                         </a>
                     </li>
 
                     <li>
-                        <a href="<?= BASE_URL ?>public/politica-cookies.php">
+                        <a href="<?= PUBLIC_URL ?>politica-cookies.php">
                             Política de cookies
                         </a>
                     </li>
 
                     <li>
-                        <a href="<?= BASE_URL ?>public/terminos-compra.php">
+                        <a href="<?= PUBLIC_URL ?>terminos-compra.php">
                             Términos de compra
                         </a>
                     </li>

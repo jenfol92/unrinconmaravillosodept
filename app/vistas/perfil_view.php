@@ -215,10 +215,15 @@
                     <div class="panel-content">
 
 
-                        <!-- SECCIÓN MIS RECURSOS ADQUIRIDOS 
-                        
-                             Muestra los productos comprados por el usuario.
-                             Desde aquí puede descargar, ver detalle o reseñar.-->
+                        <!-- 
+SECCIÓN MIS RECURSOS ADQUIRIDOS
+---------------------------------------------------------
+Muestra los productos comprados por el usuario.
+
+Responsive:
+- Escritorio/tablet: tabla limpia.
+- Móvil: tarjetas visuales tipo app.
+-->
 
                         <section
                             id="section-descargas"
@@ -233,20 +238,16 @@
 
                             <?php if (empty($productosComprados)): ?>
 
-                                <!-- Sin productos comprados -->
                                 <div class="panel-empty">
                                     Todavía no has comprado ningún recurso.
                                 </div>
 
                             <?php else: ?>
 
-                                <!-- 
-                                   TABLA RESPONSIVE DE RECURSOS COMPRADOS
-                                     Muestra fecha de compra, recurso, precio, número
-                                     de descargas usadas y acciones disponibles.-->
-                                <div class="table-responsive panel-mobile-cards">
+                                <!-- TABLA ESCRITORIO / TABLET -->
+                                <div class="table-responsive descargas-desktop d-none d-md-block">
 
-                                    <table class="table align-middle panel-table">
+                                    <table class="table align-middle panel-table descargas-table">
 
                                         <thead>
                                             <tr>
@@ -260,101 +261,95 @@
 
                                         <tbody>
 
-                                            <?php if (empty($productosComprados)): ?>
+                                            <?php foreach ($productosComprados as $producto): ?>
 
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-muted py-4">
-                                                        Todavía no has adquirido ningún recurso.
+
+                                                    <td>
+                                                        <?= !empty($producto['fecha_compra'])
+                                                            ? date('d/m/Y', strtotime($producto['fecha_compra']))
+                                                            : 'Sin fecha' ?>
                                                     </td>
-                                                </tr>
 
-                                            <?php else: ?>
+                                                    <td>
+                                                        <div class="descargas-table-resource">
 
-                                                <?php foreach ($productosComprados as $producto): ?>
+                                                            <?php if (!empty($producto['imagen'])): ?>
 
-                                                    <tr>
-                                                        <!-- Fecha de compra del recurso -->
-                                                        <td data-label="Fecha">
-                                                            <?= !empty($producto['fecha_compra'])
-                                                                ? date('d/m/Y', strtotime($producto['fecha_compra']))
-                                                                : 'Sin fecha' ?>
-                                                        </td>
-                                                        <!-- Información del recurso comprado -->
-                                                        <td data-label="Recurso">
-                                                            <div class="d-flex align-items-center gap-3 panel-recurso-info">
-                                                                <?php if (!empty($producto['imagen'])): ?>
-                                                                    <img
-                                                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
-                                                                        alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
-                                                                        class="panel-product-img">
-                                                                <?php else: ?>
+                                                                <img
+                                                                    src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                                                    alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
+                                                                    onerror="this.onerror=null;this.src='<?= BASE_URL ?>static/images/img/default.png';">
 
-                                                                    <div class="panel-product-img panel-product-img-empty">
-                                                                        <i class="bi bi-file-earmark-text"></i>
-                                                                    </div>
+                                                            <?php else: ?>
 
-                                                                <?php endif; ?>
-
-                                                                <div>
-                                                                    <strong>
-                                                                        <?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>
-                                                                    </strong>
-
-                                                                    <div class="text-muted small">
-                                                                        Recurso adquirido #<?= (int)($producto['descarga_id'] ?? 0) ?>
-                                                                    </div>
+                                                                <div class="descargas-table-resource__empty">
+                                                                    <i class="bi bi-file-earmark-text"></i>
                                                                 </div>
 
+                                                            <?php endif; ?>
+
+                                                            <div>
+                                                                <strong>
+                                                                    <?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>
+                                                                </strong>
+
+                                                                <span>
+                                                                    Recurso adquirido #<?= (int)($producto['descarga_id'] ?? 0) ?>
+                                                                </span>
                                                             </div>
-                                                        </td>
-                                                        <!-- Precio del recurso comprado -->
-                                                        <td data-label="Precio">
-                                                            <strong>
-                                                                <?= number_format((float)($producto['precio'] ?? 0), 2) ?> €
-                                                            </strong>
-                                                        </td>
-                                                        <!-- Contador de descargas usadas frente al máximo permitido -->
-                                                        <td data-label="Descargas">
+
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <strong>
+                                                            <?= number_format((float)($producto['precio'] ?? 0), 2, ',', '.') ?> €
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        <span class="descargas-table-counter">
                                                             <?= (int)($producto['numero_descargas'] ?? 0) ?> /
                                                             <?= (int)($producto['max_descargas'] ?? 0) ?>
-                                                        </td>
-                                                        <!-- Acciones disponibles sobre el recurso -->
-                                                        <td data-label="Acciones" class="text-end">
+                                                        </span>
+                                                    </td>
 
-                                                            <div class="panel-acciones-recursos">
-                                                                <!-- Descarga mediante token seguro -->
-                                                                <a href="<?= BASE_URL ?>public/descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
-                                                                    class="btn btn-sm btn-success">
-                                                                    <i class="bi bi-download"></i>
-                                                                    Descargar
-                                                                </a>
-                                                                <!-- Acceso al detalle público del producto -->
-                                                                <a
-                                                                    href="<?= BASE_URL ?>public/detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
-                                                                    class="btn btn-sm btn-outline-primary"
-                                                                    title="Ver detalle">
-                                                                    <i class="bi bi-eye"></i>
-                                                                </a>
-                                                                <!-- Botón para abrir modal de reseña -->
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-outline-warning btn-abrir-resena"
-                                                                    data-producto-id="<?= (int)($producto['id'] ?? 0) ?>"
-                                                                    data-producto-titulo="<?= htmlspecialchars($producto['titulo'] ?? '', ENT_QUOTES) ?>"
-                                                                    title="Añadir o editar reseña">
-                                                                    <i class="bi bi-star"></i>
-                                                                    Reseña
-                                                                </button>
+                                                    <td class="text-end">
 
-                                                            </div>
+                                                        <div class="descargas-table-actions">
 
-                                                        </td>
+                                                            <a
+                                                                href="<?= PUBLIC_URL ?>descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
+                                                                class="btn btn-sm btn-success">
+                                                                <i class="bi bi-download"></i>
+                                                                Descargar
+                                                            </a>
 
-                                                    </tr>
+                                                            <a
+                                                                href="<?= PUBLIC_URL ?>detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                title="Ver detalle">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
 
-                                                <?php endforeach; ?>
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-outline-warning btn-abrir-resena"
+                                                                data-producto-id="<?= (int)($producto['id'] ?? 0) ?>"
+                                                                data-producto-titulo="<?= htmlspecialchars($producto['titulo'] ?? '', ENT_QUOTES) ?>"
+                                                                title="Añadir o editar reseña">
+                                                                <i class="bi bi-star"></i>
+                                                                Reseña
+                                                            </button>
 
-                                            <?php endif; ?>
+                                                        </div>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            <?php endforeach; ?>
 
                                         </tbody>
 
@@ -362,16 +357,151 @@
 
                                 </div>
 
+                                <!-- TARJETAS MÓVIL -->
+                                <div class="descargas-mobile d-md-none">
+
+                                    <?php foreach ($productosComprados as $producto): ?>
+
+                                        <?php
+                                        $fechaCompra = !empty($producto['fecha_compra'])
+                                            ? date('d/m/Y', strtotime($producto['fecha_compra']))
+                                            : 'Sin fecha';
+
+                                        $numeroDescargas = (int)($producto['numero_descargas'] ?? 0);
+                                        $maxDescargas = (int)($producto['max_descargas'] ?? 0);
+
+                                        $porcentajeDescargas = 0;
+
+                                        if ($maxDescargas > 0) {
+                                            $porcentajeDescargas = min(100, ($numeroDescargas / $maxDescargas) * 100);
+                                        }
+                                        ?>
+
+                                        <article class="descarga-card">
+
+                                            <div class="descarga-card__top">
+
+                                                <a
+                                                    href="<?= PUBLIC_URL ?>detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
+                                                    class="descarga-card__image">
+
+                                                    <?php if (!empty($producto['imagen'])): ?>
+
+                                                        <img
+                                                            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                                                            alt="<?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>"
+                                                            onerror="this.onerror=null;this.src='<?= BASE_URL ?>static/images/img/default.png';">
+
+                                                    <?php else: ?>
+
+                                                        <div class="descarga-card__image-empty">
+                                                            <i class="bi bi-file-earmark-text"></i>
+                                                        </div>
+
+                                                    <?php endif; ?>
+
+                                                </a>
+
+                                                <div class="descarga-card__info">
+
+                                                    <span class="descarga-card__tag">
+                                                        Recurso adquirido
+                                                    </span>
+
+                                                    <h3>
+                                                        <?= htmlspecialchars($producto['titulo'] ?? 'Recurso') ?>
+                                                    </h3>
+
+                                                    <div class="descarga-card__meta">
+
+                                                        <span>
+                                                            <i class="bi bi-calendar3"></i>
+                                                            <?= $fechaCompra ?>
+                                                        </span>
+
+                                                        <span>
+                                                            #<?= (int)($producto['descarga_id'] ?? 0) ?>
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="descarga-card__data">
+
+                                                <div class="descarga-card__price">
+                                                    <span>Precio</span>
+                                                    <strong>
+                                                        <?= number_format((float)($producto['precio'] ?? 0), 2, ',', '.') ?> €
+                                                    </strong>
+                                                </div>
+
+                                                <div class="descarga-card__downloads">
+
+                                                    <div class="descarga-card__downloads-top">
+                                                        <span>Descargas</span>
+                                                        <strong>
+                                                            <?= $numeroDescargas ?> / <?= $maxDescargas ?>
+                                                        </strong>
+                                                    </div>
+
+                                                    <div class="descarga-card__progress">
+                                                        <span style="width: <?= $porcentajeDescargas ?>%;"></span>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="descarga-card__actions">
+
+                                                <a
+                                                    href="<?= PUBLIC_URL ?>descargar.php?token=<?= urlencode($producto['token_descarga']) ?>"
+                                                    class="descarga-card__btn descarga-card__btn--download">
+                                                    <i class="bi bi-download"></i>
+                                                    Descargar
+                                                </a>
+
+                                                <a
+                                                    href="<?= PUBLIC_URL ?>detalle.php?id=<?= (int)($producto['id'] ?? 0) ?>"
+                                                    class="descarga-card__btn descarga-card__btn--view"
+                                                    title="Ver detalle">
+                                                    <i class="bi bi-eye"></i>
+                                                    Ver
+                                                </a>
+
+                                                <button
+                                                    type="button"
+                                                    class="descarga-card__btn descarga-card__btn--review btn-abrir-resena"
+                                                    data-producto-id="<?= (int)($producto['id'] ?? 0) ?>"
+                                                    data-producto-titulo="<?= htmlspecialchars($producto['titulo'] ?? '', ENT_QUOTES) ?>">
+                                                    <i class="bi bi-star"></i>
+                                                    Reseña
+                                                </button>
+
+                                            </div>
+
+                                        </article>
+
+                                    <?php endforeach; ?>
+
+                                </div>
+
                             <?php endif; ?>
 
                         </section>
 
+                        <!-- 
+SECCIÓN FAVORITOS
+---------------------------------------------------------
+Muestra los recursos guardados como favoritos por el usuario.
 
-
-                        <!-- SECCIÓN FAVORITOS 
-                         
-                             Muestra los recursos guardados como favoritos por
-                             el usuario.-->
+Responsive:
+- Escritorio/tablet: tabla.
+- Móvil: la tabla se transforma visualmente en tarjetas mediante SCSS.
+-->
 
                         <section
                             id="section-favoritos"
@@ -387,91 +517,165 @@
 
                             <?php if (empty($favoritos)): ?>
 
-                                <!-- Mensaje si no hay favoritos -->
                                 <div class="panel-empty">
                                     Todavía no tienes recursos favoritos.
                                 </div>
 
                             <?php else: ?>
 
-                                <!-- Tabla responsive para favoritos -->
-                                <div class="table-responsive">
+                                <div class="table-responsive perfil-favoritos-desktop d-none d-md-block">
 
                                     <table class="table align-middle panel-table">
-
                                         <thead>
                                             <tr>
                                                 <th>Recurso</th>
                                                 <th>Precio</th>
                                                 <th>Fecha favorito</th>
-                                                <th class="text-end">Acción</th>
+                                                <th class="text-end">Acciones</th>
                                             </tr>
                                         </thead>
 
                                         <tbody>
-
                                             <?php foreach ($favoritos as $fav): ?>
+                                                <tr
+                                                    id="favorito-row-<?= (int)$fav['id'] ?>"
+                                                    data-favorito-item-id="<?= (int)$fav['id'] ?>">
 
-                                                <tr id="favorito-row-<?= (int)$fav['id'] ?>">
-
-                                                    <!-- Imagen + título -->
                                                     <td>
                                                         <div class="d-flex align-items-center gap-3">
-
                                                             <img
-                                                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($fav['imagen']) ?>"
+                                                                src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($fav['imagen'] ?? 'default.png') ?>"
                                                                 alt="<?= htmlspecialchars($fav['titulo']) ?>"
                                                                 class="panel-product-img">
 
-                                                            <strong>
-                                                                <?= htmlspecialchars($fav['titulo']) ?>
-                                                            </strong>
-
+                                                            <div>
+                                                                <strong><?= htmlspecialchars($fav['titulo']) ?></strong>
+                                                                <div class="text-muted small">Recurso favorito</div>
+                                                            </div>
                                                         </div>
                                                     </td>
 
-                                                    <!-- Precio -->
                                                     <td>
                                                         <strong>
-                                                            <?= number_format((float)$fav['precio'], 2) ?> €
+                                                            <?= number_format((float)$fav['precio'], 2, ',', '.') ?> €
                                                         </strong>
                                                     </td>
 
-                                                    <!-- Fecha favorito -->
                                                     <td>
                                                         <?= date('d/m/Y', strtotime($fav['fecha'])) ?>
                                                     </td>
 
-                                                    <!-- Botones -->
                                                     <td class="text-end">
+                                                        <div class="d-flex justify-content-end gap-2">
+                                                            <a
+                                                                href="<?= PUBLIC_URL ?>detalle.php?id=<?= (int)$fav['id'] ?>"
+                                                                class="btn btn-sm btn-outline-primary">
+                                                                Ver
+                                                            </a>
 
-                                                        <!-- Ver detalle -->
-                                                        <a
-                                                            href="<?= BASE_URL ?>public/detalle.php?id=<?= $fav['id'] ?>"
-                                                            class="btn btn-primary btn-sm">
-                                                            Ver
-                                                        </a>
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-outline-success btn-carrito-accion"
+                                                                data-id="<?= (int)$fav['id'] ?>"
+                                                                data-accion="add_carrito">
+                                                                Carrito
+                                                            </button>
 
-                                                        <!-- 
-                                   Añade el producto al carrito, lo elimina de favoritos y lo quita visualmente de la tabla.
-                                                            -->
-                                                        <button
-                                                            type="button"
-                                                            class="btn btn-sm btn-success btn-carrito-accion"
-                                                            data-id="<?= (int)$fav['id'] ?>"
-                                                            data-accion="add_carrito">
-                                                            <i class="bi bi-cart-plus"></i>
-                                                        </button>
-
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-outline-danger btn-favorito activo"
+                                                                data-id="<?= (int)$fav['id'] ?>">
+                                                                <i class="bi bi-heart-fill"></i>
+                                                            </button>
+                                                        </div>
                                                     </td>
 
                                                 </tr>
-
                                             <?php endforeach; ?>
-
                                         </tbody>
-
                                     </table>
+
+                                </div>
+                                <div class="perfil-favoritos-mobile d-md-none">
+
+                                    <?php foreach ($favoritos as $fav): ?>
+
+                                        <article
+                                            id="favorito-card-<?= (int)$fav['id'] ?>"
+                                            class="perfil-favorito-card"
+                                            data-favorito-item-id="<?= (int)$fav['id'] ?>">
+
+                                            <div class="perfil-favorito-card__top">
+
+                                                <div class="perfil-favorito-card__img">
+                                                    <img
+                                                        src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($fav['imagen'] ?? 'default.png') ?>"
+                                                        alt="<?= htmlspecialchars($fav['titulo']) ?>">
+                                                </div>
+
+                                                <div class="perfil-favorito-card__info">
+
+                                                    <span class="perfil-favorito-card__tag">
+                                                        Recurso favorito
+                                                    </span>
+
+                                                    <h3>
+                                                        <?= htmlspecialchars($fav['titulo']) ?>
+                                                    </h3>
+
+                                                    <div class="perfil-favorito-card__meta">
+                                                        <span>
+                                                            <i class="bi bi-calendar3"></i>
+                                                            <?= date('d/m/Y', strtotime($fav['fecha'])) ?>
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="perfil-favorito-card__bottom">
+
+                                                <div class="perfil-favorito-card__price">
+                                                    <span>Precio</span>
+                                                    <strong>
+                                                        <?= number_format((float)$fav['precio'], 2, ',', '.') ?> €
+                                                    </strong>
+                                                </div>
+
+                                                <div class="perfil-favorito-card__actions">
+
+                                                    <a
+                                                        href="<?= PUBLIC_URL ?>detalle.php?id=<?= (int)$fav['id'] ?>"
+                                                        class="perfil-fav-action perfil-fav-action--view">
+                                                        <i class="bi bi-eye"></i>
+                                                        Ver
+                                                    </a>
+
+                                                    <button
+                                                        type="button"
+                                                        class="perfil-fav-action perfil-fav-action--cart btn-carrito-accion"
+                                                        data-id="<?= (int)$fav['id'] ?>"
+                                                        data-accion="add_carrito">
+                                                        <i class="bi bi-cart-plus"></i>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        class="perfil-fav-action perfil-fav-action--heart btn-favorito activo"
+                                                        data-id="<?= (int)$fav['id'] ?>"
+                                                        title="Quitar de favoritos"
+                                                        aria-label="Quitar de favoritos">
+                                                        <i class="bi bi-heart-fill"></i>
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                        </article>
+
+                                    <?php endforeach; ?>
 
                                 </div>
 
@@ -722,7 +926,7 @@
                                 </p>
 
                                 <a
-                                    href="<?= BASE_URL ?>public/logout.php"
+                                    href="<?= PUBLIC_URL ?>logout.php"
                                     class="btn btn-outline-danger">
                                     Cerrar sesión
                                 </a>
@@ -1179,12 +1383,11 @@ Modal reutilizable para mostrar información adicional.
      - finalización de tickets;
      - envío de sugerencias;
      - apertura y envío de reseñas.-->
-<script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
-<script src="<?= BASE_URL ?>static/js/usuario.js"></script>
-<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
-<script src="<?= BASE_URL ?>static/js/carrito.js"></script>
-<script src="<?= BASE_URL ?>static/js/soporte_usuario.js"></script>
+
+<script src="<?= BASE_URL ?>static/js/usuario.js?v=20260529-1"></script>
+<script src="<?= BASE_URL ?>static/js/tienda.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/favoritos.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/carrito.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/soporte_usuario.js?v=20260529-1"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

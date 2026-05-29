@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("ticket_id", ticketId);
         formData.append("mensaje", mensaje);
 
-        fetch(BASE_URL + "public/ajax_usuario_soporte_responder.php", {
+        fetch(PUBLIC_URL + "ajax_usuario_soporte_responder.php", {
             method: "POST",
             body: formData
         })
@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData();
         formData.append("ticket_id", ticketId);
 
-        fetch(BASE_URL + "public/ajax_soporte_finalizar.php", {
+        fetch(PUBLIC_URL + "ajax_soporte_finalizar.php", {
             method: "POST",
             body: formData
         })
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         contenedorMensajes.innerHTML = "Cargando mensajes...";
 
-        fetch(BASE_URL + "public/ajax_usuario_soporte_leer.php?ticket_id=" + encodeURIComponent(ticketId))
+        fetch(PUBLIC_URL + "ajax_usuario_soporte_leer.php?ticket_id=" + encodeURIComponent(ticketId))
             .then(res => res.text())
             .then(text => {
 

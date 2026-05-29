@@ -69,82 +69,82 @@
 -->
     <div class="row g-4 g-lg-5 producto-detalle-top">
 
-    <!-- IZQUIERDA -->
-<div class="col-lg-6">
+        <!-- IZQUIERDA -->
+        <div class="col-lg-6">
 
-    <!-- 
+            <!-- 
         IMAGEN / VÍDEO PRINCIPAL
         -----------------------------------------------------
         Por defecto se muestra la imagen.
         El vídeo existe en el HTML, pero empieza oculto con d-none.
     -->
-    <div class="card border-0 shadow rounded-4 p-3 mb-3 producto-img-box">
+            <div class="card border-0 shadow rounded-4 p-3 mb-3 producto-img-box">
 
-        <!-- IMAGEN PRINCIPAL -->
-        <img
-            id="productoImagenPrincipal"
-            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
-            class="img-fluid rounded-4 producto-media-img"
-            alt="<?= htmlspecialchars($producto['titulo']) ?>">
+                <!-- IMAGEN PRINCIPAL -->
+                <img
+                    id="productoImagenPrincipal"
+                    src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                    class="img-fluid rounded-4 producto-media-img"
+                    alt="<?= htmlspecialchars($producto['titulo']) ?>">
 
-        <!-- VIDEO PRINCIPAL -->
-        <?php if (!empty($producto['video_url'])): ?>
+                <!-- VIDEO PRINCIPAL -->
+                <?php if (!empty($producto['video_url'])): ?>
 
-            <video
-                id="productoVideoPrincipal"
-                class="rounded-4 producto-media-video d-none"
-                controls
-                preload="metadata"
-                playsinline>
+                    <video
+                        id="productoVideoPrincipal"
+                        class="rounded-4 producto-media-video d-none"
+                        controls
+                        preload="metadata"
+                        playsinline>
 
-                <source
-                    src="<?= BASE_URL ?>static/videos/<?= htmlspecialchars($producto['video_url']) ?>"
-                    type="video/mp4">
+                        <source
+                            src="<?= BASE_URL ?>static/videos/<?= htmlspecialchars($producto['video_url']) ?>"
+                            type="video/mp4">
 
-                Tu navegador no soporta la reproducción de vídeo.
-            </video>
+                        Tu navegador no soporta la reproducción de vídeo.
+                    </video>
 
-        <?php endif; ?>
+                <?php endif; ?>
 
-    </div>
+            </div>
 
-    <!-- 
+            <!-- 
         MINIATURAS
         -----------------------------------------------------
         La miniatura de imagen muestra la imagen.
         La miniatura de vídeo muestra el vídeo.
     -->
-    <div class="d-flex gap-3">
+            <div class="d-flex gap-3">
 
-        <!-- MINIATURA IMAGEN -->
-        
-        <img
-            id="thumbImagenProducto"
-            src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
-            class="rounded-3 border producto-thumb active"
-            width="90"
-            style="cursor:pointer;"
-            onclick="mostrarImagenProducto()">
+                <!-- MINIATURA IMAGEN -->
+
+                <img
+                    id="thumbImagenProducto"
+                    src="<?= BASE_URL ?>static/images/img/<?= htmlspecialchars($producto['imagen']) ?>"
+                    class="rounded-3 border producto-thumb active"
+                    width="90"
+                    style="cursor:pointer;"
+                    onclick="mostrarImagenProducto()">
 
 
-        <!-- MINIATURA VIDEO -->
-        <?php if (!empty($producto['video_url'])): ?>
+                <!-- MINIATURA VIDEO -->
+                <?php if (!empty($producto['video_url'])): ?>
 
-            <div
-                id="thumbVideoProducto"
-                class="border rounded-3 p-2 d-flex align-items-center justify-content-center producto-thumb-video"
-                style="width:90px; height:90px; cursor:pointer;"
-                onclick="mostrarVideoProducto()">
+                    <div
+                        id="thumbVideoProducto"
+                        class="border rounded-3 p-2 d-flex align-items-center justify-content-center producto-thumb-video"
+                        style="width:90px; height:90px; cursor:pointer;"
+                        onclick="mostrarVideoProducto()">
 
-                ▶ Video
+                        ▶ Video
+
+                    </div>
+
+                <?php endif; ?>
 
             </div>
 
-        <?php endif; ?>
-
-    </div>
-
-</div>
+        </div>
 
         <!-- DERECHA -->
         <div class="col-lg-6 producto-info-col">
@@ -173,12 +173,44 @@
                 <?= htmlspecialchars($producto['titulo']) ?>
             </h1>
 
-            <!-- ESTRELLAS
-              Actualmente se muestra una valoración fija.
-             Las reseñas reales se muestran más abajo.-->
-            <div class="text-warning fs-5 mb-3">
-                ★★★★☆
-                <span class="text-muted fs-6">(48 valoraciones)</span>
+            <!-- ESTRELLAS( Media calculada)
+         -->
+            <?php
+            $mediaResenas = (float)($media_resenas ?? 0);
+            $totalResenas = (int)($total_resenas ?? 0);
+            ?>
+
+            <div class="producto-detalle-rating fs-5 mb-3">
+
+                <span class="rating-stars text-warning">
+
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+
+                        <?php if ($mediaResenas >= $i): ?>
+
+                            <i class="bi bi-star-fill"></i>
+
+                        <?php elseif ($mediaResenas >= ($i - 0.5)): ?>
+
+                            <i class="bi bi-star-half"></i>
+
+                        <?php else: ?>
+
+                            <i class="bi bi-star"></i>
+
+                        <?php endif; ?>
+
+                    <?php endfor; ?>
+
+                </span>
+
+                <span class="text-muted fs-6 ms-2">
+                    <?= number_format($mediaResenas, 1) ?> / 5
+                    ·
+                    <?= $totalResenas ?>
+                    <?= $totalResenas === 1 ? 'valoración' : 'valoraciones' ?>
+                </span>
+
             </div>
 
             <!--Guardar id del producto para mostrar cookie de ultimos productos visitados-->
@@ -187,7 +219,7 @@
                     data-producto-id="<?= (int)$producto['id'] ?>">
                 </div>
             <?php endif; ?>
-            
+
             <!-- 
              CAJA DE PRECIO Y COMPRA
                  Muestra el precio del producto y los botones principales:
@@ -201,12 +233,12 @@
 
                 <button
                     type="button"
-                    class="btn btn-outline-success"
-                    onclick="gestionarSesion(<?= $producto['id'] ?>, 'add_carrito')">
+                    class="btn btn-outline-success btn-carrito-accion"
+                    data-id="<?= (int)$producto['id'] ?>"
+                    data-accion="add_carrito">
                     <i class="bi bi-cart"></i>
                     Añadir al carrito
                 </button>
-
                 <button
                     type="button"
                     class="btn btn-primary"
@@ -300,16 +332,37 @@
 
                         <?php foreach ($resenas as $r) : ?>
 
+                            <?php
+                            /*
+                 * Puntuación individual de esta reseña.
+                 * Se fuerza a número entero y se limita entre 0 y 5.
+                 */
+                            $puntuacion = (int)($r['puntuacion'] ?? 0);
+                            $puntuacion = max(0, min(5, $puntuacion));
+                            ?>
+
                             <div class="resena-card">
-                                <!-- Puntuación visual mediante estrellas -->
-                                <div class="stars mb-2">
-                                    <?= str_repeat("★", $r['puntuacion']) ?>
-                                    <?= str_repeat("☆", 5 - $r['puntuacion']) ?>
+
+                                <!-- Puntuación visual de la reseña -->
+                                <div class="resena-card__stars rating-stars text-warning mb-2">
+
+                                    <?php for ($i = 1; $i <= 5; $i++) : ?>
+
+                                        <?php if ($i <= $puntuacion) : ?>
+                                            <i class="bi bi-star-fill"></i>
+                                        <?php else : ?>
+                                            <i class="bi bi-star"></i>
+                                        <?php endif; ?>
+
+                                    <?php endfor; ?>
+
                                 </div>
+
                                 <!-- Comentario de la reseña -->
                                 <p class="comentario">
-                                    "<?= htmlspecialchars($r['comentario']) ?>"
+                                    “<?= nl2br(htmlspecialchars($r['comentario'] ?? '')) ?>”
                                 </p>
+
                                 <!-- Autor de la reseña -->
                                 <div class="autor">
                                     — <?= htmlspecialchars($r['usuario_nombre'] ?? 'Usuario') ?>
@@ -321,14 +374,15 @@
 
                     <?php else : ?>
 
-                        <p class="text-muted">Este producto aún no tiene reseñas.</p>
+                        <p class="text-muted mb-0">
+                            Este producto aún no tiene reseñas.
+                        </p>
 
                     <?php endif; ?>
 
                 </div>
 
             </section>
-
         </div>
 
         <!-- DERECHA: CONTENIDO + AYUDA -->
@@ -379,7 +433,7 @@
                 <?php if (!isset($_SESSION['usuario_id'])): ?>
 
                     <a
-                        href="<?= BASE_URL ?>public/contacto.php?producto_id=<?= $producto['id'] ?>"
+                        href="<?= PUBLIC_URL ?>contacto.php?producto_id=<?= $producto['id'] ?>"
                         class="btn btn-outline-primary">
                         <i class="bi bi-chat-dots"></i>
                         Contactar con la autora
@@ -471,7 +525,7 @@
         -->
                     <article
                         class="resource-card producto-relacionado-card <?= $colorCard ?>"
-                        onclick="window.location.href='<?= BASE_URL ?>public/detalle.php?id=<?= (int)$item['id'] ?>'"
+                        onclick="if (event.target.closest('button, a, .btn-carrito-accion, .btn-favorito')) return; window.location.href='<?= PUBLIC_URL ?>detalle.php?id=<?= (int)$item['id'] ?>'"
                         style="cursor: pointer;">
 
                         <!-- Categoría del producto -->
@@ -524,8 +578,9 @@
                         -->
                                     <button
                                         type="button"
-                                        class="btn-carrito"
-                                        onclick="event.stopPropagation(); gestionarSesion(<?= (int)$item['id'] ?>, 'add_carrito')"
+                                        class="btn-carrito btn-carrito-accion"
+                                        data-id="<?= (int)$item['id'] ?>"
+                                        data-accion="add_carrito"
                                         title="Añadir al carrito">
                                         <i class="bi bi-cart"></i>
                                     </button>
@@ -541,16 +596,17 @@
 
                                         <button
                                             type="button"
-                                            class="btn-carrito btn-favorito-relacionado"
-                                            onclick="event.stopPropagation(); toggleFavorito(<?= (int)$item['id'] ?>, this)"
-                                            title="Añadir a favoritos">
-                                            <i class="bi bi-heart"></i>
+                                            class="btn-card-icon btn-favorito"
+                                            data-id="<?= (int)$item['id'] ?>"
+                                            title="Añadir o quitar favorito">
+                                            <i class="bi bi-heart-fill"></i>
                                         </button>
+
 
                                     <?php else: ?>
 
                                         <a
-                                            href="<?= BASE_URL ?>public/login.php"
+                                            href="<?= PUBLIC_URL ?>login.php"
                                             class="btn-carrito btn-favorito-relacionado"
                                             onclick="event.stopPropagation();"
                                             title="Inicia sesión para guardar favoritos">
@@ -639,13 +695,12 @@
          detalle_producto.js:
          - gestiona el envío del formulario de consulta a la autora
         -->
-         <script>
-    const BASE_URL = "<?php echo BASE_URL; ?>";
-</script>
-    <script src="<?= BASE_URL ?>static/js/tienda.js"></script>
-    <script src="<?= BASE_URL ?>static/js/carrito.js"></script>
+
+    <script src="<?= BASE_URL ?>static/js/tienda.js?v=20260529-5"></script>
+    <script src="<?= BASE_URL ?>static/js/carrito.js?v=20260529-5"></script>
+     <script src="<?= BASE_URL ?>static/js/favoritos.js?v=20260529-5"></script>
     <script src="<?= BASE_URL ?>static/js/detalle_producto.js"></script>
     <script src="<?= BASE_URL ?>static/js/guardar_producto_visitado_recientemente.js"></script>
 </div>
 
-    <?php require_once __DIR__ . '/../../templates/footer.php'; ?>
+<?php require_once __DIR__ . '/../../templates/footer.php'; ?>

@@ -61,8 +61,8 @@ require_once __DIR__ . '/../../templates/header.php';
                                 Filtrar por
                             </h5>
 
-                           
-                 
+
+
 
                             <!-- CATEGORÍAS -->
                             <div class="filter-group">
@@ -148,7 +148,7 @@ require_once __DIR__ . '/../../templates/header.php';
         Se envía al formulario público de contacto.
     -->
                                     <a
-                                        href="<?= BASE_URL ?>public/contacto.php"
+                                        href="<?= PUBLIC_URL ?>contacto.php"
                                         class="btn tienda-sugerencia-btn">
                                         Sugerir un recurso
                                         <i class="bi bi-arrow-right"></i>
@@ -282,11 +282,10 @@ require_once __DIR__ . '/../../templates/header.php';
 
 </main>
 
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
 
-<script src="<?= BASE_URL ?>static/js/carrito.js"></script>
-<script src="<?= BASE_URL ?>static/js/tienda.js"></script>
+
+<script src="<?= BASE_URL ?>static/js/carrito.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/tienda.js?v=20260529-5"></script>
+<script src="<?= BASE_URL ?>static/js/favoritos.js?v=20260529-5"></script>
 
 <?php require_once __DIR__ . '/../../templates/footer.php'; ?>

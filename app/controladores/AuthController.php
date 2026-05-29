@@ -88,11 +88,11 @@ class AuthController
 
     Debe hacerse aquí, justo cuando el login ha sido correcto.
 */
-           $resultadoAcceso = $usuarioModel->registrarAccesoUsuario($usuario['id']);
+            $resultadoAcceso = $usuarioModel->registrarAccesoUsuario($usuario['id']);
 
-if (!$resultadoAcceso) {
-    die("No se ha podido registrar el acceso");
-}
+            if (!$resultadoAcceso) {
+                die("No se ha podido registrar el acceso");
+            }
             /*
     Redirigimos al inicio tras iniciar sesión correctamente.
 */
@@ -301,7 +301,7 @@ if (!$resultadoAcceso) {
                 /*
                 Enlace que recibirá el usuario.
             */
-                $enlace = rtrim(BASE_URL, '/') . '/public/restablecer-password.php?token=' . urlencode($token);
+                $enlace = rtrim(PUBLIC_URL, '/') . 'restablecer-password.php?token=' . urlencode($token);
 
                 /*
                 Envío real mediante SMTP.

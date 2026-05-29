@@ -66,12 +66,12 @@ $rolUsuario = $_SESSION['rol'] ?? null;
  * Si el rol es 1 o 2, mandamos al panel de administración.
  * Si no, mandamos al perfil de usuario normal.
  *
- * Usamos BASE_URL para evitar rutas absolutas fijas como:
+ * Usamos BASE_URL o PUBLIC_URL para evitar rutas absolutas fijas como:
  * /UNRINCONDEPT/public/admin.php
  */
 $urlPanelUsuario = ($rolUsuario == 1 || $rolUsuario == 2)
-  ? BASE_URL . 'public/admin.php'
-  : BASE_URL . 'public/perfil.php';
+  ? PUBLIC_URL . 'admin.php'
+  : PUBLIC_URL . 'perfil.php';
 
 
 /**
@@ -121,7 +121,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
        -----------------------------------------------------
        Aquí se carga el CSS compilado de la aplicación.
   ====================================================== -->
-  <link rel="stylesheet" href="<?= BASE_URL ?>static/css/style.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>static/css/style.css?v=20260529-5">
 
 
   <!-- =====================================================
@@ -162,7 +162,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
              La imagen también usa BASE_URL para evitar problemas
              de rutas relativas.
         ====================================================== -->
-        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= BASE_URL ?>public/index.php">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= PUBLIC_URL  ?>index.php">
 
           <img src="<?= BASE_URL ?>static/images/logo/logo.jpeg" class="mi-logo">
 
@@ -179,7 +179,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
              Este icono aparece solo en pantallas pequeñas
              gracias a la clase d-lg-none.
         ====================================================== -->
-        <a href="<?= BASE_URL ?>public/carrito.php"
+        <a href="<?= PUBLIC_URL ?>carrito.php"
           class="mi-icono mobile-cart-header position-relative d-lg-none ms-auto me-3">
 
           <i class="bi bi-bag"></i>
@@ -229,7 +229,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
             <li class="nav-item">
 
               <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'activo' : '' ?>"
-                href="<?= BASE_URL ?>public/index.php">
+                href="<?= PUBLIC_URL  ?>index.php">
                 Inicio
               </a>
 
@@ -242,7 +242,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
             <li class="nav-item">
 
               <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'recursos_gratuitos.php' ? 'activo' : '' ?>"
-                href="<?= BASE_URL ?>public/recursos_gratuitos.php">
+                href="<?= PUBLIC_URL  ?>recursos_gratuitos.php">
                 Recursos Gratis
               </a>
 
@@ -255,7 +255,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
             <li class="nav-item">
 
               <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'tienda.php' ? 'activo' : '' ?>"
-                href="<?= BASE_URL ?>public/tienda.php">
+                href="<?= PUBLIC_URL  ?>tienda.php">
                 Tienda
               </a>
 
@@ -268,7 +268,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
             <li class="nav-item">
 
               <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'contacto.php' ? 'activo' : '' ?>"
-                href="<?= BASE_URL ?>public/contacto.php">
+                href="<?= PUBLIC_URL  ?>contacto.php">
                 Contacto
               </a>
 
@@ -282,7 +282,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
             ====================================================== -->
             <li class="nav-item d-lg-none">
 
-              <a class="nav-link" href="<?= BASE_URL ?>public/carrito.php">
+              <a class="nav-link" href="<?= PUBLIC_URL  ?>carrito.php">
                 <i class="bi bi-bag me-2"></i>
                 Carrito
               </a>
@@ -310,7 +310,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
 
               <?php else: ?>
 
-                <a class="nav-link" href="<?= BASE_URL ?>public/login.php">
+                <a class="nav-link" href="<?= PUBLIC_URL  ?>login.php">
                   <i class="bi bi-box-arrow-in-right me-2"></i>
                   Acceder
                 </a>
@@ -335,7 +335,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
           <!-- =====================================================
                CARRITO EN ESCRITORIO
           ====================================================== -->
-          <a href="<?= BASE_URL ?>public/carrito.php" class="mi-icono position-relative">
+          <a href="<?= PUBLIC_URL ?>carrito.php" class="mi-icono position-relative">
 
             <i class="bi bi-bag"></i>
 
@@ -369,7 +369,7 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
 
           <?php else: ?>
 
-            <a href="<?= BASE_URL ?>public/login.php" class="mi-btn-acceder">
+            <a href="<?= PUBLIC_URL  ?>login.php" class="mi-btn-acceder">
               Acceder
             </a>
 
@@ -380,5 +380,10 @@ $contadorCarrito = array_sum($_SESSION['carrito']);
       </div>
 
     </nav>
-
+    <!--variables globales disponibles para todos los archivos .js-->
+    <script>
+      window.BASE_URL = "<?= BASE_URL ?>";
+      window.PUBLIC_URL = "<?= PUBLIC_URL ?>";
+       window.USUARIO_LOGUEADO = <?= usuarioLogueado() ? 'true' : 'false' ?>;
+    </script>
   </header>
